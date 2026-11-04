@@ -1,92 +1,216 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark h-full">
+<html lang="fr" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Loup-Garou — Déduction Sociale Solo{% endblock %}</title>
-  
-  <!-- Tailwind CSS via CDN officiel -->
+  <title>{% block title %}Le Loup-Garou de Thiercelieux — Plateau de jeu{% endblock %}</title>
+
+  <!-- Typographies médiévales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            night: {
-              950: '#090414',
-              900: '#110722',
-              850: '#170a2f',
-              800: '#1f0d3e',
-              700: '#2d1458',
-              600: '#431d80',
+            parchment: {
+              DEFAULT: '#ecd9b0',
+              light: '#f6e9cd',
+              dark: '#d3b884',
+              edge: '#b99a63',
             },
-            wolf: {
-              blood: '#e11d48',
-              gold: '#fbbf24',
-              magic: '#a855f7',
-              potion: '#10b981',
-            }
+            ink: {
+              DEFAULT: '#2b1a0e',
+              soft: '#5d442a',
+            },
+            gold: {
+              DEFAULT: '#b98a3c',
+              light: '#e3c07c',
+              dark: '#7d5a22',
+            },
+            blood: {
+              DEFAULT: '#6d1b1b',
+              light: '#8f2b25',
+            },
+            wood: {
+              950: '#0f0803',
+              900: '#1b1007',
+              800: '#2a190c',
+              700: '#3a2412',
+              600: '#4b3019',
+            },
+            forest: {
+              DEFAULT: '#2f3f27',
+              light: '#42553a',
+            },
           },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'glow': 'glow 2s ease-in-out infinite alternate',
+          fontFamily: {
+            display: ['Cinzel', 'Georgia', 'serif'],
+            body: ['"EB Garamond"', 'Georgia', 'serif'],
+            gothic: ['"UnifrakturMaguntia"', 'Georgia', 'serif'],
           },
-          keyframes: {
-            glow: {
-              '0%': { boxShadow: '0 0 10px rgba(168, 85, 247, 0.2)' },
-              '100%': { boxShadow: '0 0 25px rgba(168, 85, 247, 0.5)' },
-            }
-          }
-        }
-      }
-    }
+        },
+      },
+    };
   </script>
 
   <style>
-    /* Barre de défilement stylisée */
+    :root {
+      --parchment: #ecd9b0;
+      --parchment-light: #f6e9cd;
+      --parchment-edge: #b99a63;
+      --ink: #2b1a0e;
+      --ink-soft: #5d442a;
+      --gold: #b98a3c;
+      --gold-light: #e3c07c;
+      --gold-dark: #7d5a22;
+      --blood: #6d1b1b;
+      --wood-950: #0f0803;
+      --wood-900: #1b1007;
+      --wood-800: #2a190c;
+    }
+
+    html {
+      color-scheme: dark;
+    }
+
+    body {
+      color: #eee2c6;
+      background-color: #120a04;
+      background-image:
+        radial-gradient(ellipse at 50% -5%, rgba(201, 152, 80, 0.18), transparent 55%),
+        radial-gradient(ellipse at 50% 115%, rgba(0, 0, 0, 0.55), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.30) 0 3px, rgba(255, 255, 255, 0.015) 3px 4px, transparent 4px 74px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 9px),
+        linear-gradient(180deg, #1e1309 0%, #150c05 45%, #0a0502 100%);
+      background-attachment: fixed;
+    }
+
+    /* ---------- Panneaux de parchemin ---------- */
+    .parchment {
+      position: relative;
+      color: var(--ink);
+      background-color: var(--parchment);
+      background-image:
+        radial-gradient(ellipse at 18% 8%, rgba(255, 252, 240, 0.55), transparent 45%),
+        radial-gradient(ellipse at 85% 95%, rgba(120, 80, 30, 0.28), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(84, 54, 20, 0.045) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgba(84, 54, 20, 0.035) 0 1px, transparent 1px 5px);
+      border: 1px solid var(--parchment-edge);
+      border-radius: 4px;
+      box-shadow:
+        inset 0 0 55px rgba(96, 62, 24, 0.35),
+        inset 0 0 0 1px rgba(255, 250, 235, 0.25),
+        0 18px 40px rgba(0, 0, 0, 0.50);
+    }
+
+    .parchment::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px solid rgba(94, 63, 27, 0.30);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    /* ---------- Panneaux de bois ---------- */
+    .wood-panel {
+      color: #f1e2c4;
+      background-color: var(--wood-800);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(200, 148, 74, 0.16), transparent 70%),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 9px, rgba(255, 255, 255, 0.02) 9px 10px),
+        linear-gradient(180deg, #35200e, #221307);
+      border: 1px solid rgba(185, 138, 60, 0.45);
+      border-radius: 4px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 220, 160, 0.10),
+        inset 0 -12px 24px rgba(0, 0, 0, 0.45),
+        0 16px 34px rgba(0, 0, 0, 0.50);
+    }
+
+    /* ---------- Ornements ---------- */
+    .gold-rule {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(185, 138, 60, 0.75), transparent);
+    }
+
+    .wax-seal {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 9999px;
+      color: #f6e3bd;
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+      background: radial-gradient(circle at 35% 28%, #a84034 0%, #7b1f1d 45%, #511112 100%);
+      border: 1px solid #3d0b0c;
+      box-shadow:
+        inset 0 2px 3px rgba(255, 255, 255, 0.22),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.45),
+        0 4px 10px rgba(0, 0, 0, 0.50);
+    }
+
+    .wax-seal-sm {
+      width: 42px;
+      height: 42px;
+      font-size: 7.5px;
+      letter-spacing: 0.12em;
+    }
+
+    .wax-count {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      border-radius: 9999px;
+      color: #f6e3bd;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 11px;
+      font-weight: 700;
+      background: radial-gradient(circle at 35% 28%, #a84034 0%, #7b1f1d 45%, #511112 100%);
+      border: 1px solid #3d0b0c;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.20), 0 2px 5px rgba(0, 0, 0, 0.35);
+    }
+
+    /* ---------- Barres de défilement ---------- */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(15, 7, 30, 0.7);
+      background: rgba(15, 8, 3, 0.7);
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(168, 85, 247, 0.35);
+      background: rgba(185, 138, 60, 0.35);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(168, 85, 247, 0.65);
-    }
-    
-    /* Effet de brume nocturne en fond */
-    .bg-night-gradient {
-      background: radial-gradient(circle at 50% 10%, #2b1154 0%, #130728 50%, #090314 100%);
+      background: rgba(185, 138, 60, 0.65);
     }
 
-    /* Effet glassmorphism */
-    .glass-panel {
-      background: rgba(23, 10, 47, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(168, 85, 247, 0.22);
-    }
-    .glass-card {
-      background: rgba(31, 13, 62, 0.65);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(168, 85, 247, 0.2);
+    ::selection {
+      background: rgba(185, 138, 60, 0.45);
+      color: #1b1007;
     }
   </style>
 
   {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-night-gradient text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-purple-600 selection:text-white">
+<body class="min-h-screen flex flex-col font-body antialiased">
 
-  <!-- Contenu Principal -->
   {% block content %}{% endblock %}
 
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
-
