@@ -259,16 +259,6 @@
     white-space: nowrap;
   }
 
-  .seat-persona {
-    overflow: hidden;
-    color: #6f5434;
-    font-size: clamp(9px, 1.75cqw, 11.5px);
-    font-style: italic;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .seat-role {
     margin-top: 2px;
     color: #7a5a33;
@@ -678,7 +668,6 @@
     }
 
     .seat-name,
-    .seat-persona,
     .seat-role {
       white-space: nowrap;
       overflow: hidden;
@@ -1360,8 +1349,8 @@
   <main class="relative z-10 flex-1 w-full max-w-[1480px] mx-auto px-3 sm:px-6 py-6 lg:py-8">
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-7 items-start">
 
-      <!-- ---------------------- Colonne gauche : composition ---------------------- -->
-      <aside class="order-2 xl:order-1 xl:col-span-3 space-y-5">
+      <!-- ---------------------- Colonne basse gauche : composition ---------------------- -->
+      <aside class="order-3 xl:order-3 xl:col-span-6 space-y-5">
 
         <section class="parchment p-4 sm:p-5">
           <div class="flex items-center gap-2">
@@ -1423,8 +1412,8 @@
 
       </aside>
 
-      <!-- --------------------- Plateau + place du village --------------------- -->
-      <section class="order-1 xl:order-2 xl:col-span-6 space-y-5">
+      <!-- --------------------- Plateau + interfaces (gauche) --------------------- -->
+      <section class="order-1 xl:order-1 xl:col-span-8 space-y-5">
         <div class="board-frame">
           <div class="board-surface">
 
@@ -1455,7 +1444,6 @@
 
                     <div class="seat-text">
                       <p class="seat-name">{{ player.name }}</p>
-                      <p class="seat-persona">{{ player.persona }}</p>
                       {% if player.is_human %}
                         <p class="seat-role seat-role-known">{{ player.role }}</p>
                       {% else %}
@@ -1618,6 +1606,10 @@
           </div>
 
         </section>
+      </section>
+
+      <!-- ------------------ Colonne droite : Place du village (discussion) ------------------ -->
+      <aside class="order-2 xl:order-2 xl:col-span-4 space-y-5">
 
         <!-- ------------------ Place du village : discussion publique ------------------ -->
         <section class="parchment p-4 sm:p-5" aria-label="Discussion publique du village">
@@ -1637,7 +1629,7 @@
 
           <!-- Fil des échanges -->
           <div id="chat-feed"
-               class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] overflow-y-auto pr-1.5">
+               class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] xl:max-h-[640px] overflow-y-auto pr-1.5">
             {% for message in discussion %}
               <article class="flex gap-3">
                 <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/60 shadow-inner">
@@ -1671,10 +1663,10 @@
             ne s’affichent que pour vous.
           </p>
         </section>
-      </section>
+      </aside>
 
-      <!-- ---------------------- Colonne droite : votre carte ---------------------- -->
-      <aside class="order-3 xl:col-span-3 space-y-5">
+      <!-- ---------------------- Colonne basse droite : votre carte ---------------------- -->
+      <aside class="order-4 xl:order-4 xl:col-span-6 space-y-5">
 
         <section class="parchment p-4 sm:p-5">
           <div class="flex items-center justify-between gap-2">
