@@ -533,6 +533,50 @@
     background: linear-gradient(180deg, #ffffff, #e8e2d2);
   }
 
+  /* Marqueurs nocturnes apposés sur les sièges (proie loup, victime, vision…) */
+  .seat-night-mark {
+    position: absolute;
+    top: -9px;
+    right: -6px;
+    z-index: 3;
+    padding: 2px 8px;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid #3a4a7e;
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(7px, 1.5cqw, 9px);
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #2c3a6e, #1a2347);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.40);
+  }
+
+  .seat-wolf-mark {
+    border-color: #7b1f1d;
+    color: #ffd9d2;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+  }
+
+  .seat-blood-mark {
+    border-color: #7b1f1d;
+    color: #ffd9d2;
+    background: linear-gradient(180deg, #8d2b23, #5c1410);
+  }
+
+  .seat-save-mark {
+    border-color: #2f5d3d;
+    color: #0b2415;
+    background: linear-gradient(180deg, #8fce9d, #4e9260);
+  }
+
+  .seat-doom-mark {
+    border-color: #3a0f38;
+    color: #e9c8f3;
+    background: linear-gradient(180deg, #7b3f7a, #4a1c49);
+  }
+
   /* Bouton de vote blanc / abstention */
   .vote-white-btn {
     display: inline-flex;
@@ -663,6 +707,559 @@
       right: -4px;
       left: auto;
     }
+
+    .seat-night-mark {
+      top: auto;
+      bottom: -7px;
+      right: -4px;
+      left: auto;
+    }
+  }
+
+  /* ===================================================================== */
+  /*  INTERFACES NOCTURNES DÉDIÉES (loup · voyante · sorcière · villageois) */
+  /* ===================================================================== */
+
+  /* Puce nocturne de la bannière (miroir du chronomètre du vote de jour) */
+  .night-timer {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid #93a8e8;
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    background: radial-gradient(circle at 35% 30%, #232c4d, #0d1122);
+    box-shadow: 0 0 14px rgba(147, 168, 232, 0.35);
+  }
+
+  body.night-phase .night-timer { display: inline-flex; }
+
+  .night-timer-urgent {
+    border-color: #c3cffa;
+    color: #eef1ff;
+    animation: night-urgent 1s ease-in-out infinite;
+  }
+
+  @keyframes night-urgent {
+    50% { background: #2c3a6e; box-shadow: 0 0 22px rgba(160, 180, 255, 0.55); }
+  }
+
+  /* Voile nocturne posé sur le plateau : le village s'assombrit */
+  .night-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+    border-radius: 5px;
+    background:
+      radial-gradient(circle at 50% 24%, transparent 0 52%, rgba(4, 7, 18, 0.14) 56%, transparent 56.5%),
+      radial-gradient(ellipse at 82% 2%, rgba(147, 168, 232, 0.30), transparent 40%),
+      linear-gradient(180deg, rgba(10, 14, 34, 0.50), rgba(4, 7, 18, 0.72));
+  }
+
+  body.night-phase .night-veil {
+    display: block;
+    animation: veil-fade 1.4s ease;
+  }
+
+  @keyframes veil-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Panneau nocturne : seul le panneau du rôle courant est affiché */
+  #night-panel { display: none; }
+  body.night-phase #night-panel { display: block; }
+
+  .night-role-panel { display: none; }
+  body[data-night-role='loup'] #night-panel-loup { display: block; }
+  body[data-night-role='voyante'] #night-panel-voyante { display: block; }
+  body[data-night-role='sorciere'] #night-panel-sorciere { display: block; }
+  body[data-night-role='villageois'] #night-panel-villageois { display: block; }
+
+  .night-panel-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .night-status {
+    display: none;
+    margin-top: 10px;
+    border-top: 1px dashed rgba(147, 168, 232, 0.40);
+    padding-top: 9px;
+    font-size: 12.5px;
+    font-style: italic;
+    color: #c9d4f4;
+  }
+
+  .night-status.night-status-active { display: block; }
+
+  /* Grille de cibles (proie du loup / potion de mort de la sorcière) */
+  .night-target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .night-target-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(246, 227, 189, 0.25);
+    color: #eadfc2;
+    font-size: 12.5px;
+    text-align: left;
+    background: rgba(8, 11, 26, 0.55);
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .night-target-chip:hover:not(:disabled) {
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+
+  .night-target-chip.is-selected {
+    border-color: #93a8e8;
+    box-shadow: 0 0 0 2px rgba(147, 168, 232, 0.35);
+  }
+
+  .night-target-chip.is-vetoed,
+  .night-target-chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+  }
+
+  /* Grille de cibles posée sur un parchemin clair (modale de la sorcière) */
+  .night-modal-card .night-target-chip {
+    border-color: rgba(36, 21, 7, 0.30);
+    color: var(--ink);
+    background: rgba(255, 250, 235, 0.55);
+  }
+
+  .night-modal-card .night-target-chip:hover:not(:disabled) {
+    border-color: var(--gold-dark);
+  }
+
+  .night-modal-card .night-target-chip.is-selected {
+    border-color: var(--blood);
+    box-shadow: 0 0 0 2px rgba(168, 64, 52, 0.35);
+  }
+
+  .night-chip-avatar {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 13px;
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--gold);
+  }
+
+  /* ---------------------- Interface du Loup-Garou ---------------------- */
+  .loup-panel {
+    border: 1px solid #7b1f1d;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(168, 64, 52, 0.22), transparent 55%),
+      linear-gradient(180deg, #2b0f0e, #170808 70%, #0d0404);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .loup-panel .night-panel-title { color: #f3d8b8; }
+  .loup-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(224, 95, 78, 0.65), transparent); }
+
+  .wolf-ally {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.50);
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .wolf-ally-name {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #ffd9d2;
+  }
+
+  .wolf-ally-sub {
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(246, 227, 189, 0.60);
+  }
+
+  .wolf-feed {
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.30);
+    background: rgba(0, 0, 0, 0.45);
+    scroll-behavior: smooth;
+  }
+
+  .wolf-msg {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .wolf-msg-bubble {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.35);
+    background: linear-gradient(180deg, rgba(58, 20, 18, 0.8), rgba(30, 9, 8, 0.8));
+  }
+
+  .wolf-msg-author {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff9d8e;
+  }
+
+  .wolf-msg-text {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #f0e6cf;
+  }
+
+  .wolf-msg-self { flex-direction: row-reverse; }
+
+  .wolf-msg-self .wolf-msg-bubble {
+    flex: 1;
+    border-color: var(--gold-dark);
+    background: linear-gradient(180deg, #4a331b, #2a1a0d);
+  }
+
+  .wolf-input {
+    min-width: 0;
+    flex: 1;
+    color: #f0e6cf;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(224, 95, 78, 0.45);
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .wolf-input::placeholder { color: rgba(246, 227, 189, 0.35); }
+  .wolf-input:focus { outline: none; border-color: #e05f4e; box-shadow: 0 0 0 3px rgba(224, 95, 78, 0.30); }
+
+  .night-btn {
+    flex-shrink: 0;
+    padding: 9px 18px;
+    border-radius: 4px;
+    border: 1px solid #e0776a;
+    color: #fff1ee;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.40);
+    cursor: pointer;
+  }
+
+  .night-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .night-btn:active:not(:disabled) { transform: translateY(1px); }
+  .night-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .loup-panel .night-btn { background: linear-gradient(180deg, #e8cd8e, #c49a4b); border-color: var(--gold-dark); color: #241507; }
+
+  /* ---------------------- Interface de la Voyante --------------------- */
+  .voyante-panel {
+    border: 1px solid #5a4a8f;
+    background:
+      radial-gradient(ellipse at 85% 0%, rgba(147, 168, 232, 0.25), transparent 55%),
+      linear-gradient(180deg, #171331, #0e0b1e 70%, #070510);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .voyante-panel .night-panel-title { color: #dfe6fb; }
+  .voyante-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(147, 168, 232, 0.65), transparent); }
+  .voyante-panel .night-status { border-top-color: rgba(147, 168, 232, 0.40); }
+
+  .voyante-panel .night-btn { background: linear-gradient(180deg, #b3aefc, #6e64c9); border-color: #43367e; color: #171233; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.40); }
+
+  .night-ghost-btn {
+    padding: 9px 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(147, 168, 232, 0.45);
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(147, 168, 232, 0.10);
+    cursor: pointer;
+  }
+
+  .night-ghost-btn:hover:not(:disabled) { background: rgba(147, 168, 232, 0.20); }
+  .night-ghost-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Carte de révélation retournée (voyante / sorcière) */
+  .night-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    background: rgba(6, 9, 22, 0.82);
+  }
+
+  .night-modal.night-modal-open { display: grid; animation: veil-fade 0.35s ease; }
+
+  .night-modal-card {
+    width: min(560px, 100%);
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 18px 20px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--gold-dark);
+    color: var(--ink);
+    background: linear-gradient(180deg, #f6ead0, #e6d0a6);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  }
+
+  .night-modal-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .night-modal-desc { margin-top: 6px; font-size: 12.5px; font-style: italic; color: var(--ink-soft); }
+
+  .night-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .night-modal-card .night-btn-life,
+  .night-modal-card .night-btn-death {
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.30);
+  }
+
+  .night-btn-life { border: 1px solid #2f5d3d; color: #0b2415; background: linear-gradient(180deg, #8fce9d, #4e9260); }
+  .night-btn-death { border: 1px solid #5c1410; color: #f6e3bd; background: linear-gradient(180deg, #c1503f, #8d2b23); }
+  .night-btn-life:disabled, .night-btn-death:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .reveal-zone {
+    display: grid;
+    place-items: center;
+    margin-top: 14px;
+  }
+
+  .reveal-card {
+    position: relative;
+    width: 210px;
+    height: 270px;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .reveal-card.flipped { transform: rotateY(180deg); }
+
+  .reveal-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    padding: 14px;
+    text-align: center;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    border: 2px solid var(--gold-dark);
+  }
+
+  .reveal-face-front {
+    transform: rotateY(180deg);
+    background:
+      radial-gradient(circle at 35% 30%, #fff6e3, #e9d3a5);
+    box-shadow: inset 0 0 22px rgba(120, 82, 34, 0.25);
+  }
+
+  .reveal-face-back {
+    background:
+      radial-gradient(circle at 35% 28%, #232c4d, #0d1122 70%, #070a16);
+    box-shadow: inset 0 0 26px rgba(147, 168, 232, 0.25);
+  }
+
+  .reveal-card.flipped .reveal-face-back {
+    animation: reveal-glow 1.6s ease infinite;
+  }
+
+  @keyframes reveal-glow {
+    50% { box-shadow: inset 0 0 34px rgba(197, 172, 252, 0.45); }
+  }
+
+  .reveal-icon { font-size: 46px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
+  .reveal-name { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-soft); }
+  .reveal-role { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 20px; color: var(--blood); }
+  .reveal-quote { font-size: 11.5px; font-style: italic; color: var(--ink-soft); }
+
+  /* ---------------------- Interface de la Sorcière --------------------- */
+  .sorciere-panel {
+    border: 1px solid #2f5d3d;
+    background:
+      radial-gradient(ellipse at 85% 0%, rgba(93, 158, 116, 0.22), transparent 55%),
+      linear-gradient(180deg, #101d14, #09120c 70%, #050b07);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .sorciere-panel .night-panel-title { color: #d3efd9; }
+  .sorciere-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(113, 189, 143, 0.65), transparent); }
+  .sorciere-panel .night-status { border-top-color: rgba(113, 189, 143, 0.45); color: #cfe9d4; }
+
+  .witch-notification {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid #a84034;
+    background: linear-gradient(180deg, #3a1412, #1c0806);
+    animation: witch-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes witch-pulse {
+    50% { box-shadow: 0 0 22px rgba(168, 64, 52, 0.55); }
+  }
+
+  .witch-notification-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff9d8e;
+  }
+
+  .witch-notification-text { margin-top: 4px; font-size: 13px; line-height: 1.4; color: #f0e6cf; }
+
+  .potion-btn {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .potion-btn.potion-btn-life { border-color: #2f5d3d; color: #0b2415; background: linear-gradient(180deg, #8fce9d, #4e9260); }
+  .potion-btn.potion-btn-death { border-color: #5c1410; color: #f6e3bd; background: linear-gradient(180deg, #c1503f, #8d2b23); }
+  .potion-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .potion-btn:active:not(:disabled) { transform: translateY(1px); }
+  .potion-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+  .potion-btn.potion-empty { text-decoration: line-through; }
+
+  /* ------------------- Interface du Villageois ------------------------- */
+  .villageois-panel {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(147, 168, 232, 0.35);
+    background:
+      radial-gradient(circle at 78% 12%, rgba(147, 168, 232, 0.30), transparent 34%),
+      radial-gradient(circle at 50% 120%, rgba(23, 19, 49, 0.9), transparent 70%),
+      linear-gradient(180deg, #0d1124, #090c1c 65%, #050713);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50);
+  }
+
+  .night-wait {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 34px 20px;
+    text-align: center;
+  }
+
+  .night-wait-moon { font-size: 44px; line-height: 1; filter: drop-shadow(0 0 18px rgba(147, 168, 232, 0.65)); animation: night-breathe 4s ease-in-out infinite; }
+
+  @keyframes night-breathe {
+    50% { transform: scale(1.12); filter: drop-shadow(0 0 30px rgba(147, 168, 232, 0.9)); }
+  }
+
+  .night-wait-title {
+    font-family: 'UnifrakturMaguntia', Georgia, serif;
+    font-size: 26px;
+    color: #cdd7f7;
+    animation: night-breathe 4s ease-in-out infinite;
+  }
+
+  .night-whisper {
+    min-height: 20px;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(205, 215, 247, 0.70);
+    transition: opacity 0.6s ease;
+  }
+
+  .night-wait-count {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(147, 168, 232, 0.65);
+  }
+
+  .night-wait-stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%, rgba(255, 255, 255, 0.75), transparent 100%),
+      radial-gradient(1px 1px at 32% 62%, rgba(255, 255, 255, 0.55), transparent 100%),
+      radial-gradient(1.8px 1.8px at 55% 18%, rgba(255, 255, 255, 0.65), transparent 100%),
+      radial-gradient(1px 1px at 68% 48%, rgba(255, 255, 255, 0.50), transparent 100%),
+      radial-gradient(1.4px 1.4px at 84% 30%, rgba(255, 255, 255, 0.70), transparent 100%);
+    animation: star-twinkle 3.2s ease-in-out infinite;
+  }
+
+  @keyframes star-twinkle {
+    50% { opacity: 0.45; }
   }
 </style>
 {% endblock %}
@@ -735,6 +1332,10 @@
           <span aria-hidden="true">⏳</span>
           <span>Vote · <span id="vote-timer-value" class="tabular-nums">45</span>s</span>
         </span>
+        <span id="night-timer" class="night-timer" aria-live="polite">
+          <span aria-hidden="true">🌙</span>
+          <span>Nuit · <span id="night-timer-value" class="tabular-nums">45</span>s</span>
+        </span>
         <span class="live-dot" aria-hidden="true"></span>
         <span class="font-display text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] text-parchment/50">
           En direct
@@ -747,6 +1348,10 @@
 
   {% if announcements %}
     {{ announcements|json_script:"mj-announcements" }}
+  {% endif %}
+
+  {% if night %}
+    {{ night|json_script:"night-config" }}
   {% endif %}
 
   <!-- ===================================================================== -->
@@ -871,6 +1476,9 @@
               {% endfor %}
             </div>
 
+            <!-- Voile nocturne : distingue le plateau pendant la nuit -->
+            <div class="night-veil" aria-hidden="true"></div>
+
           </div>
         </div>
 
@@ -908,6 +1516,107 @@
           </div>
 
           <p id="vote-status" class="vote-status mt-3" aria-live="polite"></p>
+        </section>
+
+        <!-- ================================================================= -->
+        <!--  INTERFACE NOCTURNE DÉDIÉE : un panneau par rôle du joueur humain -->
+        <!-- ================================================================= -->
+        <section id="night-panel" aria-label="Interface nocturne">
+
+          <!-- ------------------- Loup-Garou : canal secret ------------------- -->
+          <div id="night-panel-loup" class="night-role-panel loup-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🐺 Le repaire de la meute</h2>
+              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#ff9d8e]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#e05f4e]"></span>
+                Canal secret
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <div id="wolf-ally" class="wolf-ally">
+              <span id="wolf-ally-avatar" class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base bg-[#2a1a0d] border border-[#e05f4e]/70"></span>
+              <div class="min-w-0">
+                <p id="wolf-ally-name" class="wolf-ally-name"></p>
+                <p class="wolf-ally-sub">Votre allié IA — seul lui connaît votre vraie nature.</p>
+              </div>
+            </div>
+
+            <div id="wolf-feed" class="wolf-feed mt-3" aria-live="polite"></div>
+
+            <form id="wolf-form" class="mt-3 flex gap-2" autocomplete="off">
+              <input id="wolf-input" type="text" maxlength="300" placeholder="Chuchotez au sang de la meute..."
+                     class="wolf-input min-w-0 flex-1">
+              <button type="submit" class="night-btn">Chuchoter</button>
+            </form>
+
+            <p class="mt-4 font-display text-[10px] uppercase tracking-[0.16em] text-[#ff9d8e]/85">
+              🩸 Désignez la proie de la nuit
+            </p>
+            <div id="wolf-targets" class="night-target-grid"></div>
+
+            <p id="wolf-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- ---------------------- Voyante : vision ------------------------- -->
+          <div id="night-panel-voyante" class="night-role-panel voyante-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🔮 L'oratoire de la Voyante</h2>
+              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#93a8e8]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#93a8e8]"></span>
+                Rituel nocturne
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <p class="text-[12.5px] leading-snug text-[#c9d4f4]">
+              Le village dort : une seule vision vous est offerte cette nuit.
+              Ouvrez l'œil, choisissez un habitant et percez sa nature secrète.
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button type="button" id="seer-open-btn" class="night-btn">👁️ Ouvrir l'œil</button>
+            </div>
+
+            <p id="seer-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- --------------------- Sorcière : victime + fioles ---------------- -->
+          <div id="night-panel-sorciere" class="night-role-panel sorciere-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🧪 L'atelier de la Sorcière</h2>
+              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#71bd8f]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#71bd8f]"></span>
+                Fioles & sortilèges
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <div id="witch-notification" class="witch-notification">
+              <p class="witch-notification-title">🩸 Les loups ont frappé</p>
+              <p id="witch-notification-text" class="witch-notification-text"></p>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button type="button" id="witch-life-btn" class="potion-btn potion-btn-life">🧪 Potion de vie</button>
+              <button type="button" id="witch-death-btn" class="potion-btn potion-btn-death">☠️ Potion de mort</button>
+              <button type="button" id="witch-done-btn" class="night-ghost-btn">Se rendormir sans rien faire</button>
+            </div>
+
+            <p id="witch-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- ------------------- Villageois : écran d'attente ----------------- -->
+          <div id="night-panel-villageois" class="night-role-panel villageois-panel parchment">
+            <div class="night-wait-stars" aria-hidden="true"></div>
+            <div class="night-wait">
+              <span class="night-wait-moon" aria-hidden="true">🌙</span>
+              <p class="night-wait-title">Le village s'endort…</p>
+              <p id="night-whisper" class="night-whisper"></p>
+              <p id="night-wait-count" class="night-wait-count">La nuit dure encore · 45 s</p>
+            </div>
+          </div>
+
         </section>
 
         <!-- ------------------ Place du village : discussion publique ------------------ -->
@@ -994,11 +1703,11 @@
           </p>
 
           <div class="mt-3 grid gap-2">
-            <div class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+            <div id="fiole-life" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
               <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>🧪</span> Potion de vie</span>
               <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
             </div>
-            <div class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+            <div id="fiole-death" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
               <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>☠️</span> Potion de mort</span>
               <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
             </div>
@@ -1056,6 +1765,74 @@
   </main>
 
   <!-- ===================================================================== -->
+  <!--  MODALES NOCTURNES : vision de la Voyante & fioles de la Sorcière      -->
+  <!-- ===================================================================== -->
+
+  <!-- Modale : choix de la cible de la Voyante + révélation immédiate -->
+  <div id="seer-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="seer-modal-title">
+    <div class="night-modal-card">
+      <h3 id="seer-modal-title" class="night-modal-title">🔮 Le regard de la Voyante</h3>
+      <p class="night-modal-desc">Désignez l'habitant dont vous percerez le secret… la révélation sera immédiate.</p>
+
+      <div id="seer-targets" class="night-target-grid"></div>
+
+      <div id="seer-reveal-zone" class="reveal-zone" hidden>
+        <div id="seer-reveal-card" class="reveal-card">
+          <div class="reveal-face reveal-face-front">
+            <span id="seer-reveal-icon" class="reveal-icon"></span>
+            <p id="seer-reveal-name" class="reveal-name"></p>
+            <p id="seer-reveal-role" class="reveal-role"></p>
+            <p id="seer-reveal-quote" class="reveal-quote"></p>
+          </div>
+          <div class="reveal-face reveal-face-back">
+            <span class="reveal-icon" aria-hidden="true">❔</span>
+            <p class="reveal-name">Secret scellé</p>
+            <p class="reveal-quote">Le rôle ne se dévoile qu'à la nuit.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="night-modal-actions">
+        <button type="button" id="seer-scrutinize-btn" class="night-btn" disabled>Sonder l'âme</button>
+        <button type="button" id="seer-close-btn" class="night-ghost-btn">Replier l'œil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : potion de vie de la Sorcière (sauvetage de la victime) -->
+  <div id="witch-life-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="witch-life-modal-title">
+    <div class="night-modal-card">
+      <h3 id="witch-life-modal-title" class="night-modal-title">🧪 La potion de vie</h3>
+      <p class="night-modal-desc">Une seule goutte suffit : la victime des loups se relèvera au point du jour.</p>
+
+      <p id="witch-life-target-label" class="mt-3 flex items-center gap-3 rounded-sm border border-ink/20 bg-white/35 px-3 py-2.5 text-[13px]">
+        <span id="witch-life-target-avatar" class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base bg-wood-800 border border-gold/60"></span>
+        <span id="witch-life-target-text" class="flex-1 min-w-0"></span>
+      </p>
+
+      <div class="night-modal-actions">
+        <button type="button" id="witch-life-confirm-btn" class="night-btn-life">Sauver la victime</button>
+        <button type="button" id="witch-life-close-btn" class="night-ghost-btn">Reboucher la fiole</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : potion de mort de la Sorcière (choix de la cible) -->
+  <div id="witch-death-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="witch-death-modal-title">
+    <div class="night-modal-card">
+      <h3 id="witch-death-modal-title" class="night-modal-title">☠️ La potion de mort</h3>
+      <p class="night-modal-desc">Versez votre poison dans le verre d'un suspect. La cible ne se réveillera pas.</p>
+
+      <div id="witch-death-targets" class="night-target-grid"></div>
+
+      <div class="night-modal-actions">
+        <button type="button" id="witch-death-confirm-btn" class="night-btn-death" disabled>Verser le poison</button>
+        <button type="button" id="witch-death-close-btn" class="night-ghost-btn">Repousser la fiole</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
   <!--  PIED DE PAGE                                                         -->
   <!-- ===================================================================== -->
   <footer class="relative z-10 border-t border-gold/20 py-4 text-center">
@@ -1109,41 +1886,50 @@
       }, 7000);
     }
 
-    // ---- Simulation du cycle des phases toutes les 20 s ----
+    // ---- Simulation du cycle des phases (durées alignées sur les minuteries :
+    // vote 45 s, nuit 45 s pour laisser le temps aux interfaces nocturnes) ----
     var phases = [
       {
         key: 'jour',
         icon: '☀️',
         label: 'Jour 1 · Le village se réveille',
         desc: 'Chacun découvre ce que la nuit a emporté.',
+        duration: 15000,
       },
       {
         key: 'vote',
         icon: '⚖️',
         label: 'Le Vote · La place délibère',
         desc: 'Désignez le suspect à envoyer au bûcher.',
+        duration: 45000,
       },
       {
         key: 'nuit',
         icon: '🌙',
         label: 'La Nuit · Le village s’endort',
         desc: 'Fermez les yeux… les loups choisissent leur proie.',
+        duration: 45000,
       },
     ];
 
     if (descEl) {
+      // programmation récursive : chaque phase dure sa propre durée.
       var phaseIndex = 0;
-      setInterval(function () {
-        phaseIndex = (phaseIndex + 1) % phases.length;
-        var phase = phases[phaseIndex];
-      var phase = phases[phaseIndex];
-        banner.setAttribute('data-phase', phase.key);
-        if (iconEl) iconEl.textContent = phase.icon;
-        if (phaseEl) phaseEl.textContent = phase.label;
-        descEl.textContent = phase.desc;
-        // Signale le changement de phase à l'interface de vote de jour.
-        document.dispatchEvent(new CustomEvent('lg:phase-active', { detail: phase.key }));
-      }, 20000);
+      var advancePhase = function () {
+        var current = phases[phaseIndex];
+        setTimeout(function () {
+          phaseIndex = (phaseIndex + 1) % phases.length;
+          var phase = phases[phaseIndex];
+          banner.setAttribute('data-phase', phase.key);
+          if (iconEl) iconEl.textContent = phase.icon;
+          if (phaseEl) phaseEl.textContent = phase.label;
+          descEl.textContent = phase.desc;
+          // Signale le changement de phase aux interfaces (vote de jour, nuit…).
+          document.dispatchEvent(new CustomEvent('lg:phase-active', { detail: phase.key }));
+          advancePhase();
+        }, current.duration);
+      };
+      advancePhase();
     }
   })();
 </script>
@@ -1361,6 +2147,610 @@
         startSession();
       } else {
         endSession();
+      }
+    });
+  })();
+</script>
+<script>
+  // Interface nocturne dédiée au joueur humain (démo) : le panneau affiché
+  // dépend du rôle —
+  //   · Loup-Garou  : canal secret nocturne (chasse + vote avec l'allié IA)
+  //   · Voyante     : modale de choix d'une cible + révélation immédiate
+  //   · Sorcière    : notification de la victime des loups + potion de vie
+  //                   (sauvetage) & potion de mort
+  //   · Villageois  : écran d'attente atmosphérique (« Le village s'endort… »)
+  // Démo : aucune partie n'est branchée côté serveur, les choix restent locaux.
+  (function () {
+    var NIGHT_SECONDS = 45;
+
+    var body = document.body;
+    var configSource = document.getElementById('night-config');
+    if (!configSource) return;
+
+    var config;
+    try { config = JSON.parse(configSource.textContent); } catch (error) { config = null; }
+    if (!config) return;
+
+    var roleKey = config.role_key;
+    var players = config.players;        // cibles possibles : les habitants IA
+    var aiRoles = config.ai_roles || {}; // démo : rôle secret de chaque IA
+    var ally = config.wolf_ally || null; // démo : unique au rôle Loup-Garou
+
+    // Fiches de rôle pour la révélation de la voyante.
+    var ROLE_INFO = {
+      'Loup-Garou': { icon: '🐺', quote: 'Un prédateur rôde parmi les habitants.' },
+      'Voyante': { icon: '🔮', quote: 'Chaque nuit, un secret lui est révélé.' },
+      'Sorcière': { icon: '🧪', quote: 'Ses fioles décident de la vie et de la mort.' },
+      'Villageois': { icon: '🌾', quote: 'Le cœur du village, sans pouvoir particulier.' },
+    };
+
+    function roleInfo(name) {
+      return ROLE_INFO[name] || { icon: '❓', quote: 'Un habitant de Thiercelieux.' };
+    }
+
+    function byId(id) { return document.getElementById(id); }
+
+    function setStatus(el, text, active) {
+      if (!el) return;
+      el.textContent = text;
+      el.classList.toggle('night-status-active', active !== false);
+    }
+
+    function resetStatus(el) {
+      if (!el) return;
+      el.textContent = '';
+      el.classList.remove('night-status-active');
+    }
+
+    // ---------------------------------------------------------------
+    // Minuterie nocturne partagée (puce de la bannière + écran villageois)
+    // ---------------------------------------------------------------
+    var secondsLeft = NIGHT_SECONDS;
+    var timerId = null;
+    var chip = byId('night-timer');
+    var chipValue = byId('night-timer-value');
+    var waitCount = byId('night-wait-count');
+
+    function updateTimerUI() {
+      if (chipValue) chipValue.textContent = secondsLeft;
+      if (chip) chip.classList.toggle('night-timer-urgent', secondsLeft <= 10);
+      if (waitCount) waitCount.textContent = 'La nuit dure encore · ' + secondsLeft + ' s';
+    }
+
+    function tickTimer() {
+      secondsLeft = Math.max(0, secondsLeft - 1);
+      updateTimerUI();
+      if (secondsLeft === 0) endNightCycle(true);
+    }
+
+    function startTimer() {
+      stopTimer();
+      secondsLeft = NIGHT_SECONDS;
+      updateTimerUI();
+      timerId = setInterval(tickTimer, 1000);
+    }
+
+    function stopTimer() {
+      if (timerId !== null) { clearInterval(timerId); timerId = null; }
+    }
+
+    // ---------------------------------------------------------------
+    // Marqueurs nocturnes posés sur les sièges du plateau
+    // ---------------------------------------------------------------
+    function findSeatCard(name) {
+      var button = document.querySelector('.seat-vote-btn[data-vote-target-name="' + name + '"]');
+      return button ? button.closest('.seat-card') : null;
+    }
+
+    function addSeatMark(name, text, kind) {
+      var card = findSeatCard(name);
+      if (!card) return;
+      var mark = document.createElement('span');
+      mark.className = 'seat-night-mark' + (kind ? ' ' + kind : '');
+      mark.textContent = text;
+      card.appendChild(mark);
+    }
+
+    function clearNightMarks() {
+      document.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
+    }
+
+    // ---------------------------------------------------------------
+    // Boucles annexes (chuchotements IA de la meute, murmures du villageois)
+    // ---------------------------------------------------------------
+    var loops = [];
+
+    function addLoop(callback, delay) {
+      var loopId = setTimeout(callback, delay);
+      loops.push(loopId);
+      return loopId;
+    }
+
+    function clearLoops() {
+      loops.forEach(function (loopId) { clearTimeout(loopId); });
+      loops = [];
+    }
+
+    // ---------------------------------------------------------------
+    // Modales nocturnes : fermeture commune (croix, clic hors carte, Échap)
+    // ---------------------------------------------------------------
+    function closeModal(id) {
+      var modal = byId(id);
+      if (modal) modal.classList.remove('night-modal-open');
+    }
+
+    function openModal(id) {
+      var modal = byId(id);
+      if (modal) modal.classList.add('night-modal-open');
+    }
+
+    function bindModalClose(modalId) {
+      var modal = byId(modalId);
+      if (!modal) return;
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) closeNightModal();
+      });
+      var closeBtn = modal.querySelector('.night-ghost-btn');
+      if (closeBtn) closeBtn.addEventListener('click', closeNightModal);
+    }
+
+    function closeNightModal() {
+      ['seer-modal', 'witch-life-modal', 'witch-death-modal'].forEach(closeModal);
+    }
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeNightModal();
+    });
+
+    function closeAllNightModals() { closeNightModal(); }
+
+    // Grille de cibles commune : construit des puces avec avatar + nom.
+    function buildTargetGrid(container, names, selectedName, onSelect, vetoed) {
+      if (!container) return;
+      container.textContent = '';
+      names.forEach(function (name) {
+        var player = players.filter(function (p) { return p.name === name; })[0] || {};
+        var chipEl = document.createElement('button');
+        chipEl.type = 'button';
+        chipEl.className = 'night-target-chip' + (name === selectedName ? ' is-selected' : '');
+        chipEl.disabled = Boolean(vetoed && vetoed(name));
+        if (chipEl.disabled) chipEl.classList.add('is-vetoed');
+
+        var avatar = document.createElement('span');
+        avatar.className = 'night-chip-avatar';
+        avatar.textContent = player.avatar || '🧑';
+
+        var label = document.createElement('span');
+        label.textContent = name;
+
+        chipEl.appendChild(avatar);
+        chipEl.appendChild(label);
+        chipEl.addEventListener('click', function () {
+          if (chipEl.disabled) return;
+          container.querySelectorAll('.night-target-chip').forEach(function (el) {
+            el.classList.remove('is-selected');
+          });
+          chipEl.classList.add('is-selected');
+          if (onSelect) onSelect(name);
+        });
+        container.appendChild(chipEl);
+      });
+    }
+
+    // Proies légitimes (IA non-loups), utilisées par la meute et la sorcière.
+    function preyNames() {
+      var excluded = ally ? ally.name : null;
+      return players
+        .filter(function (p) { return p.name !== excluded && aiRoles[p.name] !== 'Loup-Garou'; })
+        .map(function (p) { return p.name; });
+    }
+
+    // ------------------------------ ÉTAT ---------------------------------
+    var cycle = 0;
+
+    // =====================================================================
+    //  LOUP-GAROU : canal secret + chasse nocturne avec l'allié IA
+    // =====================================================================
+    var wolfForm = byId('wolf-form');
+    var wolfInput = byId('wolf-input');
+    var wolfFeed = byId('wolf-feed');
+    var wolfTargets = byId('wolf-targets');
+    var wolfStatus = byId('wolf-status');
+    var wolfVote = null;        // proie confirmée par le joueur humain
+    var wolfAllyPrey = null;    // proie proposée par l'allié IA
+
+    var ALLY_OPENERS = [
+      'Chut… le canal est ouvert. Personne ne doit entendre la meute.',
+      'Le village ferme les yeux. C’est notre heure, chasseur.',
+    ];
+
+    var ALLY_ECHOES = [
+      'La meute t’entend, chuchote encore.',
+      'D’accord pour ça… ton instinct est bon.',
+      'Je note tout. Les loups rient dans le noir.',
+    ];
+
+    function appendWolfMessage(name, avatar, text, self) {
+      if (!wolfFeed) return;
+      var message = document.createElement('div');
+      message.className = 'wolf-msg' + (self ? ' wolf-msg-self' : '');
+
+      var avatarEl = document.createElement('span');
+      avatarEl.className = 'night-chip-avatar';
+      avatarEl.textContent = avatar;
+
+      var bubble = document.createElement('div');
+      bubble.className = 'wolf-msg-bubble';
+
+      var author = document.createElement('p');
+      author.className = 'wolf-msg-author';
+      author.textContent = self ? name + ' · vous' : name;
+
+      var content = document.createElement('p');
+      content.className = 'wolf-msg-text';
+      content.textContent = text;
+
+      bubble.appendChild(author);
+      bubble.appendChild(content);
+      message.appendChild(avatarEl);
+      message.appendChild(bubble);
+      wolfFeed.appendChild(message);
+      wolfFeed.scrollTop = wolfFeed.scrollHeight;
+    }
+
+    function renderWolfTargets() {
+      var names = players.map(function (p) { return p.name; });
+      buildTargetGrid(wolfTargets, names, null, function (name) {
+        if (wolfVote) {
+          var previousMark = findSeatCard(wolfVote);
+          if (previousMark) {
+            previousMark.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
+          }
+        }
+        wolfVote = name;
+        addSeatMark(name, '🐺 Proie', 'seat-wolf-mark');
+        setStatus(wolfStatus, 'La meute a désigné ' + name + ' : cette nuit, c\'est la mort qui l\'attend.');
+        addLoop(function () {
+          appendWolfMessage(ally.name, ally.avatar, ALLY_ECHOES[cycle % ALLY_ECHOES.length], false);
+        }, 1400);
+      }, function (name) { return Boolean(ally && name === ally.name); });
+    }
+
+    function startWolfNight() {
+      wolfVote = null;
+      wolfAllyPrey = null;
+      if (wolfFeed) wolfFeed.textContent = '';
+      if (wolfInput) wolfInput.value = '';
+      renderWolfTargets();
+      resetAllNightStatuses();
+      setStatus(wolfStatus, 'Canal secret ouvert. Chuchotez avec ' + (ally ? ally.name : 'votre allié') + ', puis désignez une proie.');
+
+      if (ally) {
+        appendWolfMessage(ally.name, ally.avatar, ALLY_OPENERS[cycle % ALLY_OPENERS.length], false);
+        // L'allié partage son instinct en cours de nuit.
+        addLoop(function () {
+          appendWolfMessage(ally.name, ally.avatar, 'Silence… j’ai repéré un habitant qui dort mal.', false);
+        }, 9000);
+        addLoop(function () {
+          var pool = preyNames();
+          if (!pool.length) return;
+          wolfAllyPrey = pool[(cycle - 1) % pool.length];
+          appendWolfMessage(ally.name, ally.avatar, 'Je propose ' + wolfAllyPrey + '. Si tu restes muet, la meute suivra mon flair.', false);
+        }, 20000);
+      }
+
+      addLoop(function () {
+        appendWolfMessage('🌙', 'Nuit', 'La nuit s’achève : la meute s’exécute…', false);
+      }, 33000);
+    }
+
+    function endWolfNight() {
+      // À l'aube : la chasse humaine prime, sinon la proie de l'allié IA est suivie.
+      if (!wolfVote && wolfAllyPrey) {
+        wolfVote = wolfAllyPrey;
+        addSeatMark(wolfVote, '🐺 Proie', 'seat-wolf-mark');
+        setStatus(wolfStatus, 'L\'aube a surpris la meute : l\'instinct de ' + (ally ? ally.name : 'votre allié') + ' a tranché. ' + wolfVote + ' sera dévoré.', true);
+      } else if (wolfVote) {
+        setStatus(wolfStatus, 'La meute a désigné ' + wolfVote + ' : cette nuit, c\'est la mort qui l\'attend.', true);
+      }
+    }
+
+    if (wolfForm) {
+      wolfForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var text = wolfInput.value.trim();
+        if (!text) return;
+        appendWolfMessage('{{ human.name|escapejs }}', '{{ human.avatar|escapejs }}', text, true);
+        wolfInput.value = '';
+        wolfInput.focus();
+      });
+    }
+
+    // =====================================================================
+    //  VOYANTE : modale de choix d'une cible + révélation immédiate
+    // =====================================================================
+    var seerOpenBtn = byId('seer-open-btn');
+    var seerScrutinizeBtn = byId('seer-scrutinize-btn');
+    var seerTargets = byId('seer-targets');
+    var seerStatus = byId('seer-status');
+    var seerRevealZone = byId('seer-reveal-zone');
+    var seerRevealCard = byId('seer-reveal-card');
+    var seerTargetName = null;
+    var seerVisionDone = false;
+
+    function startSeerNight() {
+      seerTargetName = null;
+      seerVisionDone = false;
+      buildTargetGrid(seerTargets, players.map(function (p) { return p.name; }), null, function (name) {
+        seerTargetName = name;
+        if (seerScrutinizeBtn) seerScrutinizeBtn.disabled = false;
+      });
+      if (seerScrutinizeBtn) seerScrutinizeBtn.disabled = true;
+      if (seerOpenBtn) seerOpenBtn.disabled = false;
+      if (seerRevealZone) seerRevealZone.hidden = true;
+      if (seerRevealCard) seerRevealCard.classList.remove('flipped');
+      resetAllNightStatuses();
+      setStatus(seerStatus, 'La nuit vous appartient : ouvrez l\'œil et percez un secret.');
+    }
+
+    function endSeerNight() {
+      if (seerVisionDone) {
+        setStatus(seerStatus, 'Votre vision est scellée jusqu\'au prochain crépuscule.', true);
+      } else {
+        setStatus(seerStatus, 'La nuit s\'est écoulée sans vision : le village gardera ses secrets.', true);
+      }
+    }
+
+    if (seerOpenBtn) {
+      seerOpenBtn.addEventListener('click', function () {
+        seerOpenBtn.disabled = true;
+        openModal('seer-modal');
+      });
+    }
+
+    if (seerScrutinizeBtn) {
+      seerScrutinizeBtn.addEventListener('click', function () {
+        if (!seerTargetName) return;
+        seerVisionDone = true;
+        seerScrutinizeBtn.disabled = true;
+
+        var role = aiRoles[seerTargetName] || 'Inconnu';
+        var info = roleInfo(role);
+
+        if (seerRevealZone) seerRevealZone.hidden = false;
+        byId('seer-reveal-icon').textContent = info.icon;
+        byId('seer-reveal-name').textContent = seerTargetName;
+        byId('seer-reveal-role').textContent = role;
+        byId('seer-reveal-quote').textContent = info.quote;
+
+        // Révélation immédiate : la carte se retourne sous l'œil de la voyante.
+        setTimeout(function () {
+          if (seerRevealCard) seerRevealCard.classList.add('flipped');
+        }, 150);
+
+        addSeatMark(seerTargetName, info.icon + ' ' + role, '');
+        setStatus(seerStatus, 'Le sortilège a parlé : ' + seerTargetName + ' est ' + role + '.', true);
+      });
+    }
+
+    // =====================================================================
+    //  SORCIÈRE : victime des loups + potions de vie (sauvetage) et de mort
+    // =====================================================================
+    var witchVictimText = byId('witch-notification-text');
+    var witchLifeBtn = byId('witch-life-btn');
+    var witchDeathBtn = byId('witch-death-btn');
+    var witchDoneBtn = byId('witch-done-btn');
+    var witchStatus = byId('witch-status');
+    var currentVictim = null;     // victime des loups annoncée à la sorcière cette nuit
+    var usedLife = false;         // fioles consommées (une seule fois par partie)
+    var usedDeath = false;
+    var deathTargetName = null;
+
+    function witchVictimName() {
+      var pool = preyNames();
+      if (!pool.length) return null;
+      return pool[(cycle - 1) % pool.length];
+    }
+
+    function markVictimSaved(playerName) {
+      var card = findSeatCard(playerName);
+      if (!card) return;
+      card.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
+      addSeatMark(playerName, '🧪 Sauvé', 'seat-save-mark');
+    }
+
+    function witchDeath(playerName) {
+      addSeatMark(playerName, '☠️ Empoisonné', 'seat-doom-mark');
+    }
+
+    function emptyFiole(id) {
+      var row = byId(id);
+      if (!row) return;
+      var value = row.querySelector('span:last-child');
+      if (value) {
+        value.textContent = 'Fiole vide';
+        row.style.opacity = '0.5';
+      }
+    }
+
+    function refreshPotionButtons() {
+      if (witchLifeBtn) {
+        witchLifeBtn.disabled = usedLife || !currentVictim;
+        witchLifeBtn.classList.toggle('potion-empty', usedLife);
+        witchLifeBtn.textContent = usedLife ? '🧪 Fiole vide' : '🧪 Potion de vie';
+      }
+      if (witchDeathBtn) {
+        witchDeathBtn.disabled = usedDeath;
+        witchDeathBtn.classList.toggle('potion-empty', usedDeath);
+        witchDeathBtn.textContent = usedDeath ? '☠️ Fiole vide' : '☠️ Potion de mort';
+      }
+    }
+
+    function startWitchNight() {
+      resetAllNightStatuses();
+      currentVictim = witchVictimName();
+      var deathGrid = byId('witch-death-targets');
+      if (deathGrid) deathGrid.textContent = '';
+      deathTargetName = null;
+
+      if (currentVictim) {
+        if (witchVictimText) {
+          witchVictimText.textContent = 'Les loups se sont glissés dans la maison de ' + currentVictim + '. Au point du jour, la créature ouvrira la fenêtre…';
+        }
+        addSeatMark(currentVictim, '🩸 Victime', 'seat-blood-mark');
+        setStatus(witchStatus, 'Les loups ont désigné ' + currentVictim + '. Une fiole en main, une décision à prendre.');
+      } else {
+        setStatus(witchStatus, 'Aucune victime ne vous est annoncée cette nuit… une influence sournoise.');
+      }
+      refreshPotionButtons();
+    }
+
+    function endWitchNight() {
+      if (currentVictim) {
+        var saved = document.querySelector('.seat-save-mark');
+        if (!saved) {
+          setStatus(witchStatus, 'Sans potion, ' + currentVictim + ' ne se relèvera pas : le village découvrira sa perte au lever du jour.', true);
+        }
+      }
+    }
+
+    if (witchLifeBtn) {
+      witchLifeBtn.addEventListener('click', function () {
+        if (witchLifeBtn.disabled || !currentVictim) return;
+        var victimPlayer = players.filter(function (p) { return p.name === currentVictim; })[0] || {};
+        byId('witch-life-target-avatar').textContent = victimPlayer.avatar || '🧑';
+        byId('witch-life-target-text').textContent = 'Sauver ' + currentVictim + ' de la mort que préparent les loups ?';
+        openModal('witch-life-modal');
+      });
+    }
+
+    var witchLifeConfirm = byId('witch-life-confirm-btn');
+    if (witchLifeConfirm) {
+      witchLifeConfirm.addEventListener('click', function () {
+        usedLife = true;
+        markVictimSaved(currentVictim); // la victime est sauvée, le marqueur change
+        emptyFiole('fiole-life');
+        closeModal('witch-life-modal');
+        refreshPotionButtons();
+        setStatus(witchStatus, 'La potion de vie a coulé : ' + currentVictim + ' se réveillera demain matin… et le village n\'en saura rien.', true);
+      });
+    }
+
+    if (witchDeathBtn) {
+      witchDeathBtn.addEventListener('click', function () {
+        if (witchDeathBtn.disabled) return;
+        var names = players
+          .filter(function (p) { return p.name !== currentVictim; })
+          .map(function (p) { return p.name; });
+        buildTargetGrid(byId('witch-death-targets'), names, null, function (name) {
+          deathTargetName = name;
+          var confirmBtn = byId('witch-death-confirm-btn');
+          if (confirmBtn) confirmBtn.disabled = false;
+        });
+        deathTargetName = null;
+        openModal('witch-death-modal');
+      });
+    }
+
+    var witchDeathConfirm = byId('witch-death-confirm-btn');
+    if (witchDeathConfirm) {
+      witchDeathConfirm.addEventListener('click', function () {
+        if (!deathTargetName) return;
+        usedDeath = true;
+        witchDeath(deathTargetName);
+        emptyFiole('fiole-death');
+        closeModal('witch-death-modal');
+        refreshPotionButtons();
+        setStatus(witchStatus, 'Le poison a coulé dans le verre de ' + deathTargetName + '. Personne ne connaîtra votre geste.', true);
+      });
+    }
+
+    if (witchDoneBtn) {
+      witchDoneBtn.addEventListener('click', function () {
+        setStatus(witchStatus, 'Vos fioles restent scellées cette nuit. Le village dormira sans savoir ce qu\'elles ont épargné… ou non.', true);
+      });
+    }
+
+    // =====================================================================
+    //  VILLAGEOIS : écran d'attente atmosphérique « Le village s'endort… »
+    // =====================================================================
+    var whisperEl = byId('night-whisper');
+    var whispers = [
+      'La lune s\'étire sur les toits de Thiercelieux…',
+      'Quelque part, un hurlement se perd entre les collines.',
+      'Fermez les yeux : les loups ne voient que vos rêves.',
+      'Demain, il vous faudra voter. Ce que la nuit fait, le vote défera.',
+      'Les étoiles gardent les secrets que le village ignore.',
+    ];
+    var whisperTimerId = null;
+
+    function startVillagerNight() {
+      if (!whisperEl) return;
+      var whisperIndex = (cycle - 1) % whispers.length;
+      whisperEl.textContent = whispers[whisperIndex];
+      whisperTimerId = setInterval(function () {
+        whisperEl.style.opacity = '0';
+        setTimeout(function () {
+          whisperIndex = (whisperIndex + 1) % whispers.length;
+          whisperEl.textContent = whispers[whisperIndex];
+          whisperEl.style.opacity = '1';
+        }, 600);
+      }, 5000);
+      loops.push(whisperTimerId);
+    }
+
+    function endVillagerNight() {
+      if (waitCount) waitCount.textContent = 'La nuit s\'achève…';
+    }
+
+    // =====================================================================
+    //  Cycle nocturne partagé : ouverture/fermeture sur lg:phase-active
+    // =====================================================================
+    function resetAllNightStatuses() {
+      [wolfStatus, seerStatus, witchStatus].forEach(resetStatus);
+    }
+
+    function startNightCycle() {
+      cycle += 1;
+      body.classList.add('night-phase');
+      body.setAttribute('data-night-role', roleKey);
+      if (chip) chip.classList.remove('night-timer-urgent');
+      clearNightMarks();
+      closeAllNightModals();
+      stopTimer();
+      startTimer();
+
+      if (roleKey === 'loup') startWolfNight();
+      else if (roleKey === 'voyante') startSeerNight();
+      else if (roleKey === 'sorciere') startWitchNight();
+      else startVillagerNight();
+    }
+
+    function endNightCycle(auto) {
+      if (!body.classList.contains('night-phase')) return;
+      stopTimer();
+      clearLoops();
+      if (whisperTimerId !== null) { clearInterval(whisperTimerId); whisperTimerId = null; }
+      closeAllNightModals();
+
+      if (roleKey === 'loup') endWolfNight();
+      else if (roleKey === 'voyante') endSeerNight();
+      else if (roleKey === 'sorciere') endWitchNight();
+      else endVillagerNight();
+
+      body.classList.remove('night-phase');
+      body.removeAttribute('data-night-role');
+    }
+
+    bindModalClose('seer-modal');
+    bindModalClose('witch-life-modal');
+    bindModalClose('witch-death-modal');
+
+    document.addEventListener('lg:phase-active', function (event) {
+      if (event.detail === 'nuit') {
+        startNightCycle();
+      } else {
+        endNightCycle(false);
       }
     });
   })();
