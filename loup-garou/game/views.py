@@ -1,12 +1,89 @@
 from django.shortcuts import render
 
 
+# Profils du joueur humain pour les interfaces nocturnes dédiées (démo).
+# Le rôle n'est pas encore distribué par un backend : le paramètre `?role=`
+# permet de prévisualiser chacune des quatre interfaces nocturne dédiées.
+NIGHT_ROLES = {
+    'loup': {
+        'name': 'Loup-Garou',
+        'avatar': '🐺',
+        'description': (
+            "Vous chassez en meute : votre allié IA partage votre table de chasse. "
+            "Chaque nuit, un canal secret s'ouvre entre vous deux pour délibérer "
+            "puis désigner la proie du village."
+        ),
+        # Démo : rôles secrets des IA, cohérents avec la composition (2 loups
+        # = le joueur humain + son allié Léa).
+        'ai_roles': {
+            'Victor': 'Voyante',
+            'Chloé': 'Sorcière',
+            'Lucas': 'Villageois',
+            'Thomas': 'Villageois',
+            'Marc': 'Villageois',
+        },
+        'wolf_ally': {'id': 5, 'name': 'Léa', 'avatar': '👁️'},
+    },
+    'voyante': {
+        'name': 'Voyante',
+        'avatar': '🔮',
+        'description': (
+            "Chaque nuit, vous ouvrez l'œil : une modale vous permet de désigner "
+            "un habitant et de percer immédiatement son rôle secret."
+        ),
+        'ai_roles': {
+            'Victor': 'Loup-Garou',
+            'Chloé': 'Sorcière',
+            'Lucas': 'Villageois',
+            'Léa': 'Villageois',
+            'Thomas': 'Villageois',
+            'Marc': 'Loup-Garou',
+        },
+    },
+    'sorciere': {
+        'name': 'Sorcière',
+        'avatar': '🧙‍♀️',
+        'description': (
+            "Vous veillez sur le village avec deux fioles : une potion de vie "
+            "pour sauver une victime des loups, et une potion de mort pour "
+            "éliminer un suspect."
+        ),
+        'ai_roles': {
+            'Victor': 'Loup-Garou',
+            'Chloé': 'Villageois',
+            'Lucas': 'Voyante',
+            'Léa': 'Villageois',
+            'Thomas': 'Villageois',
+            'Marc': 'Loup-Garou',
+        },
+    },
+    'villageois': {
+        'name': 'Villageois',
+        'avatar': '🌾',
+        'description': (
+            "Le cœur du village, sans pouvoir particulier. Cette nuit, vos seuls "
+            "alliés sont le sommeil et votre instinct : au réveil, il faudra voter."
+        ),
+        'ai_roles': {
+            'Victor': 'Loup-Garou',
+            'Chloé': 'Sorcière',
+            'Lucas': 'Voyante',
+            'Léa': 'Villageois',
+            'Thomas': 'Villageois',
+            'Marc': 'Loup-Garou',
+        },
+    },
+}
+
+
 def village_view(request):
     """
     Plateau de jeu du Loup-Garou de Thiercelieux — édition classique.
 
     Cette vue ne simule aucune partie : elle expose uniquement la disposition
     initiale du village (7 places, rôles secrets, composition et rappel des phases).
+    Le paramètre `?role=` (démo) sélectionne le rôle du joueur humain pour afficher
+    l'interface nocturne dédiée correspondante.
     """
     board = {
         'village': 'Thiercelieux',
@@ -93,6 +170,36 @@ def village_view(request):
             'avatar': '🔥',
         },
     ]
+
+    # --- Rôle du joueur humain (démo) : contrôlé par le paramètre `?role=` ---
+    role_key = request.GET.get('role') or 'sorciere'
+    if role_key not in NIGHT_ROLES:
+        role_key = 'sorciere'
+    role_profile = NIGHT_ROLES[role_key]
+    human = players[0]
+    human['role'] = role_profile['name']
+    human['role_description'] = role_profile['description']
+    human['avatar'] = role_profile['avatar']
+
+    # Données nocturnes transmises aux interfaces dédiées (démo : côté client).
+    night = {
+        'role_key': role_key,
+        'role_name': role_profile['name'],
+        # Cibles possibles : les six habitants IA.
+        'players': [
+            {
+                'id': player['id'],
+                'name': player['name'],
+                'avatar': player['avatar'],
+                'persona': player['persona'],
+            }
+            for player in players[1:]
+        ],
+        # Démo : rôles secrets des IA, consommés par la voyante (Fog of War).
+        'ai_roles': role_profile['ai_roles'],
+        # Démo : unique à l'interface du Loup-Garou (allé chantant IA).
+        'wolf_ally': role_profile.get('wolf_ally'),
+    }
 
     # Composition classique du village (MVP 7 joueurs).
     composition = [
@@ -215,6 +322,7 @@ def village_view(request):
         'discussion': discussion,
         'status_phase': status_phase,
         'announcements': announcements,
-        'human': players[0],
+        'human': human,
+        'night': night,
     }
     return render(request, 'game/village.html', context)
