@@ -1,0 +1,619 @@
+{% extends "base.html" %}
+
+{% block title %}Village de Thiercelieux — Loup-Garou (MVP){% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- 1. BANNIÈRE D'ÉTAT EN TEMPS RÉEL (Jour / Nuit / Vote / Annonces du MJ)     -->
+  <!-- ========================================================================= -->
+  <header class="border-b border-purple-800/40 bg-night-900/90 backdrop-blur-md px-4 sm:px-6 py-2.5 flex-shrink-0 z-20">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & Identité -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center text-xl shadow-lg shadow-purple-900/50 border border-purple-400/30">
+          🐺
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg tracking-wider text-purple-100 flex items-center gap-1.5">
+              <span>Loup-Garou</span>
+            </h1>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">
+              MVP 7 Joueurs
+            </span>
+          </div>
+          <p class="text-xs text-purple-300/60">Partie #{{ game_state.id }} • Moteur Déterministe</p>
+        </div>
+      </div>
+
+      <!-- Indicateur Central de Phase & Timer -->
+      <div class="flex items-center gap-3 bg-night-950/80 px-4 py-1.5 rounded-2xl border border-purple-700/40 shadow-inner">
+        <!-- Badge Phase -->
+        <div id="phase-badge" class="flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold tracking-wide">
+          <span id="phase-icon" class="text-base animate-pulse">☀️</span>
+          <span id="phase-name">JOUR — DÉBAT</span>
+        </div>
+
+        <div class="h-5 w-px bg-purple-800/50"></div>
+
+        <!-- Tour -->
+        <div class="text-xs">
+          <span class="text-purple-400 font-mono">TOUR</span>
+          <span id="tour-count" class="font-bold text-white ml-1">{{ game_state.tour }}</span>
+        </div>
+
+        <div class="h-5 w-px bg-purple-800/50"></div>
+
+        <!-- Timer dégressif (45s max spécifié) -->
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></div>
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="text-purple-300">TEMPS</span>
+              <span id="timer-display" class="text-rose-400 font-bold ml-1.5">00:{{ game_state.timer_seconds }}</span>
+            </div>
+            <!-- Petite barre de progression du timer -->
+            <div class="w-16 sm:w-24 h-1.5 bg-purple-950 rounded-full overflow-hidden mt-0.5 border border-purple-800/50">
+              <div id="timer-bar" class="h-full bg-gradient-to-r from-amber-400 to-rose-500 transition-all duration-1000" style="width: 93%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-5 w-px bg-purple-800/50 hidden sm:block"></div>
+
+        <!-- Compteur Vivants / Morts -->
+        <div class="hidden sm:flex items-center gap-2 text-xs font-medium">
+          <span class="flex items-center gap-1 text-emerald-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="alive-count">{{ game_state.alive_count }}</span> vivants
+          </span>
+          <span class="text-purple-400/50">•</span>
+          <span class="flex items-center gap-1 text-rose-400">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span id="dead-count">{{ game_state.dead_count }}</span> mort
+          </span>
+        </div>
+      </div>
+
+      <!-- Contrôles interactifs de démonstration des phases -->
+      <div class="flex items-center gap-1.5 bg-purple-950/40 p-1 rounded-xl border border-purple-800/40">
+        <span class="text-[11px] text-purple-300/70 px-2 font-medium hidden lg:inline">Aperçu Phase :</span>
+        <button onclick="switchPhase('JOUR')" id="btn-phase-jour" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition hover:bg-amber-500/30">
+          ☀️ Jour
+        </button>
+        <button onclick="switchPhase('VOTE')" id="btn-phase-vote" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-purple-300 hover:text-white transition hover:bg-purple-800/30">
+          ⚖️ Vote
+        </button>
+        <button onclick="switchPhase('NUIT')" id="btn-phase-nuit" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-purple-300 hover:text-white transition hover:bg-purple-800/30">
+          🌙 Nuit
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Annonce Solennelle du Maître du Jeu (MJ) -->
+    <div class="max-w-7xl mx-auto mt-2">
+      <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-950/90 via-[#200e3b]/95 to-purple-950/90 border border-purple-600/30 px-3.5 py-2 shadow-md">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-purple-500 to-rose-500"></div>
+        <div class="flex items-start gap-2.5 pl-1">
+          <span class="text-lg">📜</span>
+          <div class="flex-1 text-xs">
+            <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px] mr-1.5">
+              Annonce du Maître du Jeu :
+            </span>
+            <span id="mj-text" class="text-purple-100 leading-relaxed">
+              {{ game_state.mj_announcement }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- CORPS PRINCIPAL : PLATEAU DES 7 JOUEURS + CHAT CENTRAL DU VILLAGE          -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden">
+    
+    <!-- ======================================================================= -->
+    <!-- 2. PLATEAU DE JEU : LES 7 CARTES JOUEURS (Sidebar / Grille 4 colonnes)  -->
+    <!-- ======================================================================= -->
+    <aside class="lg:col-span-5 xl:col-span-4 flex flex-col h-full overflow-hidden glass-panel rounded-2xl shadow-2xl">
+      
+      <!-- En-tête du plateau -->
+      <div class="p-3 border-b border-purple-800/40 flex items-center justify-between bg-night-900/60">
+        <div class="flex items-center gap-2">
+          <span class="text-base">👥</span>
+          <h2 class="font-bold text-sm tracking-wide text-white">Habitants du Village</h2>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">7 Joueurs</span>
+        </div>
+        <span class="text-[11px] text-purple-300/70 font-mono">MVP Composition</span>
+      </div>
+
+      <!-- Liste scrollable des 7 Cartes Joueurs -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-2.5" id="players-list">
+        {% for player in players %}
+          {% if player.is_human %}
+            <!-- CARTE 1 : JOUEUR HUMAIN (VOUS) -->
+            <div class="relative rounded-xl p-3 border-2 border-purple-500/70 bg-gradient-to-br from-[#2a1154]/90 to-[#190a33]/90 shadow-lg shadow-purple-900/40 transition hover:border-purple-400">
+              <div class="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-black text-[10px] font-black uppercase tracking-wider shadow">
+                VOUS (Humain)
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <!-- Avatar & Statut -->
+                <div class="relative">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br {{ player.avatar_bg }} flex items-center justify-center text-2xl shadow-inner border border-purple-400/40">
+                    {{ player.avatar }}
+                  </div>
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-night-950" title="Vivant"></span>
+                </div>
+
+                <!-- Détails Joueur -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-sm text-white truncate">{{ player.name }}</h3>
+                    <span class="text-xs px-2 py-0.5 rounded bg-purple-500/30 text-purple-200 border border-purple-500/40 font-semibold">
+                      {{ player.role }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-purple-200/80 mt-1 leading-snug">
+                    {{ player.role_description }}
+                  </p>
+
+                  <!-- Pouvoirs spéciaux Sorcière (Cadrage V2.1) -->
+                  <div class="mt-2.5 flex items-center gap-2 pt-2 border-t border-purple-800/40 text-[11px]">
+                    <span class="text-purple-300/80">Potions :</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium flex items-center gap-1">
+                      <span>🧪</span> Vie (Prête)
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium flex items-center gap-1">
+                      <span>☠️</span> Mort (Prête)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          {% elif not player.is_alive %}
+            <!-- CARTE JOUEUR MORT (Ex: Marc l'Impulsif éliminé Nuit 1) -->
+            <div class="relative rounded-xl p-3 border border-rose-900/50 bg-gradient-to-br from-night-950/90 to-[#190812]/90 opacity-75 hover:opacity-100 transition">
+              <div class="absolute -top-2 right-3 px-2 py-0.5 rounded-full bg-rose-600/90 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                ÉLIMINÉ
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <!-- Avatar Mort -->
+                <div class="relative grayscale">
+                  <div class="w-11 h-11 rounded-xl bg-zinc-800 flex items-center justify-center text-xl border border-zinc-700">
+                    💀
+                  </div>
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 border-2 border-night-950"></span>
+                </div>
+
+                <!-- Détails Mort -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-sm text-slate-400 line-through truncate">{{ player.name }}</h3>
+                    <!-- Selon le cadrage Fog of War : Rôle révélé à la mort -->
+                    <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-rose-300 border border-rose-500/30 font-semibold">
+                      🧑‍🌾 {{ player.role }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-rose-400/90 mt-1 font-medium">
+                    {{ player.death_reason }}
+                  </p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5 italic">
+                    Persona : {{ player.persona }} ({{ player.persona_desc }})
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          {% else %}
+            <!-- CARTE AGENT IA VIVANT (Fog of War : Rôle Masqué) -->
+            <div class="task-card-player rounded-xl p-3 border border-purple-800/40 bg-night-900/60 hover:bg-night-800/80 transition shadow-sm group">
+              <div class="flex items-start gap-3">
+                <!-- Avatar IA -->
+                <div class="relative">
+                  <div class="w-11 h-11 rounded-xl bg-gradient-to-br {{ player.avatar_bg }} flex items-center justify-center text-xl shadow border border-purple-500/30 group-hover:scale-105 transition transform">
+                    {{ player.avatar }}
+                  </div>
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-night-950" title="Vivant"></span>
+                </div>
+
+                <!-- Informations IA & Persona -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5 truncate">
+                      <h3 class="font-bold text-sm text-white truncate">{{ player.name }}</h3>
+                      <span class="text-[10px] px-1.5 py-0.2 rounded bg-purple-900/60 text-purple-300 border border-purple-700/40">IA</span>
+                    </div>
+                    <!-- Fog of War : Inconnu -->
+                    <span class="text-xs px-2 py-0.5 rounded bg-black/40 text-purple-300/80 border border-purple-800/40 font-mono">
+                      ❓ {{ player.role }}
+                    </span>
+                  </div>
+
+                  <!-- Traits Cognitifs (Section 2.4 du cadrage) -->
+                  <div class="mt-1 flex items-center gap-1.5">
+                    <span class="text-xs font-semibold text-purple-300">{{ player.persona }}</span>
+                    <span class="text-purple-400/40">•</span>
+                    <span class="text-[11px] text-purple-200/70 truncate">{{ player.persona_desc }}</span>
+                  </div>
+
+                  <!-- Actions contextuelles en phase de vote ou discussion -->
+                  <div class="mt-2.5 flex items-center justify-between pt-1.5 border-t border-purple-900/40 text-[11px]">
+                    <span class="text-purple-400/70 font-mono">
+                      Votes reçus : <span class="font-bold text-white">{{ player.votes_received }}</span>
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                      <button onclick="targetPlayer('{{ player.name }}', 'suspect')" class="px-2 py-0.5 rounded bg-purple-800/40 hover:bg-purple-700 text-purple-200 text-[11px] border border-purple-700/40 transition">
+                        Suspecter
+                      </button>
+                      <button onclick="voteAgainst('{{ player.name }}')" class="vote-btn hidden px-2.5 py-0.5 rounded bg-rose-600/80 hover:bg-rose-500 text-white font-bold text-[11px] transition shadow">
+                        Voter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Pied du plateau : Résumé Fog of War -->
+      <div class="p-2.5 border-t border-purple-800/40 bg-night-950/80 text-[11px] text-purple-300/70 flex items-center justify-between">
+        <span class="flex items-center gap-1">
+          <span class="text-amber-400">🛡️</span> Fog of War actif
+        </span>
+        <button onclick="toggleNightModal()" class="text-purple-400 hover:text-purple-200 underline">
+          Aperçu Modale Nuit
+        </button>
+      </div>
+    </aside>
+
+    <!-- ======================================================================= -->
+    <!-- 3. ZONE CENTRALE : DISCUSSION PUBLIQUE DU VILLAGE (Chat & Débat)         -->
+    <!-- ======================================================================= -->
+    <section class="lg:col-span-7 xl:col-span-8 flex flex-col h-full overflow-hidden glass-panel rounded-2xl shadow-2xl relative">
+      
+      <!-- En-tête de la zone de discussion -->
+      <div class="p-3 border-b border-purple-800/40 flex items-center justify-between bg-night-900/70">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">💬</span>
+          <div>
+            <h2 class="font-bold text-sm text-white">Place du Village — Débat Public</h2>
+            <p class="text-[11px] text-purple-300/70">Débattez avec les 6 IA pour identifier les imposteurs</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs text-purple-300 font-medium">Orchestrateur Mistral actif</span>
+        </div>
+      </div>
+
+      <!-- Fil de discussion scrollable -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3.5" id="chat-messages-container">
+        {% for msg in chat_messages %}
+          {% if msg.type == 'MJ' %}
+            <!-- Message du Maître du Jeu -->
+            <div class="rounded-xl bg-gradient-to-r from-amber-950/50 via-purple-950/60 to-amber-950/40 border border-amber-500/40 p-3.5 shadow-md">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5 tracking-wider uppercase">
+                  <span>👑</span> {{ msg.author }}
+                </span>
+                <span class="text-[11px] text-amber-300/60 font-mono">{{ msg.time }}</span>
+              </div>
+              <p class="text-xs sm:text-sm text-purple-100 leading-relaxed font-serif">
+                {{ msg.content }}
+              </p>
+            </div>
+
+          {% else %}
+            <!-- Message d'un Agent IA -->
+            <div class="flex items-start gap-3 group">
+              <div class="w-9 h-9 rounded-xl bg-purple-900/80 border border-purple-700/50 flex items-center justify-center text-lg flex-shrink-0 shadow">
+                {{ msg.avatar }}
+              </div>
+              <div class="flex-1 max-w-[85%]">
+                <div class="flex items-baseline gap-2 mb-0.5">
+                  <span class="font-bold text-xs text-purple-200">{{ msg.author }}</span>
+                  <span class="text-[10px] text-purple-400/60 font-mono">{{ msg.time }}</span>
+                </div>
+                <div class="p-3 rounded-2xl rounded-tl-none bg-[#1d0e3d]/80 border border-purple-700/40 text-xs sm:text-sm text-purple-100 shadow-sm leading-relaxed">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <!-- Indicateur de frappe IA (Simulé / Dynamique) -->
+        <div id="typing-indicator" class="flex items-center gap-2.5 text-xs text-purple-300/80 italic py-1 px-2">
+          <div class="flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
+          </div>
+          <span id="typing-text">Léa (La Paranoïaque) réfléchit et prépare sa réplique...</span>
+        </div>
+      </div>
+
+      <!-- Barre d'aide / Suggestions rapides de débat -->
+      <div class="px-4 py-1.5 bg-night-950/60 border-t border-purple-900/40 flex items-center gap-2 overflow-x-auto text-[11px]">
+        <span class="text-purple-400/70 font-semibold flex-shrink-0">Accusations rapides :</span>
+        <button onclick="insertQuickMessage('Je trouve le silence de Victor suspect. Pourquoi ne te défends-tu pas ?')" class="px-2 py-0.5 rounded-full bg-purple-900/40 hover:bg-purple-800 text-purple-200 border border-purple-700/30 whitespace-nowrap transition">
+          👉 Questionner Victor
+        </button>
+        <button onclick="insertQuickMessage('Chloé surréagit immédiatement, c\'est typique d\'un loup pris au piège !')" class="px-2 py-0.5 rounded-full bg-purple-900/40 hover:bg-purple-800 text-purple-200 border border-purple-700/30 whitespace-nowrap transition">
+          ⚡ Pointer Chloé
+        </button>
+        <button onclick="insertQuickMessage('Restons calmes, écoutons les arguments de chacun avant de voter à l\'aveugle.')" class="px-2 py-0.5 rounded-full bg-purple-900/40 hover:bg-purple-800 text-purple-200 border border-purple-700/30 whitespace-nowrap transition">
+          🕊️ Calmer le jeu
+        </button>
+      </div>
+
+      <!-- Zone de Saisie Utilisateur (Humain) -->
+      <div class="p-3 border-t border-purple-800/40 bg-night-900/90">
+        <form id="chat-form" onsubmit="handleSendMessage(event)" class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <input 
+                type="text" 
+                id="user-message-input"
+                placeholder="Exprimez vos arguments au village... (votre parole influence les IA)" 
+                class="w-full bg-[#160a2e] border border-purple-700/60 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-purple-100 placeholder-purple-400/40 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition"
+                autocomplete="off"
+              />
+              <span class="absolute right-3 top-2.5 text-[11px] text-purple-400/50">Entrée ↵</span>
+            </div>
+
+            <!-- Bouton d'envoi -->
+            <button 
+              type="submit" 
+              class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-purple-900/50 border border-purple-400/30 transition flex items-center gap-1.5 flex-shrink-0"
+            >
+              <span>Envoyer</span>
+              <svg class="w-4 h-4 transform rotate-45 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </div>
+
+          <!-- Mention de sécurité anti-jailbreak selon le cadrage -->
+          <div class="flex items-center justify-between text-[11px] text-purple-400/60 px-1">
+            <span class="flex items-center gap-1">
+              <span class="text-emerald-400">🛡️</span> Sécurité : Chevrons &lt;&gt; systématiquement neutralisés (anti-injection)
+            </span>
+            <span class="font-mono">Budget Tokens respecté (~1 100/appel)</span>
+          </div>
+        </form>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4. MODALE DE NUIT & APERÇU RÔLES DÉDIÉS (Conforme Cadrage Section 1.2)     -->
+<!-- ========================================================================= -->
+<div id="night-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-gradient-to-br from-[#1b0c36] to-[#0c051a] border border-purple-500/50 rounded-2xl max-w-lg w-full p-6 text-slate-100 shadow-2xl relative">
+    
+    <button onclick="toggleNightModal()" class="absolute top-4 right-4 text-purple-300 hover:text-white p-1 rounded-lg hover:bg-purple-800/40">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 rounded-xl bg-purple-900/60 border border-purple-500/40 flex items-center justify-center text-2xl">
+        🌙
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-white">Interface Dédiée de Nuit : Sorcière</h3>
+        <p class="text-xs text-purple-300">Phase nocturne active pour le joueur humain</p>
+      </div>
+    </div>
+
+    <!-- Notification de la victime des loups -->
+    <div class="bg-rose-950/40 border border-rose-500/40 rounded-xl p-3 mb-4 text-xs">
+      <span class="font-bold text-rose-300 block mb-1">🚨 Rapport nocturne secret :</span>
+      <p class="text-rose-100">
+        Les Loups-Garous ont désigné <strong class="text-white">Lucas (Le Cynique)</strong> comme victime cette nuit.
+      </p>
+    </div>
+
+    <!-- Choix des potions Sorcière (Cadrage V2.1) -->
+    <div class="space-y-3 mb-5 text-xs">
+      <div class="p-3 rounded-xl bg-purple-950/60 border border-purple-700/40 flex items-center justify-between">
+        <div>
+          <span class="font-bold text-emerald-300 block">🧪 Potion de Vie (1 restante)</span>
+          <span class="text-purple-300/80 text-[11px]">Sauver Lucas in extremis</span>
+        </div>
+        <button class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow transition">
+          Utiliser
+        </button>
+      </div>
+
+      <div class="p-3 rounded-xl bg-purple-950/60 border border-purple-700/40 flex items-center justify-between">
+        <div>
+          <span class="font-bold text-rose-300 block">☠️ Potion de Mort (1 restante)</span>
+          <span class="text-purple-300/80 text-[11px]">Éliminer un autre suspect (interdit sur Lucas)</span>
+        </div>
+        <button class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold shadow transition">
+          Cibler...
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 text-xs">
+      <button onclick="toggleNightModal()" class="px-4 py-2 bg-purple-900/50 hover:bg-purple-800 text-purple-200 rounded-lg transition font-medium">
+        Ne rien faire cette nuit
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // =========================================================================
+  // GESTION DU TIMER DÉGRESSIF (45 SECONDES DU CADRAGE)
+  // =========================================================================
+  let timeLeft = {{ game_state.timer_seconds }};
+  const maxTime = 45;
+  const timerDisplay = document.getElementById('timer-display');
+  const timerBar = document.getElementById('timer-bar');
+
+  const countdown = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      const secStr = timeLeft < 10 ? '0' + timeLeft : timeLeft;
+      timerDisplay.innerText = '00:' + secStr;
+      const pct = (timeLeft / maxTime) * 100;
+      timerBar.style.width = pct + '%';
+
+      if (timeLeft <= 10) {
+        timerDisplay.classList.add('text-rose-500', 'animate-pulse');
+      }
+    } else {
+      clearInterval(countdown);
+      timerDisplay.innerText = '00:00';
+      // Selon le cadrage : passage automatique en abstention / phase suivante
+      console.log('Timer expiré : Passage automatique.');
+    }
+  }, 1000);
+
+  // =========================================================================
+  // BASCULE DE PRÉVISUALISATION DES PHASES (Jour / Nuit / Vote)
+  // =========================================================================
+  function switchPhase(phase) {
+    const badge = document.getElementById('phase-badge');
+    const icon = document.getElementById('phase-icon');
+    const name = document.getElementById('phase-name');
+    const mjText = document.getElementById('mj-text');
+    const voteButtons = document.querySelectorAll('.vote-btn');
+
+    // Réinitialiser les boutons du header
+    ['jour', 'vote', 'nuit'].forEach(p => {
+      const btn = document.getElementById('btn-phase-' + p);
+      btn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-purple-300 hover:text-white transition hover:bg-purple-800/30';
+    });
+    document.getElementById('btn-phase-' + phase.toLowerCase()).className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-600 text-white shadow';
+
+    if (phase === 'JOUR') {
+      badge.className = 'flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold';
+      icon.innerText = '☀️';
+      name.innerText = 'JOUR — DÉBAT';
+      mjText.innerText = "Le village débat activement. Exprimez vos soupçons avant l'ouverture du vote public.";
+      voteButtons.forEach(btn => btn.classList.add('hidden'));
+    } else if (phase === 'VOTE') {
+      badge.className = 'flex items-center gap-2 px-3 py-1 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold';
+      icon.innerText = '⚖️';
+      name.innerText = 'VOTE DU VILLAGE';
+      mjText.innerText = "L'heure du choix a sonné ! Votez pour désigner le suspect à éliminer (ou votez blanc). Le vote contre soi-même est interdit.";
+      voteButtons.forEach(btn => btn.classList.remove('hidden'));
+    } else if (phase === 'NUIT') {
+      badge.className = 'flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold';
+      icon.innerText = '🌙';
+      name.innerText = 'NUIT — SILENCE';
+      mjText.innerText = "Le village s'endort paisiblement... Dans l'ombre, les Loups-Garous désignent leur prochaine victime.";
+      voteButtons.forEach(btn => btn.classList.add('hidden'));
+      toggleNightModal();
+    }
+  }
+
+  // =========================================================================
+  // GESTION DU CHAT EN TEMPS RÉEL (AVEC NEUTRALISATION BALISES < >)
+  // =========================================================================
+  function handleSendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('user-message-input');
+    let text = input.value.trim();
+    if (!text) return;
+
+    // Neutralisation stricte des balises selon la section 2.3 du cadrage
+    text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    appendChatMessage('Vous', '🧙‍♀️', text, true);
+    input.value = '';
+
+    // Déclenchement de la simulation de frappe d'un agent IA en retour
+    simulateAiResponse();
+  }
+
+  function appendChatMessage(author, avatar, content, isUser = false) {
+    const container = document.getElementById('chat-messages-container');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'flex items-start gap-3 group ' + (isUser ? 'flex-row-reverse' : '');
+
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    msgDiv.innerHTML = `
+      <div class="w-9 h-9 rounded-xl ${isUser ? 'bg-gradient-to-br from-purple-600 to-indigo-800 border-purple-400' : 'bg-purple-900/80 border-purple-700/50'} border flex items-center justify-center text-lg flex-shrink-0 shadow">
+        ${avatar}
+      </div>
+      <div class="flex-1 max-w-[85%] ${isUser ? 'text-right' : ''}">
+        <div class="flex items-baseline gap-2 mb-0.5 ${isUser ? 'justify-end' : ''}">
+          <span class="font-bold text-xs ${isUser ? 'text-amber-300' : 'text-purple-200'}">${author}</span>
+          <span class="text-[10px] text-purple-400/60 font-mono">${time}</span>
+        </div>
+        <div class="p-3 rounded-2xl ${isUser ? 'rounded-tr-none bg-gradient-to-r from-purple-700 to-indigo-800 text-white' : 'rounded-tl-none bg-[#1d0e3d]/80 border border-purple-700/40 text-purple-100'} text-xs sm:text-sm shadow-sm leading-relaxed">
+          ${content}
+        </div>
+      </div>
+    `;
+
+    // Insérer avant l'indicateur de frappe
+    const typing = document.getElementById('typing-indicator');
+    container.insertBefore(msgDiv, typing);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function insertQuickMessage(text) {
+    const input = document.getElementById('user-message-input');
+    input.value = text;
+    input.focus();
+  }
+
+  function simulateAiResponse() {
+    const typing = document.getElementById('typing-indicator');
+    const typingText = document.getElementById('typing-text');
+    typing.classList.remove('hidden');
+
+    const agents = [
+      { name: 'Victor (Le Stratège)', avatar: '🧠', text: "L'argument d'Alexandre tient la route. Regardons les incohérences de vote lors du dernier tour." },
+      { name: 'Chloé (La Mauvaise Joueuse)', avatar: '⚡', text: "Pourquoi vous me visez encore ?! C'est ridicule, votez contre quelqu'un d'autre si vous voulez gagner !" },
+      { name: 'Lucas (Le Cynique)', avatar: '🎭', text: "Charmante rhétorique. Si nous continuons à ce rythme, les loups n'auront même pas besoin de chasser ce soir." }
+    ];
+
+    const pick = agents[Math.floor(Math.random() * agents.length)];
+    typingText.innerText = `${pick.name} est en train d'écrire...`;
+
+    setTimeout(() => {
+      appendChatMessage(pick.name, pick.avatar, pick.text, false);
+      typing.classList.add('hidden');
+    }, 2200);
+  }
+
+  function targetPlayer(name, type) {
+    insertQuickMessage(`Je trouve les réactions de ${name} très suspectes. Qu'en pense le village ?`);
+  }
+
+  function voteAgainst(name) {
+    if (confirm(`Confirmez-vous votre vote contre ${name} ?`)) {
+      appendChatMessage('Système de Vote', '⚖️', `Vous avez voté contre ${name}. Votre vote est enregistré.`, false);
+    }
+  }
+
+  function toggleNightModal() {
+    const modal = document.getElementById('night-modal');
+    modal.classList.toggle('hidden');
+  }
+</script>
+{% endblock %}
+

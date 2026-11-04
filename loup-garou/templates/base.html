@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Loup-Garou — Déduction Sociale Solo{% endblock %}</title>
+  
+  <!-- Tailwind CSS via CDN officiel -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            night: {
+              950: '#090414',
+              900: '#110722',
+              850: '#170a2f',
+              800: '#1f0d3e',
+              700: '#2d1458',
+              600: '#431d80',
+            },
+            wolf: {
+              blood: '#e11d48',
+              gold: '#fbbf24',
+              magic: '#a855f7',
+              potion: '#10b981',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(168, 85, 247, 0.2)' },
+              '100%': { boxShadow: '0 0 25px rgba(168, 85, 247, 0.5)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Barre de défilement stylisée */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 7, 30, 0.7);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(168, 85, 247, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(168, 85, 247, 0.65);
+    }
+    
+    /* Effet de brume nocturne en fond */
+    .bg-night-gradient {
+      background: radial-gradient(circle at 50% 10%, #2b1154 0%, #130728 50%, #090314 100%);
+    }
+
+    /* Effet glassmorphism */
+    .glass-panel {
+      background: rgba(23, 10, 47, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(168, 85, 247, 0.22);
+    }
+    .glass-card {
+      background: rgba(31, 13, 62, 0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-night-gradient text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-purple-600 selection:text-white">
+
+  <!-- Contenu Principal -->
+  {% block content %}{% endblock %}
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+
