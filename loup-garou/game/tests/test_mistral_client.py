@@ -2,7 +2,7 @@ import json
 import unittest
 from types import SimpleNamespace
 
-from .services.mistral_client import (
+from game.services.mistral_client import (
     MistralGameClient,
     MistralResponseError,
     SYSTEM_PROMPT,
