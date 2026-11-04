@@ -95,3 +95,87 @@ class Game(models.Model):
         if self.phase_deadline is None:
             return False
         return (now or timezone.now()) >= self.phase_deadline
+
+
+class Role(models.TextChoices):
+    WEREWOLF = "WEREWOLF", "Loup-Garou"
+    VILLAGER = "VILLAGER", "Villageois"
+    SEER = "SEER", "Voyante"
+    WITCH = "WITCH", "Sorcière"
+
+
+class Personality(models.TextChoices):
+    STRATEGE = "STRATEGE", "Le Stratège"
+    MAUVAISE_JOUEUSE = "MAUVAISE_JOUEUSE", "La Mauvaise Joueuse"
+    CYNIQUE = "CYNIQUE", "Le Cynique"
+    PARANOIAQUE = "PARANOIAQUE", "La Paranoïaque"
+    DIPLOMATE = "DIPLOMATE", "La Diplomate"
+    IMPULSIF = "IMPULSIF", "L'Impulsif"
+
+
+class DeathCause(models.TextChoices):
+    WOLVES = "WOLVES", "Dévoré par les loups"
+    WITCH = "WITCH", "Empoisonné par la sorcière"
+    VOTE = "VOTE", "Éliminé par le village"
+
+
+class Player(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="players")
+    seat = models.PositiveSmallIntegerField()
+    name = models.CharField(max_length=32)
+    is_human = models.BooleanField(default=False)
+    role = models.CharField(max_length=16, choices=Role.choices)
+    # Null pour l'humain, obligatoire pour une IA.
+    personality = models.CharField(
+        max_length=20, choices=Personality.choices, null=True, blank=True
+    )
+    is_alive = models.BooleanField(default=True)
+    died_on_day = models.PositiveSmallIntegerField(null=True, blank=True)
+    death_cause = models.CharField(
+        max_length=8, choices=DeathCause.choices, null=True, blank=True
+    )
+    # Potions à usage unique ; uniquement possibles pour la sorcière.
+    has_life_potion = models.BooleanField(default=False)
+    has_death_potion = models.BooleanField(default=False)
+    # Mémoire privée de l'IA : pensée interne de son tour précédent.
+    last_thought = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["game", "seat"]
+        constraints = [
+            models.UniqueConstraint(fields=["game", "seat"], name="player_unique_seat"),
+            models.UniqueConstraint(fields=["game", "name"], name="player_unique_name"),
+            models.UniqueConstraint(
+                fields=["game"],
+                condition=Q(is_human=True),
+                name="player_single_human_per_game",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(is_human=True, personality__isnull=True)
+                    | Q(is_human=False, personality__isnull=False)
+                ),
+                name="player_personality_only_for_ai",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(role=Role.WITCH)
+                    | Q(has_life_potion=False, has_death_potion=False)
+                ),
+                name="player_potions_only_for_witch",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(is_alive=True, died_on_day__isnull=True, death_cause__isnull=True)
+                    | Q(is_alive=False, died_on_day__isnull=False, death_cause__isnull=False)
+                ),
+                name="player_death_fields_consistent",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.name} (siège {self.seat})"
+
+    @property
+    def is_wolf(self):
+        return self.role == Role.WEREWOLF
