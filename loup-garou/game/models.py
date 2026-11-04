@@ -15,6 +15,7 @@ class Phase(models.TextChoices):
     DAWN = "DAWN", "Aube"
     DAY_DEBATE = "DAY_DEBATE", "Jour · débat"
     DAY_VOTE = "DAY_VOTE", "Jour · vote"
+    VOTE_RESULT = "VOTE_RESULT", "Jour · résultat du vote"
     GAME_OVER = "GAME_OVER", "Fin de partie"
 
 

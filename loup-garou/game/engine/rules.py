@@ -27,6 +27,7 @@ PHASE_DURATIONS = {
     Phase.DAWN: timedelta(seconds=8),
     Phase.DAY_DEBATE: PHASE_TIMEOUT,
     Phase.DAY_VOTE: PHASE_TIMEOUT,
+    Phase.VOTE_RESULT: timedelta(seconds=8),
     Phase.GAME_OVER: None,
 }
 
