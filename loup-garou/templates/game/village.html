@@ -1,0 +1,949 @@
+{% extends "base.html" %}
+
+{% block title %}Le Loup-Garou de Thiercelieux — Plateau de jeu{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ===================================================================== */
+  /*  EN-TÊTE                                                              */
+  /* ===================================================================== */
+  .crest {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 28px;
+    background: radial-gradient(circle at 38% 28%, #4a331b 0%, #2a1a0d 48%, #150c05 100%);
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 0 4px rgba(185, 138, 60, 0.14),
+      0 0 0 5px rgba(185, 138, 60, 0.40),
+      0 10px 22px rgba(0, 0, 0, 0.55),
+      inset 0 0 18px rgba(0, 0, 0, 0.60);
+  }
+
+  /* ===================================================================== */
+  /*  PLATEAU                                                              */
+  /* ===================================================================== */
+  .board-frame {
+    position: relative;
+    padding: clamp(8px, 1.4vw, 16px);
+    border-radius: 12px;
+    border: 1px solid #6b4c25;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(218, 170, 100, 0.20), transparent 65%),
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0 2px, transparent 2px 9px, rgba(255, 255, 255, 0.02) 9px 10px),
+      linear-gradient(180deg, #4a2f18, #281709 70%, #1b0f06);
+    box-shadow:
+      0 28px 60px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 220, 160, 0.14),
+      inset 0 -14px 30px rgba(0, 0, 0, 0.50);
+  }
+
+  .board-frame::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(185, 138, 60, 0.28);
+    border-radius: 9px;
+    pointer-events: none;
+  }
+
+  .board-surface {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 5px;
+    border: 1px solid #8f6b38;
+    background-color: #d9c196;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(255, 250, 235, 0.90) 0 7%, rgba(190, 148, 80, 0.12) 30%, transparent 60%),
+      radial-gradient(circle at 50% 50%, transparent 0 60.5%, rgba(126, 88, 40, 0.35) 61%, rgba(126, 88, 40, 0.06) 61.7%, transparent 62.4%),
+      radial-gradient(circle at 50% 50%, transparent 0 72.5%, rgba(126, 88, 40, 0.30) 73%, rgba(126, 88, 40, 0.05) 73.6%, transparent 74.3%),
+      radial-gradient(circle at 50% 50%, transparent 0 88%, rgba(126, 88, 40, 0.25) 88.5%, transparent 89.2%),
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(120, 82, 34, 0.05) 0deg 6deg, transparent 6deg 12deg),
+      radial-gradient(ellipse at 30% 18%, #f1e2c1 0%, #dcc192 55%, #c9a873 100%);
+    box-shadow:
+      inset 0 0 90px rgba(84, 54, 20, 0.40),
+      inset 0 0 0 1px rgba(255, 250, 235, 0.35);
+  }
+
+  /* ---------------------- Emblème central du village ---------------------- */
+  .board-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 36%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .village-emblem {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+    border-radius: 9999px;
+    color: #f2e5c8;
+    background: radial-gradient(circle at 38% 26%, #4a331b 0%, #2a1a0d 48%, #150c05 100%);
+    border: 2px solid var(--gold);
+    outline: 1px dashed rgba(227, 192, 124, 0.35);
+    outline-offset: -9px;
+    box-shadow:
+      0 0 0 5px rgba(185, 138, 60, 0.16),
+      0 0 0 6px rgba(185, 138, 60, 0.45),
+      0 16px 32px rgba(40, 22, 6, 0.50),
+      inset 0 0 34px rgba(0, 0, 0, 0.65),
+      inset 0 1px 0 rgba(255, 220, 160, 0.18);
+  }
+
+  .emblem-wolf {
+    font-size: clamp(22px, 6cqw, 44px);
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+  }
+
+  .emblem-title {
+    font-family: 'UnifrakturMaguntia', Georgia, serif;
+    font-size: clamp(15px, 3.2cqw, 25px);
+    line-height: 1;
+    color: var(--gold-light);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  }
+
+  .emblem-sub {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(6.5px, 1.35cqw, 9px);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(236, 217, 176, 0.60);
+  }
+
+  /* ---------------------------- Places joueurs ---------------------------- */
+  .board-seats {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .seat {
+    position: absolute;
+    width: 23%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Répartition circulaire des 7 places (rayon ≈ 34 % du plateau) */
+  .seat:nth-child(1) { left: 50%;    top: 16%; }
+  .seat:nth-child(2) { left: 76.58%; top: 28.80%; }
+  .seat:nth-child(3) { left: 83.15%; top: 57.57%; }
+  .seat:nth-child(4) { left: 64.75%; top: 80.63%; }
+  .seat:nth-child(5) { left: 35.25%; top: 80.63%; }
+  .seat:nth-child(6) { left: 16.85%; top: 57.57%; }
+  .seat:nth-child(7) { left: 23.42%; top: 28.80%; }
+
+  .seat-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.7rem 0.5rem 0.55rem;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid #9c7c48;
+    background: linear-gradient(180deg, #f3e6c7, #e5cfa5);
+    box-shadow:
+      0 7px 16px rgba(20, 10, 2, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.40),
+      inset 0 0 18px rgba(120, 82, 34, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .seat:hover .seat-card {
+    transform: translateY(-3px);
+    box-shadow:
+      0 12px 22px rgba(20, 10, 2, 0.50),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+      inset 0 0 18px rgba(120, 82, 34, 0.18);
+  }
+
+  .seat-human .seat-card {
+    border-color: var(--gold-dark);
+    background: linear-gradient(180deg, #f8edd4, #ecd7ab);
+    box-shadow:
+      0 0 0 2px rgba(185, 138, 60, 0.65),
+      0 12px 24px rgba(20, 10, 2, 0.50),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.50);
+  }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: clamp(32px, 6.5cqw, 46px);
+    height: clamp(32px, 6.5cqw, 46px);
+    border-radius: 9999px;
+    font-size: clamp(16px, 3.4cqw, 24px);
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--gold);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.60),
+      0 2px 6px rgba(0, 0, 0, 0.40);
+  }
+
+  .role-seal {
+    position: absolute;
+    right: -6px;
+    bottom: -5px;
+    display: grid;
+    place-items: center;
+    width: clamp(16px, 3.2cqw, 21px);
+    height: clamp(16px, 3.2cqw, 21px);
+    border-radius: 9999px;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(9px, 1.7cqw, 12px);
+    background: radial-gradient(circle at 35% 28%, #a84034 0%, #7b1f1d 45%, #511112 100%);
+    border: 1px solid #3d0b0c;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  }
+
+  .seat-flag {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    z-index: 3;
+    padding: 2px 8px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(7px, 1.5cqw, 9px);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow:
+      0 2px 5px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+
+  .seat-text {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .seat-name {
+    overflow: hidden;
+    color: var(--ink);
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(10.5px, 2.1cqw, 14px);
+    font-weight: 700;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seat-persona {
+    overflow: hidden;
+    color: #6f5434;
+    font-size: clamp(9px, 1.75cqw, 11.5px);
+    font-style: italic;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seat-role {
+    margin-top: 2px;
+    color: #7a5a33;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(7.5px, 1.5cqw, 9.5px);
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .seat-role-known {
+    color: var(--blood);
+    font-weight: 700;
+  }
+
+  /* --------------------- Discussion publique du village --------------------- */
+  .chat-feed {
+    scroll-behavior: smooth;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 3px rgba(185, 138, 60, 0.35);
+  }
+
+  .chat-send {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    color: #241507;
+    border: 1px solid var(--gold-dark);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 5px rgba(0, 0, 0, 0.30);
+  }
+
+  .chat-send:hover {
+    filter: brightness(1.08);
+  }
+
+  .chat-send:active {
+    transform: translateY(1px);
+  }
+
+  /* --------------------- Bannière d'état temps réel --------------------- */
+  .status-banner {
+    --phase-accent: #f0c96a;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    border-bottom: 1px solid rgba(185, 138, 60, 0.35);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(218, 170, 100, 0.10), transparent 70%),
+      linear-gradient(180deg, #2a190c, #1b1007);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  }
+
+  .status-banner[data-phase='jour'] { --phase-accent: #f0c96a; }
+  .status-banner[data-phase='vote'] { --phase-accent: #e05f4e; }
+  .status-banner[data-phase='nuit'] { --phase-accent: #93a8e8; }
+
+  .status-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 19px;
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--phase-accent);
+    box-shadow:
+      0 0 16px color-mix(in srgb, var(--phase-accent) 40%, transparent),
+      inset 0 0 10px rgba(0, 0, 0, 0.60);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  #status-phase {
+    color: var(--phase-accent);
+    transition: color 0.4s ease;
+  }
+
+  .mj-seal {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    background: radial-gradient(circle at 35% 28%, #7b5a2b, #4b3019);
+    border: 1px solid var(--gold);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.40);
+  }
+
+  .live-dot {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #d9724b;
+  }
+
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: #d9724b;
+    opacity: 0.55;
+    animation: live-pulse 1.6s ease-out infinite;
+  }
+
+  @keyframes live-pulse {
+    0%   { transform: scale(0.6); opacity: 0.60; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  /* ------------------------------ Mobile ------------------------------ */
+  @media (max-width: 767px) {
+    .board-surface {
+      aspect-ratio: auto;
+      overflow: visible;
+      padding: 1rem 0.8rem 1.1rem;
+    }
+
+    .board-center {
+      position: static;
+      width: 150px;
+      margin: 0 auto 1.1rem;
+      transform: none;
+    }
+
+    .board-seats {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .seat {
+      position: static;
+      width: auto;
+      transform: none;
+    }
+
+    .seat:nth-child(n) {
+      left: auto;
+      top: auto;
+    }
+
+    .seat-card {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      font-size: 18px;
+    }
+
+    .seat-text {
+      flex: 1;
+    }
+
+    .seat-name,
+    .seat-persona,
+    .seat-role {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seat:not(.seat-human) .seat-role {
+      display: none;
+    }
+
+    .seat-flag {
+      top: -7px;
+      right: -2px;
+      left: auto;
+      transform: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col">
+
+  <!-- ===================================================================== -->
+  <!--  EN-TÊTE : ENSEIGNE DU VILLAGE                                        -->
+  <!-- ===================================================================== -->
+  <header class="relative z-10 border-b border-gold/25">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="crest">
+          <span>🐺</span>
+        </div>
+        <div>
+          <p class="font-display text-[9px] sm:text-[10px] uppercase tracking-[0.38em] text-gold-light/70">
+            {{ board.edition }}
+          </p>
+          <h1 class="font-gothic text-3xl sm:text-4xl text-parchment-light leading-none mt-0.5">
+            Le Loup-Garou <span class="text-gold-light">de Thiercelieux</span>
+          </h1>
+          <p class="hidden sm:block text-[12px] text-parchment/50 italic mt-1">
+            Un village paisible. Des loups parmi les habitants.
+          </p>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-4">
+        <div class="text-right">
+          <p class="font-display text-[10px] uppercase tracking-[0.26em] text-gold-light/80">Plateau de jeu</p>
+          <p class="text-[12px] text-parchment/50">{{ board.player_count }} places · Rôles secrets</p>
+        </div>
+        <span class="wax-seal rotate-[-8deg]">VII</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!--  BANNIÈRE D'ÉTAT : JOUR / NUIT / VOTE + ANNONCES DU MJ                 -->
+  <!-- ===================================================================== -->
+  <div id="status-banner" class="status-banner" data-phase="{{ status_phase.key }}" aria-live="polite">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-7 py-2.5 flex items-center gap-3 sm:gap-5">
+
+      <!-- Phase courante -->
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <span id="status-icon" class="status-icon">{{ status_phase.icon }}</span>
+        <div class="min-w-0">
+          <p id="status-phase" class="font-display text-[11px] sm:text-[13px] font-bold uppercase tracking-[0.16em] whitespace-nowrap">
+            {{ status_phase.label }}
+          </p>
+          <p id="status-desc" class="hidden sm:block text-[11px] italic truncate text-parchment/50">
+            {{ status_phase.desc }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Annonces du MJ -->
+      <div class="hidden md:flex items-center gap-3 flex-1 min-w-0 border-l border-white/10 pl-5">
+        <span class="mj-seal">MJ</span>
+        <p id="mj-line" class="flex-1 min-w-0 truncate text-[12.5px] italic text-parchment/75 transition-opacity duration-500">
+          {{ announcements.0 }}
+        </p>
+      </div>
+
+      <!-- Signal temps réel -->
+      <div class="ml-auto flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="font-display text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] text-parchment/50">
+          En direct
+        </span>
+        <span id="live-clock" class="font-display text-[10.5px] sm:text-[11px] tabular-nums text-gold-light/90"></span>
+      </div>
+
+    </div>
+  </div>
+
+  {% if announcements %}
+    {{ announcements|json_script:"mj-announcements" }}
+  {% endif %}
+
+  <!-- ===================================================================== -->
+  <!--  CONTENU : PANNEAUX LATÉRAUX + PLATEAU                                -->
+  <!-- ===================================================================== -->
+  <main class="relative z-10 flex-1 w-full max-w-[1480px] mx-auto px-3 sm:px-6 py-6 lg:py-8">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-7 items-start">
+
+      <!-- ---------------------- Colonne gauche : composition ---------------------- -->
+      <aside class="order-2 xl:order-1 xl:col-span-3 space-y-5">
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-gold-dark text-sm">✦</span>
+            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+              Composition du village
+            </h2>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <div class="divide-y divide-ink/15">
+            {% for role in composition %}
+              <div class="flex items-center gap-3 py-2.5">
+                <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-lg text-parchment-light bg-wood-800 border border-gold/50 shadow-inner">
+                  {{ role.icon }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="font-display text-[12.5px] font-semibold text-ink leading-tight">{{ role.name }}</p>
+                  <p class="text-[11.5px] text-ink-soft/85 leading-tight">{{ role.note }}</p>
+                </div>
+                <span class="wax-count">{{ role.count }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-ink/20 flex items-center justify-between">
+            <span class="font-display text-[10px] uppercase tracking-[0.18em] text-ink-soft">Total</span>
+            <span class="font-display text-[13px] font-bold text-ink">{{ board.player_count }} habitants</span>
+          </div>
+
+          <p class="mt-3 text-[11.5px] italic leading-snug text-ink-soft/75">
+            ✦ Les rôles sont distribués secrètement. Seul le vôtre vous est révélé.
+          </p>
+        </section>
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-gold-dark text-sm">✦</span>
+            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+              Le déroulement
+            </h2>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <ol class="space-y-3">
+            {% for phase in phases %}
+              <li class="flex gap-3">
+                <span class="w-8 h-8 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/50">
+                  {{ phase.icon }}
+                </span>
+                <div>
+                  <p class="font-display text-[11.5px] font-bold uppercase tracking-[0.12em] text-ink">{{ phase.name }}</p>
+                  <p class="text-[11.5px] text-ink-soft/85 leading-snug">{{ phase.desc }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        </section>
+
+      </aside>
+
+      <!-- --------------------- Plateau + place du village --------------------- -->
+      <section class="order-1 xl:order-2 xl:col-span-6 space-y-5">
+        <div class="board-frame">
+          <div class="board-surface">
+
+            <!-- Emblème du village -->
+            <div class="board-center">
+              <div class="village-emblem">
+                <span class="emblem-wolf">🐺</span>
+                <p class="emblem-title">Thiercelieux</p>
+                <p class="emblem-sub">Le village maudit</p>
+              </div>
+            </div>
+
+            <!-- Les 7 places autour de la place du village -->
+            <div class="board-seats">
+              {% for player in players %}
+                <div class="seat {% if player.is_human %}seat-human{% endif %}">
+                  <div class="seat-card">
+                    {% if player.is_human %}
+                      <span class="seat-flag">Vous</span>
+                    {% endif %}
+
+                    <div class="avatar-wrap">
+                      <div class="avatar">{{ player.avatar }}</div>
+                      {% if not player.is_human %}
+                        <span class="role-seal" title="Rôle inconnu">?</span>
+                      {% endif %}
+                    </div>
+
+                    <div class="seat-text">
+                      <p class="seat-name">{{ player.name }}</p>
+                      <p class="seat-persona">{{ player.persona }}</p>
+                      {% if player.is_human %}
+                        <p class="seat-role seat-role-known">{{ player.role }}</p>
+                      {% else %}
+                        <p class="seat-role">Rôle inconnu</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+
+        <p class="mt-3 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.26em] text-gold-light/45">
+          ✦ Disposition initiale · Les rôles restent secrets ✦
+        </p>
+
+        <!-- ------------------ Place du village : discussion publique ------------------ -->
+        <section class="parchment p-4 sm:p-5" aria-label="Discussion publique du village">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-gold-dark text-sm">✦</span>
+              <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+                Place du village
+              </h2>
+            </div>
+            <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-ink-soft/70">
+              <span class="w-1.5 h-1.5 rounded-full bg-blood"></span>
+              Discussion publique
+            </span>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <!-- Fil des échanges -->
+          <div id="chat-feed"
+               class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] overflow-y-auto pr-1.5">
+            {% for message in discussion %}
+              <article class="flex gap-3">
+                <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/60 shadow-inner">
+                  {{ message.avatar }}
+                </span>
+                <div class="flex-1 min-w-0 rounded-sm border border-ink/15 bg-white/25 px-3 py-2">
+                  <p class="font-display text-[10px] uppercase tracking-[0.14em] text-ink-soft">
+                    {{ message.name }}
+                    <span class="normal-case tracking-normal text-ink-soft/60">· {{ message.persona }}</span>
+                  </p>
+                  <p class="mt-0.5 text-[13px] leading-snug text-ink">{{ message.text }}</p>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+          <!-- Prendre la parole -->
+          <form id="chat-form" class="mt-4 flex gap-2" autocomplete="off">
+            <input id="chat-input"
+                   type="text"
+                   maxlength="300"
+                   placeholder="Prenez la parole devant le village..."
+                   class="chat-input relative z-10 min-w-0 flex-1 rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[13px] text-ink placeholder-ink-soft/50 font-body">
+            <button type="submit" class="chat-send relative z-10 flex-shrink-0 rounded-sm px-4 py-2 text-[10px]">
+              Parler
+            </button>
+          </form>
+
+          <p class="mt-3 text-[10.5px] italic leading-snug text-ink-soft/70">
+            ✦ Écran de démonstration : la discussion reflète les archives de la place, vos messages
+            ne s’affichent que pour vous.
+          </p>
+        </section>
+      </section>
+
+      <!-- ---------------------- Colonne droite : votre carte ---------------------- -->
+      <aside class="order-3 xl:col-span-3 space-y-5">
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-gold-dark text-sm">✦</span>
+              <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+                Votre carte
+              </h2>
+            </div>
+            <span class="wax-seal wax-seal-sm rotate-[7deg]">SECRET</span>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 flex-shrink-0 grid place-items-center rounded-full text-3xl bg-wood-800 border-2 border-gold shadow-lg">
+              {{ human.avatar }}
+            </div>
+            <div>
+              <p class="font-display text-[10px] uppercase tracking-[0.20em] text-ink-soft/80">Votre rôle</p>
+              <p class="font-display text-xl font-bold text-blood leading-tight">{{ human.role }}</p>
+            </div>
+          </div>
+
+          <p class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">
+            {{ human.role_description }}
+          </p>
+
+          <div class="mt-3 grid gap-2">
+            <div class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+              <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>🧪</span> Potion de vie</span>
+              <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+            </div>
+            <div class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+              <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>☠️</span> Potion de mort</span>
+              <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+            </div>
+          </div>
+
+          <p class="mt-3 text-[11px] italic leading-snug text-ink-soft/70">
+            Gardez votre rôle secret : les autres habitants ne voient que votre nom.
+          </p>
+        </section>
+
+        <section class="wood-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-gold-light">
+              Le plateau
+            </h2>
+            <span class="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-parchment/60">
+              <span class="w-1.5 h-1.5 rounded-full bg-gold-light"></span>
+              {{ board.status }}
+            </span>
+          </div>
+          <div class="gold-rule my-3 opacity-60"></div>
+
+          <dl class="space-y-2.5 text-[12.5px]">
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Village</dt>
+              <dd class="font-display text-parchment-light">{{ board.village }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Habitants</dt>
+              <dd class="font-display text-parchment-light">{{ board.player_count }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Loups-Garous</dt>
+              <dd class="font-display text-parchment-light">2</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-parchment/55">Édition</dt>
+              <dd class="font-display text-parchment-light">{{ board.edition }}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-4 space-y-2 text-[12px] text-parchment/70">
+            <p><span class="font-semibold text-gold-light">Le village</span> doit éliminer tous les Loups-Garous.</p>
+            <p><span class="font-semibold text-rose-300/90">Les loups</span> doivent dévorer les habitants jusqu’à être majoritaires.</p>
+          </div>
+
+          <p class="mt-4 border-t border-white/10 pt-3 text-[10.5px] italic leading-snug text-parchment/40">
+            Aucune partie n’est en cours : le plateau présente la disposition initiale du village.
+          </p>
+        </section>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!--  PIED DE PAGE                                                         -->
+  <!-- ===================================================================== -->
+  <footer class="relative z-10 border-t border-gold/20 py-4 text-center">
+    <p class="font-display text-[9px] uppercase tracking-[0.34em] text-gold-light/50">
+      Thiercelieux · Édition Classique
+    </p>
+    <p class="mt-1 text-[11px] italic text-parchment/35">« La nuit tombe sur le village... »</p>
+  </footer>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Bannière d'état temps réel (démo) : horloge, annonces du MJ en rotation,
+  // et simulation du cycle Jour → Vote → Nuit tant qu'aucun backend n'existe.
+  (function () {
+    var banner = document.getElementById('status-banner');
+    var iconEl = document.getElementById('status-icon');
+    var phaseEl = document.getElementById('status-phase');
+    var descEl = document.getElementById('status-desc');
+    var mjEl = document.getElementById('mj-line');
+    var clockEl = document.getElementById('live-clock');
+    if (!banner) return;
+
+    // ---- Horloge en temps réel (heure locale du navigateur) ----
+    function tickClock() {
+      if (clockEl) {
+        clockEl.textContent = new Date().toLocaleTimeString('fr-FR', { hour12: false });
+      }
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    // ---- Annonces du MJ, en rotation toutes les 7 s ----
+    var announcements = [];
+    var source = document.getElementById('mj-announcements');
+    if (source) {
+      try { announcements = JSON.parse(source.textContent); } catch (error) { announcements = []; }
+    }
+
+    if (mjEl && announcements.length > 1) {
+      var announcementIndex = 1;
+      setInterval(function () {
+        mjEl.style.opacity = '0';
+        setTimeout(function () {
+          mjEl.textContent = announcements[announcementIndex % announcements.length];
+          mjEl.style.opacity = '1';
+          announcementIndex += 1;
+        }, 400);
+      }, 7000);
+    }
+
+    // ---- Simulation du cycle des phases toutes les 20 s ----
+    var phases = [
+      {
+        key: 'jour',
+        icon: '☀️',
+        label: 'Jour 1 · Le village se réveille',
+        desc: 'Chacun découvre ce que la nuit a emporté.',
+      },
+      {
+        key: 'vote',
+        icon: '⚖️',
+        label: 'Le Vote · La place délibère',
+        desc: 'Désignez le suspect à envoyer au bûcher.',
+      },
+      {
+        key: 'nuit',
+        icon: '🌙',
+        label: 'La Nuit · Le village s’endort',
+        desc: 'Fermez les yeux… les loups choisissent leur proie.',
+      },
+    ];
+
+    if (descEl) {
+      var phaseIndex = 0;
+      setInterval(function () {
+        phaseIndex = (phaseIndex + 1) % phases.length;
+        var phase = phases[phaseIndex];
+        banner.setAttribute('data-phase', phase.key);
+        if (iconEl) iconEl.textContent = phase.icon;
+        if (phaseEl) phaseEl.textContent = phase.label;
+        descEl.textContent = phase.desc;
+      }, 20000);
+    }
+  })();
+</script>
+<script>
+  // Discussion publique (démo) : publie le message du joueur localement dans le fil.
+  (function () {
+    var form = document.getElementById('chat-form');
+    var input = document.getElementById('chat-input');
+    var feed = document.getElementById('chat-feed');
+    var humanName = '{{ human.name }}';
+    var humanAvatar = '{{ human.avatar }}';
+    if (!form || !input || !feed) return;
+
+    // Affiche les archives en fin de discussion.
+    feed.scrollTop = feed.scrollHeight;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var text = input.value.trim();
+      if (!text) return;
+
+      var message = document.createElement('article');
+      message.className = 'flex flex-row-reverse gap-3';
+
+      var avatar = document.createElement('span');
+      avatar.className = 'w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border-2 border-gold shadow';
+      avatar.textContent = humanAvatar;
+
+      var bubble = document.createElement('div');
+      bubble.className = 'flex-1 min-w-0 rounded-sm border-2 border-gold-dark bg-gradient-to-b from-[#f8edd4] to-[#ecd7ab] px-3 py-2';
+
+      var author = document.createElement('p');
+      author.className = 'font-display text-[10px] uppercase tracking-[0.14em] text-blood text-right';
+      author.textContent = humanName + ' · vous';
+
+      var content = document.createElement('p');
+      content.className = 'mt-0.5 text-[13px] leading-snug text-ink';
+      content.textContent = text;
+
+      bubble.appendChild(author);
+      bubble.appendChild(content);
+      message.appendChild(avatar);
+      message.appendChild(bubble);
+      feed.appendChild(message);
+
+      feed.scrollTop = feed.scrollHeight;
+      input.value = '';
+      input.focus();
+    });
+  })();
+</script>
+{% endblock %}
