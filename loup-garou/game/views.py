@@ -188,12 +188,33 @@ def village_view(request):
         },
     ]
 
+    # État courant du village, affiché par la bannière temps réel.
+    # Démo statique : la phase de départ est fournie ici, la simulation
+    # (rotation Jour → Vote → Nuit) tourne ensuite côté client.
+    status_phase = {
+        'key': 'jour',
+        'icon': '☀️',
+        'label': 'Jour 1 · Le village se réveille',
+        'desc': 'Chacun découvre ce que la nuit a emporté.',
+    }
+
+    # Annonces du Maître du jeu, défilées en continu dans la bannière.
+    announcements = [
+        'Réunion de la place : que chacun se présente sans mentir… ou presque.',
+        'Les rôles ont été distribués. Deux loups rôdent parmi nous.',
+        'Personne n’est mort cette nuit. Thiercelieux respire… pour l’instant.',
+        'Le vote approche : un suspect finira sur le bûcher.',
+        'Le silence des loups me plaît peu. Réfléchissez avant de parler.',
+    ]
+
     context = {
         'board': board,
         'players': players,
         'composition': composition,
         'phases': phases,
         'discussion': discussion,
+        'status_phase': status_phase,
+        'announcements': announcements,
         'human': players[0],
     }
     return render(request, 'game/village.html', context)
