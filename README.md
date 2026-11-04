@@ -87,6 +87,32 @@ Puis ouvrir **http://127.0.0.1:8000/** dans le navigateur : c'est le plateau de 
 - **Rappel statique du déroulement** : nuit, jour, vote — sans aucun interaction.
 - **Responsive** : dispositions circulaires en desktop, grille en mobile.
 
+## 🤖 Service IA Mistral
+
+Le service `game.services.mistral_client.MistralGameClient` effectue les appels
+SDK dans un thread afin de ne pas bloquer la boucle asynchrone. Chaque appel est
+limité à 3,5 secondes ; en cas de timeout, d'erreur API ou de réponse invalide,
+il renvoie une phrase de repli adaptée à la personnalité et au type d'action.
+Tous les appels aboutis ou en échec sont enregistrés dans `AI_log.AICallLog`,
+avec les tokens d'entrée et de sortie disponibles.
+
+```python
+from AI_log.models import CallType
+from game.services.mistral_client import MistralGameClient
+
+client = MistralGameClient()
+response = await client.get_game_response(
+    message,
+    game=game,
+    player=ai_player,
+    call_type=CallType.CHAT,
+)
+```
+
+Le plateau et ses vues restent statiques pour l'instant : ce service asynchrone
+est prêt à être appelé par une future boucle de jeu, mais n'est pas encore
+raccordé à une vue HTTP.
+
 ## 🧩 Fichiers principaux du front
 
 | Fichier | Rôle |
