@@ -393,6 +393,195 @@
     100% { transform: scale(1.8); opacity: 0; }
   }
 
+  /* --------------------- Vote de jour & compteur 45 s --------------------- */
+  .vote-timer {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid #e05f4e;
+    color: #ffd9d2;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    background: radial-gradient(circle at 35% 30%, #5a1f18, #2c0d0a);
+    box-shadow: 0 0 14px rgba(224, 95, 78, 0.35);
+  }
+
+  body.vote-phase .vote-timer { display: inline-flex; }
+
+  .vote-timer-urgent {
+    border-color: #ff9d8e;
+    color: #fff1ee;
+    animation: vote-urgent 1s ease-in-out infinite;
+  }
+
+  @keyframes vote-urgent {
+    50% { background: #7a241b; box-shadow: 0 0 22px rgba(255, 120, 100, 0.65); }
+  }
+
+  /* Affichage du compteur circulaire */
+  .vote-count {
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    color: var(--ink);
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    font-variant-numeric: tabular-nums;
+    background: radial-gradient(circle at 35% 28%, #fff6e3, #e9d3a5);
+    border: 2px solid var(--blood);
+    box-shadow:
+      0 4px 10px rgba(20, 10, 2, 0.35),
+      inset 0 0 12px rgba(255, 255, 255, 0.50);
+  }
+
+  .vote-count-urgent {
+    color: var(--blood);
+    animation: vote-urgent 1s ease-in-out infinite;
+  }
+
+  /* Barre de progression du compteur dégressif */
+  .vote-bar {
+    height: 8px;
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid var(--gold-dark);
+    background: rgba(20, 10, 2, 0.15);
+  }
+
+  .vote-bar-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #d9724b, #a84034);
+    transition: width 1s linear;
+  }
+
+  /* Bouton de vote diurne sous chaque habitant vivant */
+  .seat-vote-btn {
+    display: none;
+    width: 100%;
+    margin-top: 3px;
+    padding: 3px 0;
+    border-radius: 4px;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(8px, 1.6cqw, 11px);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 2px 4px rgba(0, 0, 0, 0.30);
+    cursor: pointer;
+  }
+
+  body.vote-phase .seat-vote-btn { display: block; }
+
+  .seat-vote-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .seat-vote-btn:active:not(:disabled) { transform: translateY(1px); }
+
+  .seat-vote-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+  }
+
+  /* Bouton de vote contre soi-même : désactivé et marqué */
+  .seat-vote-btn[data-self='1'] { border-style: dashed; }
+
+  /* Habitant désigné par votre vote */
+  .seat-card.vote-target {
+    border-color: var(--blood);
+    box-shadow:
+      0 0 0 3px rgba(168, 64, 52, 0.45),
+      0 10px 22px rgba(20, 10, 2, 0.50);
+  }
+
+  /* Marqueur apposé sur le bulletin de vote ou le vote blanc */
+  .seat-vote-mark {
+    position: absolute;
+    top: -9px;
+    right: -6px;
+    z-index: 3;
+    padding: 2px 8px;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid #7b1f1d;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(7px, 1.5cqw, 9px);
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.40);
+  }
+
+  .seat-vote-mark-white {
+    border-color: #6f5434;
+    color: #241507;
+    background: linear-gradient(180deg, #ffffff, #e8e2d2);
+  }
+
+  /* Bouton de vote blanc / abstention */
+  .vote-white-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 9999px;
+    border: 1px solid #8a7a5c;
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff, #e9e2d0);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.80),
+      0 2px 6px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+  }
+
+  .vote-white-btn:hover:not(:disabled) { filter: brightness(1.04); }
+  .vote-white-btn:active:not(:disabled) { transform: translateY(1px); }
+  .vote-white-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* Message de confirmation du vote */
+  .vote-status {
+    display: none;
+    border-top: 1px dashed var(--gold-dark);
+    padding-top: 10px;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  .vote-status.vote-status-active { display: block; }
+  .vote-status.vote-status-auto { color: var(--blood); font-weight: 600; }
+  .vote-panel code { color: var(--ink-soft); font-style: italic; }
+
+  /* Panel de vote dont le compteur approche de 0 */
+  .vote-panel.vote-panel-urgent { border-color: var(--blood); }
+
+  /* Vote blanc envoyé */
+  .vote-white-btn.vote-white-voted {
+    border-color: var(--gold-dark);
+    opacity: 0.75;
+    filter: saturate(0.4);
+  }
+
   /* ------------------------------ Mobile ------------------------------ */
   @media (max-width: 767px) {
     .board-surface {
@@ -462,6 +651,18 @@
       left: auto;
       transform: none;
     }
+
+    .vote-white-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .seat-vote-mark {
+      top: auto;
+      bottom: -7px;
+      right: -4px;
+      left: auto;
+    }
   }
 </style>
 {% endblock %}
@@ -528,8 +729,12 @@
         </p>
       </div>
 
-      <!-- Signal temps réel -->
+      <!-- Signal temps réel + minuterie du vote de jour -->
       <div class="ml-auto flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+        <span id="vote-timer" class="vote-timer" aria-live="polite">
+          <span aria-hidden="true">⏳</span>
+          <span>Vote · <span id="vote-timer-value" class="tabular-nums">45</span>s</span>
+        </span>
         <span class="live-dot" aria-hidden="true"></span>
         <span class="font-display text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] text-parchment/50">
           En direct
@@ -651,6 +856,15 @@
                       {% else %}
                         <p class="seat-role">Rôle inconnu</p>
                       {% endif %}
+
+                      <!-- Bouton de vote diurne (désactivé sur soi-même) -->
+                      <button type="button"
+                              class="seat-vote-btn"
+                              data-vote-target-id="{{ player.id }}"
+                              data-vote-target-name="{{ player.name }}"
+                              {% if player.is_human %}data-self="1" disabled title="Vous ne pouvez pas voter contre vous-même"{% endif %}>
+                        ⚖️ Voter
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -663,6 +877,38 @@
         <p class="mt-3 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.26em] text-gold-light/45">
           ✦ Disposition initiale · Les rôles restent secrets ✦
         </p>
+
+        <!-- ------------------ Vote de jour : compteur 45 s + vote blanc ------------------ -->
+        <section id="vote-panel" class="vote-panel parchment p-4 sm:p-5" aria-label="Vote de jour">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+              <div id="vote-count" class="vote-count" aria-live="polite">
+                <span id="vote-count-value">45</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+                  ⚖️ Le vote du jour
+                </h2>
+                <p class="mt-0.5 text-[11.5px] text-ink-soft/85 leading-snug">
+                  Cliquez sur <strong>Voter</strong> sous l’habitant à envoyer au bûcher.
+                  Le vote blanc permet de s’abstenir.
+                </p>
+                <div class="vote-bar mt-2" aria-hidden="true">
+                  <div id="vote-bar-fill" class="vote-bar-fill"></div>
+                </div>
+                <p id="vote-timer-label" class="mt-1.5 font-display text-[9.5px] uppercase tracking-[0.16em] text-ink-soft/70">
+                  <span id="vote-timer-remaining">45</span> secondes restantes · abstention automatique à 0
+                </p>
+              </div>
+            </div>
+
+            <button type="button" id="vote-white-btn" class="vote-white-btn flex-shrink-0">
+              <span aria-hidden="true">🤍</span> Vote blanc · S’abstenir
+            </button>
+          </div>
+
+          <p id="vote-status" class="vote-status mt-3" aria-live="polite"></p>
+        </section>
 
         <!-- ------------------ Place du village : discussion publique ------------------ -->
         <section class="parchment p-4 sm:p-5" aria-label="Discussion publique du village">
@@ -890,10 +1136,13 @@
       setInterval(function () {
         phaseIndex = (phaseIndex + 1) % phases.length;
         var phase = phases[phaseIndex];
+      var phase = phases[phaseIndex];
         banner.setAttribute('data-phase', phase.key);
         if (iconEl) iconEl.textContent = phase.icon;
         if (phaseEl) phaseEl.textContent = phase.label;
         descEl.textContent = phase.desc;
+        // Signale le changement de phase à l'interface de vote de jour.
+        document.dispatchEvent(new CustomEvent('lg:phase-active', { detail: phase.key }));
       }, 20000);
     }
   })();
@@ -943,6 +1192,176 @@
       feed.scrollTop = feed.scrollHeight;
       input.value = '';
       input.focus();
+    });
+  })();
+</script>
+<script>
+  // Vote de jour (démo) : boutons de vote sur les habitants vivants, vote blanc,
+  // compteur dégressif de 45 s et abstention automatique lorsque le compteur atteint 0.
+  (function () {
+    var VOTE_SECONDS = 45;
+
+    var panel = document.getElementById('vote-panel');
+    var whiteBtn = document.getElementById('vote-white-btn');
+    var statusEl = document.getElementById('vote-status');
+    var chip = document.getElementById('vote-timer');
+    var chipValue = document.getElementById('vote-timer-value');
+    var countValue = document.getElementById('vote-count-value');
+    var barFill = document.getElementById('vote-bar-fill');
+    var remainingLabel = document.getElementById('vote-timer-remaining');
+    var seatButtons = Array.prototype.slice.call(document.querySelectorAll('.seat-vote-btn'));
+    if (!panel || seatButtons.length === 0) return;
+
+    var secondsLeft = VOTE_SECONDS;
+    var timerId = null;
+    var voteSent = false;
+
+    // ---- Boutons de vote des habitants vivants ----
+    function lockSeatButtons() {
+      seatButtons.forEach(function (button) { button.disabled = true; });
+    }
+
+    function unlockSeatButtons() {
+      seatButtons.forEach(function (button) {
+        if (button.getAttribute('data-self') !== '1') button.disabled = false;
+      });
+    }
+
+    // ---- Compteur dégressif 45 s ----
+    function updateTimerUI() {
+      if (chipValue) chipValue.textContent = secondsLeft;
+      if (countValue) countValue.textContent = secondsLeft;
+      if (remainingLabel) remainingLabel.textContent = secondsLeft;
+      if (barFill) barFill.style.width = (secondsLeft / VOTE_SECONDS) * 100 + '%';
+
+      var urgent = secondsLeft <= 10;
+      if (chip) chip.classList.toggle('vote-timer-urgent', urgent);
+      panel.classList.toggle('vote-panel-urgent', urgent);
+      var countEl = countValue ? countValue.parentElement : null;
+      if (countEl) countEl.classList.toggle('vote-count-urgent', urgent);
+    }
+
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function tick() {
+      secondsLeft = Math.max(0, secondsLeft - 1);
+      updateTimerUI();
+      if (secondsLeft === 0) {
+        stopTimer();
+        sendVote(null, true); // Abstention automatique à 0 s
+      }
+    }
+
+    function startSession() {
+      stopTimer();
+      voteSent = false;
+      secondsLeft = VOTE_SECONDS;
+      unlockSeatButtons();
+      if (whiteBtn) whiteBtn.disabled = false;
+      clearVoteMarks();
+      setStatus('Le village délibère : désignez un suspect à envoyer au bûcher, ou votez blanc.', false);
+      document.body.classList.add('vote-phase');
+      updateTimerUI();
+      timerId = setInterval(tick, 1000);
+    }
+
+    function endSession() {
+      stopTimer();
+      document.body.classList.remove('vote-phase');
+      if (chip) chip.classList.remove('vote-timer-urgent');
+      panel.classList.remove('vote-panel-urgent');
+      var countEl = countValue ? countValue.parentElement : null;
+      if (countEl) countEl.classList.remove('vote-count-urgent');
+      if (whiteBtn) whiteBtn.classList.remove('vote-white-voted');
+    }
+
+    // ---- Envoi du vote (cible ou vote blanc) ----
+    function clearVoteMarks() {
+      document.querySelectorAll('.seat-card.vote-target').forEach(function (card) {
+        card.classList.remove('vote-target');
+      });
+      document.querySelectorAll('.seat-vote-mark').forEach(function (mark) { mark.remove(); });
+    }
+
+    function setStatus(text, auto) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.add('vote-status-active');
+      statusEl.classList.toggle('vote-status-auto', Boolean(auto));
+    }
+
+    function markSeat(seatId, label, white) {
+      var card = document.querySelector('.seat-vote-btn[data-vote-target-id="' + seatId + '"]');
+      if (!card) return;
+      var seatCard = card.closest('.seat-card');
+      if (!seatCard) return;
+      seatCard.classList.add('vote-target');
+      var mark = document.createElement('span');
+      mark.className = 'seat-vote-mark' + (white ? ' seat-vote-mark-white' : '');
+      mark.textContent = label;
+      seatCard.appendChild(mark);
+    }
+
+    function sendVote(targetName, auto) {
+      if (voteSent) return;
+      voteSent = true;
+      stopTimer();
+      lockSeatButtons();
+      if (whiteBtn) {
+        whiteBtn.disabled = true;
+        whiteBtn.classList.toggle('vote-white-voted', auto || !targetName);
+      }
+
+      if (!targetName) {
+        markSeat(getSelfId(), '🤍 Blanc', true);
+        setStatus(
+          auto
+            ? '⏳ Temps écoulé : votre abstention a été envoyée automatiquement au Maître du jeu.'
+            : '🤍 Votre vote blanc (abstention) a été envoyé au Maître du jeu.',
+          auto
+        );
+        return;
+      }
+
+      var button = seatButtons.filter(function (b) { return b.getAttribute('data-vote-target-name') === targetName; })[0];
+      var seatId = button ? button.getAttribute('data-vote-target-id') : '';
+      markSeat(seatId, '🗳️ Visé', false);
+      setStatus('🗳️ Votre vote contre ' + targetName + ' a été envoyé au Maître du jeu.', false);
+    }
+
+    function getSelfId() {
+      var selfButton = seatButtons.filter(function (b) { return b.getAttribute('data-self') === '1'; })[0];
+      return selfButton ? selfButton.getAttribute('data-vote-target-id') : '';
+    }
+
+    // Clic sur le bouton de vote d'un habitant vivant.
+    seatButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (voteSent || button.disabled) return;
+        sendVote(button.getAttribute('data-vote-target-name'), false);
+      });
+    });
+
+    // Clic sur le bouton de vote blanc / abstention.
+    if (whiteBtn) {
+      whiteBtn.addEventListener('click', function () {
+        if (voteSent || whiteBtn.disabled) return;
+        sendVote(null, false);
+      });
+    }
+
+    // L'interface de vote suit la phase courante (Jour → Vote → Nuit).
+    document.addEventListener('lg:phase-active', function (event) {
+      if (event.detail === 'vote') {
+        startSession();
+      } else {
+        endSession();
+      }
     });
   })();
 </script>
