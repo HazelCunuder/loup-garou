@@ -141,11 +141,80 @@ def village_view(request):
         },
     ]
 
+    # Extraits publics de la dernière veillée, affichés sur la place du village.
+    # Démo statique : la discussion n'est pas encore reliée à un modèle Django.
+    discussion = [
+        {
+            'name': 'Thomas',
+            'avatar': '🕊️',
+            'persona': 'La Diplomate',
+            'text': 'Le village est réuni. Avant que la nuit ne tombe, disons chacun ce que nous avons vu.',
+        },
+        {
+            'name': 'Victor',
+            'avatar': '🧠',
+            'persona': 'Le Stratège',
+            'text': "Aucune contradiction dans les déclarations d'hier. Les loups se protègent en restant vagues.",
+        },
+        {
+            'name': 'Léa',
+            'avatar': '👁️',
+            'persona': 'La Paranoïaque',
+            'text': 'Et Marc, qui n’a presque rien dit ? Les silences me pèsent plus que les mots...',
+        },
+        {
+            'name': 'Marc',
+            'avatar': '🔥',
+            'persona': 'L’Impulsif',
+            'text': 'Parce que réfléchir avant de parler, c’est suspect maintenant ? Votez, on verra bien !',
+        },
+        {
+            'name': 'Lucas',
+            'avatar': '🎭',
+            'persona': 'Le Cynique',
+            'text': 'Magnifique stratégie : le bûcher au hasard. Nos aïeux seraient fiers de nous.',
+        },
+        {
+            'name': 'Chloé',
+            'avatar': '⚡',
+            'persona': 'La Mauvaise Joueuse',
+            'text': 'Très bien, puisque tout le monde accuse sans preuve, je commencerai par me défendre.',
+        },
+        {
+            'name': 'Thomas',
+            'avatar': '🕊️',
+            'persona': 'La Diplomate',
+            'text': 'Gardons nos têtes froides : la nuit sera assez cruelle pour le village.',
+        },
+    ]
+
+    # État courant du village, affiché par la bannière temps réel.
+    # Démo statique : la phase de départ est fournie ici, la simulation
+    # (rotation Jour → Vote → Nuit) tourne ensuite côté client.
+    status_phase = {
+        'key': 'jour',
+        'icon': '☀️',
+        'label': 'Jour 1 · Le village se réveille',
+        'desc': 'Chacun découvre ce que la nuit a emporté.',
+    }
+
+    # Annonces du Maître du jeu, défilées en continu dans la bannière.
+    announcements = [
+        'Réunion de la place : que chacun se présente sans mentir… ou presque.',
+        'Les rôles ont été distribués. Deux loups rôdent parmi nous.',
+        'Personne n’est mort cette nuit. Thiercelieux respire… pour l’instant.',
+        'Le vote approche : un suspect finira sur le bûcher.',
+        'Le silence des loups me plaît peu. Réfléchissez avant de parler.',
+    ]
+
     context = {
         'board': board,
         'players': players,
         'composition': composition,
         'phases': phases,
+        'discussion': discussion,
+        'status_phase': status_phase,
+        'announcements': announcements,
         'human': players[0],
     }
     return render(request, 'game/village.html', context)
