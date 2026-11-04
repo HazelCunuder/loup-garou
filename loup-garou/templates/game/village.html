@@ -284,6 +284,36 @@
     font-weight: 700;
   }
 
+  /* --------------------- Discussion publique du village --------------------- */
+  .chat-feed {
+    scroll-behavior: smooth;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 3px rgba(185, 138, 60, 0.35);
+  }
+
+  .chat-send {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    color: #241507;
+    border: 1px solid var(--gold-dark);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 5px rgba(0, 0, 0, 0.30);
+  }
+
+  .chat-send:hover {
+    filter: brightness(1.08);
+  }
+
+  .chat-send:active {
+    transform: translateY(1px);
+  }
+
   /* ------------------------------ Mobile ------------------------------ */
   @media (max-width: 767px) {
     .board-surface {
@@ -461,8 +491,8 @@
 
       </aside>
 
-      <!-- --------------------------- Plateau central --------------------------- -->
-      <section class="order-1 xl:order-2 xl:col-span-6">
+      <!-- --------------------- Plateau + place du village --------------------- -->
+      <section class="order-1 xl:order-2 xl:col-span-6 space-y-5">
         <div class="board-frame">
           <div class="board-surface">
 
@@ -511,6 +541,59 @@
         <p class="mt-3 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.26em] text-gold-light/45">
           ✦ Disposition initiale · Les rôles restent secrets ✦
         </p>
+
+        <!-- ------------------ Place du village : discussion publique ------------------ -->
+        <section class="parchment p-4 sm:p-5" aria-label="Discussion publique du village">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-gold-dark text-sm">✦</span>
+              <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+                Place du village
+              </h2>
+            </div>
+            <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-ink-soft/70">
+              <span class="w-1.5 h-1.5 rounded-full bg-blood"></span>
+              Discussion publique
+            </span>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <!-- Fil des échanges -->
+          <div id="chat-feed"
+               class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] overflow-y-auto pr-1.5">
+            {% for message in discussion %}
+              <article class="flex gap-3">
+                <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/60 shadow-inner">
+                  {{ message.avatar }}
+                </span>
+                <div class="flex-1 min-w-0 rounded-sm border border-ink/15 bg-white/25 px-3 py-2">
+                  <p class="font-display text-[10px] uppercase tracking-[0.14em] text-ink-soft">
+                    {{ message.name }}
+                    <span class="normal-case tracking-normal text-ink-soft/60">· {{ message.persona }}</span>
+                  </p>
+                  <p class="mt-0.5 text-[13px] leading-snug text-ink">{{ message.text }}</p>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+          <!-- Prendre la parole -->
+          <form id="chat-form" class="mt-4 flex gap-2" autocomplete="off">
+            <input id="chat-input"
+                   type="text"
+                   maxlength="300"
+                   placeholder="Prenez la parole devant le village..."
+                   class="chat-input relative z-10 min-w-0 flex-1 rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[13px] text-ink placeholder-ink-soft/50 font-body">
+            <button type="submit" class="chat-send relative z-10 flex-shrink-0 rounded-sm px-4 py-2 text-[10px]">
+              Parler
+            </button>
+          </form>
+
+          <p class="mt-3 text-[10.5px] italic leading-snug text-ink-soft/70">
+            ✦ Écran de démonstration : la discussion reflète les archives de la place, vos messages
+            ne s’affichent que pour vous.
+          </p>
+        </section>
       </section>
 
       <!-- ---------------------- Colonne droite : votre carte ---------------------- -->
@@ -615,4 +698,55 @@
   </footer>
 
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Discussion publique (démo) : publie le message du joueur localement dans le fil.
+  (function () {
+    var form = document.getElementById('chat-form');
+    var input = document.getElementById('chat-input');
+    var feed = document.getElementById('chat-feed');
+    var humanName = '{{ human.name }}';
+    var humanAvatar = '{{ human.avatar }}';
+    if (!form || !input || !feed) return;
+
+    // Affiche les archives en fin de discussion.
+    feed.scrollTop = feed.scrollHeight;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var text = input.value.trim();
+      if (!text) return;
+
+      var message = document.createElement('article');
+      message.className = 'flex flex-row-reverse gap-3';
+
+      var avatar = document.createElement('span');
+      avatar.className = 'w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border-2 border-gold shadow';
+      avatar.textContent = humanAvatar;
+
+      var bubble = document.createElement('div');
+      bubble.className = 'flex-1 min-w-0 rounded-sm border-2 border-gold-dark bg-gradient-to-b from-[#f8edd4] to-[#ecd7ab] px-3 py-2';
+
+      var author = document.createElement('p');
+      author.className = 'font-display text-[10px] uppercase tracking-[0.14em] text-blood text-right';
+      author.textContent = humanName + ' · vous';
+
+      var content = document.createElement('p');
+      content.className = 'mt-0.5 text-[13px] leading-snug text-ink';
+      content.textContent = text;
+
+      bubble.appendChild(author);
+      bubble.appendChild(content);
+      message.appendChild(avatar);
+      message.appendChild(bubble);
+      feed.appendChild(message);
+
+      feed.scrollTop = feed.scrollHeight;
+      input.value = '';
+      input.focus();
+    });
+  })();
+</script>
 {% endblock %}

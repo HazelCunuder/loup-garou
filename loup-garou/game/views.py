@@ -141,11 +141,59 @@ def village_view(request):
         },
     ]
 
+    # Extraits publics de la dernière veillée, affichés sur la place du village.
+    # Démo statique : la discussion n'est pas encore reliée à un modèle Django.
+    discussion = [
+        {
+            'name': 'Thomas',
+            'avatar': '🕊️',
+            'persona': 'La Diplomate',
+            'text': 'Le village est réuni. Avant que la nuit ne tombe, disons chacun ce que nous avons vu.',
+        },
+        {
+            'name': 'Victor',
+            'avatar': '🧠',
+            'persona': 'Le Stratège',
+            'text': "Aucune contradiction dans les déclarations d'hier. Les loups se protègent en restant vagues.",
+        },
+        {
+            'name': 'Léa',
+            'avatar': '👁️',
+            'persona': 'La Paranoïaque',
+            'text': 'Et Marc, qui n’a presque rien dit ? Les silences me pèsent plus que les mots...',
+        },
+        {
+            'name': 'Marc',
+            'avatar': '🔥',
+            'persona': 'L’Impulsif',
+            'text': 'Parce que réfléchir avant de parler, c’est suspect maintenant ? Votez, on verra bien !',
+        },
+        {
+            'name': 'Lucas',
+            'avatar': '🎭',
+            'persona': 'Le Cynique',
+            'text': 'Magnifique stratégie : le bûcher au hasard. Nos aïeux seraient fiers de nous.',
+        },
+        {
+            'name': 'Chloé',
+            'avatar': '⚡',
+            'persona': 'La Mauvaise Joueuse',
+            'text': 'Très bien, puisque tout le monde accuse sans preuve, je commencerai par me défendre.',
+        },
+        {
+            'name': 'Thomas',
+            'avatar': '🕊️',
+            'persona': 'La Diplomate',
+            'text': 'Gardons nos têtes froides : la nuit sera assez cruelle pour le village.',
+        },
+    ]
+
     context = {
         'board': board,
         'players': players,
         'composition': composition,
         'phases': phases,
+        'discussion': discussion,
         'human': players[0],
     }
     return render(request, 'game/village.html', context)
