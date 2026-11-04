@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Game, Player
+from .models import Game, Message, Player
 
 
 class PlayerInline(admin.TabularInline):
@@ -34,3 +34,10 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ("name", "game", "seat", "is_human", "role", "personality", "is_alive")
     list_filter = ("role", "personality", "is_human", "is_alive")
     search_fields = ("name", "game__id")
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ("id", "game", "day_number", "phase", "channel", "kind", "author", "content")
+    list_filter = ("channel", "kind", "phase")
+    search_fields = ("content", "game__id")

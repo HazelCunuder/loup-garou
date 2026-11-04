@@ -179,3 +179,61 @@ class Player(models.Model):
     @property
     def is_wolf(self):
         return self.role == Role.WEREWOLF
+
+
+class Channel(models.TextChoices):
+    PUBLIC = "PUBLIC", "Place du village"
+    WOLVES = "WOLVES", "Canal secret des loups"
+
+
+class MessageKind(models.TextChoices):
+    CHAT = "CHAT", "Message de joueur"
+    ANNOUNCEMENT = "ANNOUNCEMENT", "Annonce du Maître du Jeu"
+
+
+class Message(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="messages")
+    # Null pour une annonce du Maître du Jeu.
+    author = models.ForeignKey(
+        Player,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="messages",
+    )
+    channel = models.CharField(
+        max_length=8, choices=Channel.choices, default=Channel.PUBLIC
+    )
+    kind = models.CharField(
+        max_length=16, choices=MessageKind.choices, default=MessageKind.CHAT
+    )
+    # Texte brut : les chevrons sont neutralisés au moment de l'injection dans
+    # un prompt (côté IA) et par l'échappement automatique des templates.
+    content = models.TextField()
+    day_number = models.PositiveSmallIntegerField()
+    phase = models.CharField(max_length=16, choices=Phase.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # L'id croissant sert de curseur au polling (« messages après l'id N »).
+        ordering = ["id"]
+        indexes = [
+            models.Index(fields=["game", "channel", "id"], name="message_polling_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(kind=MessageKind.CHAT, author__isnull=False)
+                    | Q(kind=MessageKind.ANNOUNCEMENT, author__isnull=True)
+                ),
+                name="message_author_matches_kind",
+            ),
+            models.CheckConstraint(
+                condition=~Q(content=""),
+                name="message_content_not_empty",
+            ),
+        ]
+
+    def __str__(self):
+        who = self.author.name if self.author_id else "MJ"
+        return f"[{self.channel}] {who} : {self.content[:40]}"
