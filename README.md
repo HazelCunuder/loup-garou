@@ -80,7 +80,7 @@ Puis ouvrir **http://127.0.0.1:8000/** dans le navigateur : c'est le plateau de 
 ## 🎨 Ce que contient le plateau
 
 - **Plateau central circulaire** : les 7 habitants autour de la place du village.
-- **Joueur humain** mis en avant (sceau « Vous », rôle de la Sorcière révélé pour lui seul).
+- **Joueur humain** mis en avant (sceau « Vous », rôle révélé pour lui seul).
 - **Six personnalités IA** dont les rôles restent cachés (Fog of War : `?`).
 - **Pan « Composition du village »** : monstres et habitants (loups, voyante, sorcière, villageois).
 - **Pan « Votre carte »** : rôle, description et potions.
