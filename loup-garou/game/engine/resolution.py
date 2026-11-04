@@ -1,4 +1,4 @@
-"""Résolution de la nuit et du vote.
+"""Résolution de la nuit (à l'aube) et du vote (en entrant dans VOTE_RESULT).
 
 Points d'extension appelés par la state machine. Ils ne font rien pour
 l'instant afin que le squelette tourne de bout en bout ; les règles complètes

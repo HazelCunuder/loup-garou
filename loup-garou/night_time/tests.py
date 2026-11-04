@@ -60,5 +60,21 @@ class NightActionModelTests(TestCase):
         self.act(self.wolf, NightActionType.WOLF_TARGET, self.villager, night=1)
         self.act(self.wolf, NightActionType.WOLF_TARGET, self.seer, night=2)
 
+    def test_witch_pass_has_no_target(self):
+        action = self.act(self.witch, NightActionType.WITCH_PASS, None)
+        self.assertIsNone(action.target)
+
+    def test_witch_pass_with_target_is_rejected(self):
+        self.assertRejected(self.witch, NightActionType.WITCH_PASS, self.villager)
+
+    def test_other_actions_require_a_target(self):
+        for action_type in (
+            NightActionType.WOLF_TARGET,
+            NightActionType.WITCH_HEAL,
+            NightActionType.WITCH_KILL,
+        ):
+            with self.subTest(action_type=action_type):
+                self.assertRejected(self.wolf, action_type, None)
+
     def test_night_zero_is_rejected(self):
         self.assertRejected(self.wolf, NightActionType.WOLF_TARGET, self.seer, night=0)

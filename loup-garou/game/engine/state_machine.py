@@ -1,7 +1,11 @@
 """State machine : enchaînement des phases et conditions de victoire.
 
-Cycle : NIGHT_SEER → NIGHT_WOLVES → NIGHT_WITCH → DAWN → DAY_DEBATE → DAY_VOTE
-→ NIGHT_SEER (cycle suivant). GAME_OVER est terminal.
+Cycle :
+    Nuit : NIGHT_SEER → NIGHT_WOLVES → NIGHT_WITCH
+    Jour : DAWN → DAY_DEBATE → DAY_VOTE → VOTE_RESULT
+    puis NIGHT_SEER du cycle suivant. GAME_OVER est terminal.
+
+Les conditions de victoire sont vérifiées à chaque transition.
 """
 
 from django.db import transaction
@@ -20,7 +24,8 @@ TRANSITIONS = {
     Phase.NIGHT_WITCH: Phase.DAWN,
     Phase.DAWN: Phase.DAY_DEBATE,
     Phase.DAY_DEBATE: Phase.DAY_VOTE,
-    Phase.DAY_VOTE: Phase.NIGHT_SEER,
+    Phase.DAY_VOTE: Phase.VOTE_RESULT,
+    Phase.VOTE_RESULT: Phase.NIGHT_SEER,
 }
 
 
@@ -29,7 +34,14 @@ def _alive(players, role):
 
 
 def is_phase_playable(phase, players):
-    """Une phase de nuit est sautée quand personne ne peut y agir."""
+    """Une phase de nuit est sautée automatiquement quand personne ne peut y agir.
+
+    - Voyante : sautée si elle est morte.
+    - Sorcière : sautée si elle est morte ou n'a plus aucune potion.
+      Les morts de la nuit ne sont appliquées qu'à l'aube : une sorcière
+      ciblée par les loups cette nuit est encore vivante pendant NIGHT_WITCH
+      et joue, ce qui lui permet de se sauver avec sa potion de vie.
+    """
     if phase == Phase.NIGHT_SEER:
         return bool(_alive(players, Role.SEER))
     if phase == Phase.NIGHT_WOLVES:
@@ -50,19 +62,28 @@ def next_phase(current, players):
 
 
 def check_winner(players):
-    """Loups vivants == 0 → village ; loups vivants ≥ non-loups vivants → loups."""
+    """Loups vivants == 0 → village ; loups vivants ≥ non-loups vivants → loups.
+
+    Les non-loups (« humains ») sont les villageois, la voyante et la sorcière.
+    """
     alive = [p for p in players if p.is_alive]
     wolves = sum(1 for p in alive if p.role == Role.WEREWOLF)
-    others = len(alive) - wolves
+    humans = len(alive) - wolves
     if wolves == 0:
         return Winner.VILLAGE
-    if wolves >= others:
+    if wolves >= humans:
         return Winner.WOLVES
     return None
 
 
 def advance(game, expected_phase=None):
     """Fait passer la partie à la phase suivante et renvoie la partie à jour.
+
+    - En quittant DAY_VOTE, le vote est résolu (le résultat s'affiche pendant
+      VOTE_RESULT).
+    - En entrant dans DAWN, la nuit est résolue.
+    - Après chaque résolution comme à chaque transition, la victoire est
+      vérifiée : la partie passe directement en GAME_OVER si un camp a gagné.
 
     ``expected_phase`` protège contre une double avance (thread IA + timer +
     action humaine) : si la partie a déjà bougé, ``PhaseConflict`` est levée et
@@ -97,7 +118,7 @@ def advance(game, expected_phase=None):
             )
         else:
             updates.update(phase=target, phase_deadline=phase_deadline(target, now))
-            if current == Phase.DAY_VOTE:
+            if current == Phase.VOTE_RESULT:
                 updates["day_number"] = F("day_number") + 1
 
         updated = Game.objects.filter(pk=game.pk, phase=current, version=version).update(**updates)
