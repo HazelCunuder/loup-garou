@@ -10,10 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Charge le .env de la racine du dépôt (MISTRAL_API_KEY, MISTRAL_MODEL…) une
+# seule fois, au démarrage, avant que le code applicatif ne lise os.environ.
+# Les variables déjà définies dans l'environnement restent prioritaires.
+load_dotenv(BASE_DIR.parent / '.env', override=False)
 
 
 # Quick-start development settings - unsuitable for production
@@ -131,6 +140,23 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+
+# Orchestrateur des agents IA (game/ai/orchestrator.py)
+# Désactivé pendant `manage.py test` : les tests qui en ont besoin l'activent
+# explicitement, en mode synchrone et sans réseau.
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+AI_ORCHESTRATOR = os.getenv('AI_ORCHESTRATOR', '0' if TESTING else '1') != '0'
+# Exécution dans le thread appelant au lieu d'un thread d'arrière-plan.
+AI_RUN_INLINE = False
+# Pause entre deux prises de parole d'une même salve (secondes).
+AI_PACING = 0.8
+# Silence minimum avant une nouvelle salve de débat (secondes).
+AI_DEBATE_GAP = 4.0
+# Nombre maximal de messages IA spontanés par débat (hors réponses à l'humain).
+AI_DEBATE_MAX_MESSAGES = 8
+# Appels Mistral simultanés au maximum (limites de débit de l'offre gratuite).
+AI_MAX_CONCURRENT_CALLS = 2
 
 
 # Email

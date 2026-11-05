@@ -1,0 +1,137 @@
+/* Compléments du plateau en direct (static/game/live.js). */
+
+/* Joueur mort : siège éteint, nom barré. */
+.seat-dead .seat-card {
+  opacity: 0.45;
+  filter: grayscale(0.9);
+}
+.seat-dead .seat-name {
+  text-decoration: line-through;
+}
+
+/* Annonces du Maître du Jeu dans le fil de discussion. */
+.chat-announcement {
+  margin: 0.25rem 0;
+  padding: 0.35rem 0.5rem;
+  border-top: 1px solid rgba(94, 63, 27, 0.25);
+  border-bottom: 1px solid rgba(94, 63, 27, 0.25);
+  color: #5d442a;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* Champs fermés (la nuit, après la mort). */
+#chat-input:disabled,
+#chat-form button:disabled,
+#wolf-input:disabled,
+#wolf-form button:disabled,
+#vote-white-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Fin de partie : liste des rôles révélés. */
+.game-over-roles {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* Notification flottante (erreur d'action, perte de connexion). */
+#live-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 80;
+  max-width: min(92vw, 480px);
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(185, 138, 60, 0.6);
+  border-radius: 4px;
+  background: #2a190c;
+  color: #f1e2c4;
+  font-size: 15px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.5rem);
+  transition: opacity 0.25s, transform 0.25s;
+}
+#live-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+#live-toast[data-kind="error"] {
+  border-color: #e05f4e;
+}
+
+/* Bouton « Nouvelle partie » de l'en-tête. */
+.new-game-btn {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid rgba(185, 138, 60, 0.6);
+  border-radius: 3px;
+  background: rgba(42, 25, 12, 0.85);
+  color: #e3c07c;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+}
+.new-game-btn:hover,
+.new-game-btn:focus-visible {
+  border-color: #e3c07c;
+  background: #3a2412;
+}
+
+/* Le panneau de vote n'apparaît que pendant le vote (le compte à rebours
+   général est au centre du plateau). */
+body:not(.vote-phase) #vote-panel {
+  display: none;
+}
+
+/* Compte à rebours au centre du cercle des joueurs. */
+.board-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.15rem;
+}
+.board-countdown-value {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(28px, 9cqw, 64px);
+  font-weight: 800;
+  line-height: 1;
+  color: #e3c07c;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+}
+.board-countdown-label {
+  max-width: 90%;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(10px, 1.9cqw, 14px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: rgba(236, 217, 176, 0.8);
+}
+.board-countdown.is-night .board-countdown-value {
+  color: #b9c6f0;
+}
+.board-countdown.is-urgent .board-countdown-value {
+  color: #ff8a78;
+  animation: board-countdown-pulse 1s ease-in-out infinite;
+}
+@keyframes board-countdown-pulse {
+  50% { opacity: 0.55; transform: scale(1.06); }
+}
+@media (max-width: 767px) {
+  .board-countdown-value { font-size: 40px; }
+  .board-countdown-label { font-size: 12px; }
+}

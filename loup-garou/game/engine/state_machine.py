@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from game.models import Game, GameStatus, Phase, Role, Winner
 
-from . import resolution
+from . import announcements, resolution
 from .exceptions import PhaseConflict
 from .rules import phase_deadline
 
@@ -124,6 +124,9 @@ def advance(game, expected_phase=None):
         updated = Game.objects.filter(pk=game.pk, phase=current, version=version).update(**updates)
         if updated != 1:
             raise PhaseConflict("La partie a été modifiée pendant la transition.")
+
+        new_day = game.day_number + 1 if "day_number" in updates else game.day_number
+        announcements.on_enter(game, current, updates["phase"], new_day, winner)
 
     game.refresh_from_db()
     return game
