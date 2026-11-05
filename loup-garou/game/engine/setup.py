@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from game.models import Game, Personality, Phase, Player, Role, new_seed
 
+from .announcements import announce, game_start_text
 from .exceptions import InvalidAction
 from .rules import AI_NAMES, HUMAN_NAME_MAX_LENGTH, ROLE_COMPOSITION, phase_deadline
 
@@ -20,16 +21,20 @@ def _clean_human_name(name):
     return name
 
 
-def draw_players(human_name, player_count, rng):
+def draw_players(human_name, player_count, rng, human_role=None):
     """Tire les places, rôles, noms et personnalités, sans toucher à la base.
 
     Renvoie une liste de dicts triée par siège ; même ``rng`` → même tirage.
+    ``human_role`` force le rôle de l'humain (outil de test, mode DEBUG).
     """
     composition = ROLE_COMPOSITION[player_count]
     roles = [role for role, count in composition.items() for _ in range(count)]
     rng.shuffle(roles)
 
     human_seat = rng.randrange(player_count)
+    if human_role is not None:
+        swap = roles.index(human_role)
+        roles[human_seat], roles[swap] = roles[swap], roles[human_seat]
     taken = human_name.casefold()
     names = rng.sample([n for n in AI_NAMES if n.casefold() != taken], player_count - 1)
     personalities = list(Personality.values)
@@ -59,15 +64,17 @@ def draw_players(human_name, player_count, rng):
     return players
 
 
-def create_game(session_key, human_name, seed=None, player_count=7):
+def create_game(session_key, human_name, seed=None, player_count=7, human_role=None):
     """Crée une partie, tire les rôles (humain compris) et ouvre la première nuit."""
     if player_count not in ROLE_COMPOSITION:
         raise InvalidAction(f"Parties à {player_count} joueurs non prises en charge.")
+    if human_role is not None and human_role not in Role.values:
+        raise InvalidAction(f"Rôle inconnu : {human_role}.")
     human_name = _clean_human_name(human_name)
     if seed is None:
         seed = new_seed()
 
-    drawn = draw_players(human_name, player_count, random.Random(seed))
+    drawn = draw_players(human_name, player_count, random.Random(seed), human_role)
     now = timezone.now()
     with transaction.atomic():
         # La voyante est forcément vivante au début : la nuit commence par elle.
@@ -79,4 +86,5 @@ def create_game(session_key, human_name, seed=None, player_count=7):
             phase_deadline=phase_deadline(Phase.NIGHT_SEER, now),
         )
         Player.objects.bulk_create(Player(game=game, **p) for p in drawn)
+        announce(game, game_start_text(), phase=Phase.NIGHT_SEER, day_number=1)
     return game

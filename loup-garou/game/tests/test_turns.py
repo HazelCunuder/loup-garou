@@ -11,7 +11,7 @@ from voting.models import Vote
 
 class TurnsTestCase(TestCase):
     def setUp(self):
-        self.game = create_game("s", "Hazel", seed=7)
+        self.game = create_game("s", "Alexandre", seed=7)
         self.seer = self.game.players.get(role=Role.SEER)
         self.witch = self.game.players.get(role=Role.WITCH)
         self.wolves = list(self.game.players.filter(role=Role.WEREWOLF))

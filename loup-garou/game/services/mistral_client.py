@@ -336,9 +336,10 @@ class MistralGameClient:
                 timeout=LLM_TIMEOUT_SECONDS,
             )
             prompt_tokens, completion_tokens = self._response_tokens(response)
-            result = self._parse_response(response)
-            if validator is not None:
-                result = validator(result)
+            parsed = self._parse_response(response)
+            # Le résultat n'est retenu qu'une fois validé : une décision
+            # illégale doit renvoyer None (repli), pas la réponse brute.
+            result = validator(parsed) if validator is not None else parsed
         except (TimeoutError, httpx.TimeoutException) as error:
             status = CallStatus.TIMEOUT
             error_message = (

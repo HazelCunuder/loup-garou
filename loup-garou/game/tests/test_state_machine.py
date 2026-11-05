@@ -13,7 +13,7 @@ from night_time.models import NightAction, NightActionType
 
 class StateMachineTestCase(TestCase):
     def setUp(self):
-        self.game = create_game("s", "Hazel", seed=7)
+        self.game = create_game("s", "Alexandre", seed=7)
 
     def player(self, role):
         return self.game.players.filter(role=role).first()
@@ -154,7 +154,7 @@ class GameOverTests(StateMachineTestCase):
         for phase in TRANSITIONS:
             for winner in (Winner.VILLAGE, Winner.WOLVES):
                 with self.subTest(phase=phase, winner=winner):
-                    self.game = create_game("s", "Hazel", seed=7)
+                    self.game = create_game("s", "Alexandre", seed=7)
                     if winner == Winner.VILLAGE:
                         self.kill(*self.game.players.filter(role=Role.WEREWOLF))
                     else:

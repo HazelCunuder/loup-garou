@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Le Loup-Garou de Thiercelieux — Plateau de jeu{% endblock %}
 
@@ -121,7 +122,7 @@
 
   .emblem-sub {
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(6.5px, 1.35cqw, 9px);
+    font-size: clamp(8px, 1.5cqw, 11px);
     letter-spacing: 0.24em;
     text-transform: uppercase;
     color: rgba(236, 217, 176, 0.60);
@@ -215,7 +216,7 @@
     color: #f6e3bd;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: clamp(9px, 1.7cqw, 12px);
+    font-size: clamp(11px, 2cqw, 15px);
     background: radial-gradient(circle at 35% 28%, #a84034 0%, #7b1f1d 45%, #511112 100%);
     border: 1px solid #3d0b0c;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
@@ -233,7 +234,7 @@
     border: 1px solid var(--gold-dark);
     color: #241507;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(7px, 1.5cqw, 9px);
+    font-size: clamp(9px, 2cqw, 11px);
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -252,7 +253,7 @@
     overflow: hidden;
     color: var(--ink);
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(10.5px, 2.1cqw, 14px);
+    font-size: clamp(13px, 2.5cqw, 17.5px);
     font-weight: 700;
     line-height: 1.15;
     text-overflow: ellipsis;
@@ -263,7 +264,7 @@
     margin-top: 2px;
     color: #7a5a33;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(7.5px, 1.5cqw, 9.5px);
+    font-size: clamp(9.5px, 2cqw, 12px);
     letter-spacing: 0.10em;
     text-transform: uppercase;
     line-height: 1.2;
@@ -352,36 +353,13 @@
     color: #f6e3bd;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.08em;
     background: radial-gradient(circle at 35% 28%, #7b5a2b, #4b3019);
     border: 1px solid var(--gold);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.40);
   }
 
-  .live-dot {
-    position: relative;
-    width: 9px;
-    height: 9px;
-    flex-shrink: 0;
-    border-radius: 9999px;
-    background: #d9724b;
-  }
-
-  .live-dot::after {
-    content: "";
-    position: absolute;
-    inset: -4px;
-    border-radius: 9999px;
-    background: #d9724b;
-    opacity: 0.55;
-    animation: live-pulse 1.6s ease-out infinite;
-  }
-
-  @keyframes live-pulse {
-    0%   { transform: scale(0.6); opacity: 0.60; }
-    100% { transform: scale(1.8); opacity: 0; }
-  }
 
   /* --------------------- Vote de jour & compteur 45 s --------------------- */
   .vote-timer {
@@ -393,7 +371,7 @@
     border: 1px solid #e05f4e;
     color: #ffd9d2;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 0.10em;
     background: radial-gradient(circle at 35% 30%, #5a1f18, #2c0d0a);
@@ -464,7 +442,7 @@
     border: 1px solid var(--gold-dark);
     color: #241507;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(8px, 1.6cqw, 11px);
+    font-size: clamp(10px, 2cqw, 14px);
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -509,7 +487,7 @@
     border: 1px solid #7b1f1d;
     color: #f6e3bd;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(7px, 1.5cqw, 9px);
+    font-size: clamp(9px, 2cqw, 11px);
     font-weight: 700;
     letter-spacing: 0.10em;
     text-transform: uppercase;
@@ -535,7 +513,7 @@
     border: 1px solid #3a4a7e;
     color: #dfe6fb;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: clamp(7px, 1.5cqw, 9px);
+    font-size: clamp(9px, 2cqw, 11px);
     font-weight: 700;
     letter-spacing: 0.10em;
     text-transform: uppercase;
@@ -578,7 +556,7 @@
     color: #241507;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
     background: linear-gradient(180deg, #ffffff, #e9e2d0);
@@ -597,7 +575,7 @@
     display: none;
     border-top: 1px dashed var(--gold-dark);
     padding-top: 10px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-style: italic;
     color: var(--ink-soft);
   }
@@ -719,7 +697,7 @@
     border: 1px solid #93a8e8;
     color: #dfe6fb;
     font-family: 'Cinzel', Georgia, serif;
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 0.10em;
     background: radial-gradient(circle at 35% 30%, #232c4d, #0d1122);
@@ -775,7 +753,7 @@
   .night-panel-title {
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 14.5px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
@@ -785,7 +763,7 @@
     margin-top: 10px;
     border-top: 1px dashed rgba(147, 168, 232, 0.40);
     padding-top: 9px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-style: italic;
     color: #c9d4f4;
   }
@@ -808,7 +786,7 @@
     border-radius: 6px;
     border: 1px solid rgba(246, 227, 189, 0.25);
     color: #eadfc2;
-    font-size: 12.5px;
+    font-size: 14.5px;
     text-align: left;
     background: rgba(8, 11, 26, 0.55);
     cursor: pointer;
@@ -855,7 +833,7 @@
     height: 26px;
     flex-shrink: 0;
     border-radius: 9999px;
-    font-size: 13px;
+    font-size: 15px;
     background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
     border: 1px solid var(--gold);
   }
@@ -885,12 +863,12 @@
   .wolf-ally-name {
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: #ffd9d2;
   }
 
   .wolf-ally-sub {
-    font-size: 11px;
+    font-size: 13px;
     font-style: italic;
     color: rgba(246, 227, 189, 0.60);
   }
@@ -922,7 +900,7 @@
 
   .wolf-msg-author {
     font-family: 'Cinzel', Georgia, serif;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #ff9d8e;
@@ -930,7 +908,7 @@
 
   .wolf-msg-text {
     margin-top: 2px;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.35;
     color: #f0e6cf;
   }
@@ -947,7 +925,7 @@
     min-width: 0;
     flex: 1;
     color: #f0e6cf;
-    font-size: 13px;
+    font-size: 15px;
     padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid rgba(224, 95, 78, 0.45);
@@ -965,7 +943,7 @@
     color: #fff1ee;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     background: linear-gradient(180deg, #c1503f, #8d2b23);
@@ -1001,7 +979,7 @@
     color: #dfe6fb;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     background: rgba(147, 168, 232, 0.10);
@@ -1039,12 +1017,12 @@
   .night-modal-title {
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
 
-  .night-modal-desc { margin-top: 6px; font-size: 12.5px; font-style: italic; color: var(--ink-soft); }
+  .night-modal-desc { margin-top: 6px; font-size: 14.5px; font-style: italic; color: var(--ink-soft); }
 
   .night-modal-actions {
     display: flex;
@@ -1059,7 +1037,7 @@
     border-radius: 4px;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
@@ -1122,9 +1100,9 @@
   }
 
   .reveal-icon { font-size: 46px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
-  .reveal-name { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-soft); }
+  .reveal-name { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 15px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-soft); }
   .reveal-role { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 20px; color: var(--blood); }
-  .reveal-quote { font-size: 11.5px; font-style: italic; color: var(--ink-soft); }
+  .reveal-quote { font-size: 13.5px; font-style: italic; color: var(--ink-soft); }
 
   /* ---------------------- Interface de la Sorcière --------------------- */
   .sorciere-panel {
@@ -1154,20 +1132,20 @@
   .witch-notification-title {
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #ff9d8e;
   }
 
-  .witch-notification-text { margin-top: 4px; font-size: 13px; line-height: 1.4; color: #f0e6cf; }
+  .witch-notification-text { margin-top: 4px; font-size: 15px; line-height: 1.4; color: #f0e6cf; }
 
   .potion-btn {
     padding: 10px 16px;
     border-radius: 4px;
     font-family: 'Cinzel', Georgia, serif;
     font-weight: 700;
-    font-size: 11.5px;
+    font-size: 13.5px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
     cursor: pointer;
@@ -1220,7 +1198,7 @@
 
   .night-whisper {
     min-height: 20px;
-    font-size: 13px;
+    font-size: 15px;
     font-style: italic;
     color: rgba(205, 215, 247, 0.70);
     transition: opacity 0.6s ease;
@@ -1228,7 +1206,7 @@
 
   .night-wait-count {
     font-family: 'Cinzel', Georgia, serif;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: rgba(147, 168, 232, 0.65);
@@ -1266,24 +1244,30 @@
           <span>🐺</span>
         </div>
         <div>
-          <p class="font-display text-[9px] sm:text-[10px] uppercase tracking-[0.38em] text-gold-light/70">
+          <p class="font-display text-[11px] sm:text-[12px] uppercase tracking-[0.38em] text-gold-light/70">
             {{ board.edition }}
           </p>
           <h1 class="font-gothic text-3xl sm:text-4xl text-parchment-light leading-none mt-0.5">
             Le Loup-Garou <span class="text-gold-light">de Thiercelieux</span>
           </h1>
-          <p class="hidden sm:block text-[12px] text-parchment/50 italic mt-1">
+          <p class="hidden sm:block text-[14px] text-parchment/50 italic mt-1">
             Un village paisible. Des loups parmi les habitants.
           </p>
         </div>
       </div>
 
+      <div class="flex items-center gap-4">
+        <form id="new-game-form" method="post" action="{% url 'game:leave_game' %}">
+          {% csrf_token %}
+          <button type="submit" class="new-game-btn">↻ Nouvelle partie</button>
+        </form>
       <div class="hidden md:flex items-center gap-4">
         <div class="text-right">
-          <p class="font-display text-[10px] uppercase tracking-[0.26em] text-gold-light/80">Plateau de jeu</p>
-          <p class="text-[12px] text-parchment/50">{{ board.player_count }} places · Rôles secrets</p>
+          <p class="font-display text-[12px] uppercase tracking-[0.26em] text-gold-light/80">Plateau de jeu</p>
+          <p class="text-[14px] text-parchment/50">{{ board.player_count }} places · Rôles secrets</p>
         </div>
         <span class="wax-seal rotate-[-8deg]">VII</span>
+      </div>
       </div>
     </div>
   </header>
@@ -1298,10 +1282,10 @@
       <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <span id="status-icon" class="status-icon">{{ status_phase.icon }}</span>
         <div class="min-w-0">
-          <p id="status-phase" class="font-display text-[11px] sm:text-[13px] font-bold uppercase tracking-[0.16em] whitespace-nowrap">
+          <p id="status-phase" class="font-display text-[13px] sm:text-[15px] font-bold uppercase tracking-[0.16em] whitespace-nowrap">
             {{ status_phase.label }}
           </p>
-          <p id="status-desc" class="hidden sm:block text-[11px] italic truncate text-parchment/50">
+          <p id="status-desc" class="hidden sm:block text-[13px] italic truncate text-parchment/50">
             {{ status_phase.desc }}
           </p>
         </div>
@@ -1310,12 +1294,12 @@
       <!-- Annonces du MJ -->
       <div class="hidden md:flex items-center gap-3 flex-1 min-w-0 border-l border-white/10 pl-5">
         <span class="mj-seal">MJ</span>
-        <p id="mj-line" class="flex-1 min-w-0 truncate text-[12.5px] italic text-parchment/75 transition-opacity duration-500">
+        <p id="mj-line" class="flex-1 min-w-0 truncate text-[14.5px] italic text-parchment/75 transition-opacity duration-500">
           {{ announcements.0 }}
         </p>
       </div>
 
-      <!-- Signal temps réel + minuterie du vote de jour -->
+      <!-- Minuteries du vote de jour et de la nuit -->
       <div class="ml-auto flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
         <span id="vote-timer" class="vote-timer" aria-live="polite">
           <span aria-hidden="true">⏳</span>
@@ -1325,23 +1309,12 @@
           <span aria-hidden="true">🌙</span>
           <span>Nuit · <span id="night-timer-value" class="tabular-nums">45</span>s</span>
         </span>
-        <span class="live-dot" aria-hidden="true"></span>
-        <span class="font-display text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] text-parchment/50">
-          En direct
-        </span>
-        <span id="live-clock" class="font-display text-[10.5px] sm:text-[11px] tabular-nums text-gold-light/90"></span>
       </div>
 
     </div>
   </div>
 
-  {% if announcements %}
-    {{ announcements|json_script:"mj-announcements" }}
-  {% endif %}
-
-  {% if night %}
-    {{ night|json_script:"night-config" }}
-  {% endif %}
+  {{ live_config|json_script:"live-config" }}
 
   <!-- ===================================================================== -->
   <!--  CONTENU : PANNEAUX LATÉRAUX + PLATEAU                                -->
@@ -1355,7 +1328,7 @@
         <section class="parchment p-4 sm:p-5">
           <div class="flex items-center gap-2">
             <span class="text-gold-dark text-sm">✦</span>
-            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
               Composition du village
             </h2>
           </div>
@@ -1368,8 +1341,8 @@
                   {{ role.icon }}
                 </span>
                 <div class="flex-1 min-w-0">
-                  <p class="font-display text-[12.5px] font-semibold text-ink leading-tight">{{ role.name }}</p>
-                  <p class="text-[11.5px] text-ink-soft/85 leading-tight">{{ role.note }}</p>
+                  <p class="font-display text-[14.5px] font-semibold text-ink leading-tight">{{ role.name }}</p>
+                  <p class="text-[13.5px] text-ink-soft/85 leading-tight">{{ role.note }}</p>
                 </div>
                 <span class="wax-count">{{ role.count }}</span>
               </div>
@@ -1377,11 +1350,11 @@
           </div>
 
           <div class="mt-3 pt-3 border-t border-ink/20 flex items-center justify-between">
-            <span class="font-display text-[10px] uppercase tracking-[0.18em] text-ink-soft">Total</span>
-            <span class="font-display text-[13px] font-bold text-ink">{{ board.player_count }} habitants</span>
+            <span class="font-display text-[12px] uppercase tracking-[0.18em] text-ink-soft">Total</span>
+            <span class="font-display text-[15px] font-bold text-ink">{{ board.player_count }} habitants</span>
           </div>
 
-          <p class="mt-3 text-[11.5px] italic leading-snug text-ink-soft/75">
+          <p class="mt-3 text-[13.5px] italic leading-snug text-ink-soft/75">
             ✦ Les rôles sont distribués secrètement. Seul le vôtre vous est révélé.
           </p>
         </section>
@@ -1389,7 +1362,7 @@
         <section class="parchment p-4 sm:p-5">
           <div class="flex items-center gap-2">
             <span class="text-gold-dark text-sm">✦</span>
-            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
               Le déroulement
             </h2>
           </div>
@@ -1402,8 +1375,8 @@
                   {{ phase.icon }}
                 </span>
                 <div>
-                  <p class="font-display text-[11.5px] font-bold uppercase tracking-[0.12em] text-ink">{{ phase.name }}</p>
-                  <p class="text-[11.5px] text-ink-soft/85 leading-snug">{{ phase.desc }}</p>
+                  <p class="font-display text-[13.5px] font-bold uppercase tracking-[0.12em] text-ink">{{ phase.name }}</p>
+                  <p class="text-[13.5px] text-ink-soft/85 leading-snug">{{ phase.desc }}</p>
                 </div>
               </li>
             {% endfor %}
@@ -1421,15 +1394,18 @@
             <div class="board-center">
               <div class="village-emblem">
                 <span class="emblem-wolf">🐺</span>
-                <p class="emblem-title">Thiercelieux</p>
-                <p class="emblem-sub">Le village maudit</p>
+                <!-- Compte à rebours de la phase en cours (rempli par live.js) -->
+                <div id="board-countdown" class="board-countdown" aria-live="off">
+                  <span id="board-countdown-value" class="board-countdown-value">—</span>
+                  <span id="board-countdown-label" class="board-countdown-label">{{ status_phase.label }}</span>
+                </div>
               </div>
             </div>
 
             <!-- Les 7 places autour de la place du village -->
             <div class="board-seats">
               {% for player in players %}
-                <div class="seat {% if player.is_human %}seat-human{% endif %}">
+                <div class="seat {% if player.is_human %}seat-human{% endif %} {% if not player.is_alive %}seat-dead{% endif %}" data-player-id="{{ player.id }}">
                   <div class="seat-card">
                     {% if player.is_human %}
                       <span class="seat-flag">Vous</span>
@@ -1470,7 +1446,7 @@
           </div>
         </div>
 
-        <p class="mt-3 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.26em] text-gold-light/45">
+        <p class="mt-3 text-center text-[12px] sm:text-[13px] uppercase tracking-[0.26em] text-gold-light/45">
           ✦ Disposition initiale · Les rôles restent secrets ✦
         </p>
 
@@ -1482,17 +1458,17 @@
                 <span id="vote-count-value">45</span>
               </div>
               <div class="flex-1 min-w-0">
-                <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+                <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
                   ⚖️ Le vote du jour
                 </h2>
-                <p class="mt-0.5 text-[11.5px] text-ink-soft/85 leading-snug">
+                <p class="mt-0.5 text-[13.5px] text-ink-soft/85 leading-snug">
                   Cliquez sur <strong>Voter</strong> sous l’habitant à envoyer au bûcher.
                   Le vote blanc permet de s’abstenir.
                 </p>
                 <div class="vote-bar mt-2" aria-hidden="true">
                   <div id="vote-bar-fill" class="vote-bar-fill"></div>
                 </div>
-                <p id="vote-timer-label" class="mt-1.5 font-display text-[9.5px] uppercase tracking-[0.16em] text-ink-soft/70">
+                <p id="vote-timer-label" class="mt-1.5 font-display text-[11.5px] uppercase tracking-[0.16em] text-ink-soft/70">
                   <span id="vote-timer-remaining">45</span> secondes restantes · abstention automatique à 0
                 </p>
               </div>
@@ -1515,7 +1491,7 @@
           <div id="night-panel-loup" class="night-role-panel loup-panel parchment p-4 sm:p-5">
             <div class="flex items-center justify-between gap-3">
               <h2 class="night-panel-title">🐺 Le repaire de la meute</h2>
-              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#ff9d8e]/80">
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#ff9d8e]/80">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#e05f4e]"></span>
                 Canal secret
               </span>
@@ -1538,7 +1514,7 @@
               <button type="submit" class="night-btn">Chuchoter</button>
             </form>
 
-            <p class="mt-4 font-display text-[10px] uppercase tracking-[0.16em] text-[#ff9d8e]/85">
+            <p class="mt-4 font-display text-[12px] uppercase tracking-[0.16em] text-[#ff9d8e]/85">
               🩸 Désignez la proie de la nuit
             </p>
             <div id="wolf-targets" class="night-target-grid"></div>
@@ -1550,14 +1526,14 @@
           <div id="night-panel-voyante" class="night-role-panel voyante-panel parchment p-4 sm:p-5">
             <div class="flex items-center justify-between gap-3">
               <h2 class="night-panel-title">🔮 L'oratoire de la Voyante</h2>
-              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#93a8e8]/80">
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#93a8e8]/80">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#93a8e8]"></span>
                 Rituel nocturne
               </span>
             </div>
             <div class="gold-rule my-3"></div>
 
-            <p class="text-[12.5px] leading-snug text-[#c9d4f4]">
+            <p class="text-[14.5px] leading-snug text-[#c9d4f4]">
               Le village dort : une seule vision vous est offerte cette nuit.
               Ouvrez l'œil, choisissez un habitant et percez sa nature secrète.
             </p>
@@ -1573,7 +1549,7 @@
           <div id="night-panel-sorciere" class="night-role-panel sorciere-panel parchment p-4 sm:p-5">
             <div class="flex items-center justify-between gap-3">
               <h2 class="night-panel-title">🧪 L'atelier de la Sorcière</h2>
-              <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-[#71bd8f]/80">
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#71bd8f]/80">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#71bd8f]"></span>
                 Fioles & sortilèges
               </span>
@@ -1616,11 +1592,11 @@
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <span class="text-gold-dark text-sm">✦</span>
-              <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+              <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
                 Place du village
               </h2>
             </div>
-            <span class="flex items-center gap-1.5 font-display text-[9px] uppercase tracking-[0.18em] text-ink-soft/70">
+            <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-ink-soft/70">
               <span class="w-1.5 h-1.5 rounded-full bg-blood"></span>
               Discussion publique
             </span>
@@ -1630,20 +1606,7 @@
           <!-- Fil des échanges -->
           <div id="chat-feed"
                class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] xl:max-h-[640px] overflow-y-auto pr-1.5">
-            {% for message in discussion %}
-              <article class="flex gap-3">
-                <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/60 shadow-inner">
-                  {{ message.avatar }}
-                </span>
-                <div class="flex-1 min-w-0 rounded-sm border border-ink/15 bg-white/25 px-3 py-2">
-                  <p class="font-display text-[10px] uppercase tracking-[0.14em] text-ink-soft">
-                    {{ message.name }}
-                    <span class="normal-case tracking-normal text-ink-soft/60">· {{ message.persona }}</span>
-                  </p>
-                  <p class="mt-0.5 text-[13px] leading-snug text-ink">{{ message.text }}</p>
-                </div>
-              </article>
-            {% endfor %}
+            <!-- Rempli en direct par static/game/live.js -->
           </div>
 
           <!-- Prendre la parole -->
@@ -1652,15 +1615,14 @@
                    type="text"
                    maxlength="300"
                    placeholder="Prenez la parole devant le village..."
-                   class="chat-input relative z-10 min-w-0 flex-1 rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[13px] text-ink placeholder-ink-soft/50 font-body">
-            <button type="submit" class="chat-send relative z-10 flex-shrink-0 rounded-sm px-4 py-2 text-[10px]">
+                   class="chat-input relative z-10 min-w-0 flex-1 rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[15px] text-ink placeholder-ink-soft/50 font-body">
+            <button type="submit" class="chat-send relative z-10 flex-shrink-0 rounded-sm px-4 py-2 text-[12px]">
               Parler
             </button>
           </form>
 
-          <p class="mt-3 text-[10.5px] italic leading-snug text-ink-soft/70">
-            ✦ Écran de démonstration : la discussion reflète les archives de la place, vos messages
-            ne s’affichent que pour vous.
+          <p class="mt-3 text-[12.5px] italic leading-snug text-ink-soft/70">
+            ✦ La place est ouverte le jour ; elle se ferme à la tombée de la nuit.
           </p>
         </section>
       </aside>
@@ -1672,7 +1634,7 @@
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="text-gold-dark text-sm">✦</span>
-              <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-ink">
+              <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
                 Votre carte
               </h2>
             </div>
@@ -1685,44 +1647,46 @@
               {{ human.avatar }}
             </div>
             <div>
-              <p class="font-display text-[10px] uppercase tracking-[0.20em] text-ink-soft/80">Votre rôle</p>
+              <p class="font-display text-[12px] uppercase tracking-[0.20em] text-ink-soft/80">Votre rôle</p>
               <p class="font-display text-xl font-bold text-blood leading-tight">{{ human.role }}</p>
             </div>
           </div>
 
-          <p class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">
+          <p class="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
             {{ human.role_description }}
           </p>
 
+          {% if night.role_key == 'sorciere' %}
           <div class="mt-3 grid gap-2">
             <div id="fiole-life" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
-              <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>🧪</span> Potion de vie</span>
-              <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+              <span class="flex items-center gap-2 text-[14.5px] text-ink"><span>🧪</span> Potion de vie</span>
+              <span class="font-display text-[11px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
             </div>
             <div id="fiole-death" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
-              <span class="flex items-center gap-2 text-[12.5px] text-ink"><span>☠️</span> Potion de mort</span>
-              <span class="font-display text-[9px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+              <span class="flex items-center gap-2 text-[14.5px] text-ink"><span>☠️</span> Potion de mort</span>
+              <span class="font-display text-[11px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
             </div>
           </div>
+          {% endif %}
 
-          <p class="mt-3 text-[11px] italic leading-snug text-ink-soft/70">
+          <p class="mt-3 text-[13px] italic leading-snug text-ink-soft/70">
             Gardez votre rôle secret : les autres habitants ne voient que votre nom.
           </p>
         </section>
 
         <section class="wood-panel p-4 sm:p-5">
           <div class="flex items-center justify-between gap-3">
-            <h2 class="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.18em] text-gold-light">
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-gold-light">
               Le plateau
             </h2>
-            <span class="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-parchment/60">
+            <span class="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-parchment/60">
               <span class="w-1.5 h-1.5 rounded-full bg-gold-light"></span>
-              {{ board.status }}
+              <span id="board-status">{{ board.status }}</span>
             </span>
           </div>
           <div class="gold-rule my-3 opacity-60"></div>
 
-          <dl class="space-y-2.5 text-[12.5px]">
+          <dl class="space-y-2.5 text-[14.5px]">
             <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
               <dt class="text-parchment/55">Village</dt>
               <dd class="font-display text-parchment-light">{{ board.village }}</dd>
@@ -1741,13 +1705,13 @@
             </div>
           </dl>
 
-          <div class="mt-4 space-y-2 text-[12px] text-parchment/70">
+          <div class="mt-4 space-y-2 text-[14px] text-parchment/70">
             <p><span class="font-semibold text-gold-light">Le village</span> doit éliminer tous les Loups-Garous.</p>
             <p><span class="font-semibold text-rose-300/90">Les loups</span> doivent dévorer les habitants jusqu’à être majoritaires.</p>
           </div>
 
-          <p class="mt-4 border-t border-white/10 pt-3 text-[10.5px] italic leading-snug text-parchment/40">
-            Aucune partie n’est en cours : le plateau présente la disposition initiale du village.
+          <p class="mt-4 border-t border-white/10 pt-3 text-[12.5px] italic leading-snug text-parchment/40">
+            La partie avance d’elle-même : chaque phase se termine quand tout le monde a joué, ou au bout du temps imparti.
           </p>
         </section>
 
@@ -1797,7 +1761,7 @@
       <h3 id="witch-life-modal-title" class="night-modal-title">🧪 La potion de vie</h3>
       <p class="night-modal-desc">Une seule goutte suffit : la victime des loups se relèvera au point du jour.</p>
 
-      <p id="witch-life-target-label" class="mt-3 flex items-center gap-3 rounded-sm border border-ink/20 bg-white/35 px-3 py-2.5 text-[13px]">
+      <p id="witch-life-target-label" class="mt-3 flex items-center gap-3 rounded-sm border border-ink/20 bg-white/35 px-3 py-2.5 text-[15px]">
         <span id="witch-life-target-avatar" class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base bg-wood-800 border border-gold/60"></span>
         <span id="witch-life-target-text" class="flex-1 min-w-0"></span>
       </p>
@@ -1824,927 +1788,51 @@
     </div>
   </div>
 
+  <!-- Modale : avertissement avant d'abandonner une partie en cours -->
+  <div id="new-game-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="new-game-title">
+    <div class="night-modal-card">
+      <h3 id="new-game-title" class="night-modal-title">⚠️ Abandonner la partie ?</h3>
+      <p id="new-game-text" class="night-modal-desc">
+        Une partie est en cours. Si vous en commencez une nouvelle, celle-ci sera abandonnée
+        et ne pourra pas être reprise.
+      </p>
+      <div class="night-modal-actions">
+        <button type="button" id="new-game-confirm-btn" class="night-btn-death">Abandonner et recommencer</button>
+        <button type="button" id="new-game-cancel-btn" class="night-ghost-btn">Continuer la partie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : fin de partie -->
+  <div id="game-over-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+    <div class="night-modal-card">
+      <h3 id="game-over-title" class="night-modal-title">🏁 Fin de partie</h3>
+      <p id="game-over-text" class="night-modal-desc"></p>
+      <ul id="game-over-roles" class="game-over-roles"></ul>
+      <div class="night-modal-actions">
+        <form method="post" action="{% url 'game:leave_game' %}">
+          {% csrf_token %}
+          <button type="submit" class="night-btn">Nouvelle partie</button>
+        </form>
+        <button type="button" id="game-over-close-btn" class="night-ghost-btn">Revoir le plateau</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================================================================== -->
   <!--  PIED DE PAGE                                                         -->
   <!-- ===================================================================== -->
   <footer class="relative z-10 border-t border-gold/20 py-4 text-center">
-    <p class="font-display text-[9px] uppercase tracking-[0.34em] text-gold-light/50">
+    <p class="font-display text-[11px] uppercase tracking-[0.34em] text-gold-light/50">
       Thiercelieux · Édition Classique
     </p>
-    <p class="mt-1 text-[11px] italic text-parchment/35">« La nuit tombe sur le village... »</p>
+    <p class="mt-1 text-[13px] italic text-parchment/35">« La nuit tombe sur le village... »</p>
   </footer>
 
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-  // Bannière d'état temps réel (démo) : horloge, annonces du MJ en rotation,
-  // et simulation du cycle Jour → Vote → Nuit tant qu'aucun backend n'existe.
-  (function () {
-    var banner = document.getElementById('status-banner');
-    var iconEl = document.getElementById('status-icon');
-    var phaseEl = document.getElementById('status-phase');
-    var descEl = document.getElementById('status-desc');
-    var mjEl = document.getElementById('mj-line');
-    var clockEl = document.getElementById('live-clock');
-    if (!banner) return;
-
-    // ---- Horloge en temps réel (heure locale du navigateur) ----
-    function tickClock() {
-      if (clockEl) {
-        clockEl.textContent = new Date().toLocaleTimeString('fr-FR', { hour12: false });
-      }
-    }
-    tickClock();
-    setInterval(tickClock, 1000);
-
-    // ---- Annonces du MJ, en rotation toutes les 7 s ----
-    var announcements = [];
-    var source = document.getElementById('mj-announcements');
-    if (source) {
-      try { announcements = JSON.parse(source.textContent); } catch (error) { announcements = []; }
-    }
-
-    if (mjEl && announcements.length > 1) {
-      var announcementIndex = 1;
-      setInterval(function () {
-        mjEl.style.opacity = '0';
-        setTimeout(function () {
-          mjEl.textContent = announcements[announcementIndex % announcements.length];
-          mjEl.style.opacity = '1';
-          announcementIndex += 1;
-        }, 400);
-      }, 7000);
-    }
-
-    // ---- Simulation du cycle des phases (durées alignées sur les minuteries :
-    // vote 45 s, nuit 45 s pour laisser le temps aux interfaces nocturnes) ----
-    var phases = [
-      {
-        key: 'jour',
-        icon: '☀️',
-        label: 'Jour 1 · Le village se réveille',
-        desc: 'Chacun découvre ce que la nuit a emporté.',
-        duration: 15000,
-      },
-      {
-        key: 'vote',
-        icon: '⚖️',
-        label: 'Le Vote · La place délibère',
-        desc: 'Désignez le suspect à envoyer au bûcher.',
-        duration: 45000,
-      },
-      {
-        key: 'nuit',
-        icon: '🌙',
-        label: 'La Nuit · Le village s’endort',
-        desc: 'Fermez les yeux… les loups choisissent leur proie.',
-        duration: 45000,
-      },
-    ];
-
-    if (descEl) {
-      // programmation récursive : chaque phase dure sa propre durée.
-      var phaseIndex = 0;
-      var advancePhase = function () {
-        var current = phases[phaseIndex];
-        setTimeout(function () {
-          phaseIndex = (phaseIndex + 1) % phases.length;
-          var phase = phases[phaseIndex];
-          banner.setAttribute('data-phase', phase.key);
-          if (iconEl) iconEl.textContent = phase.icon;
-          if (phaseEl) phaseEl.textContent = phase.label;
-          descEl.textContent = phase.desc;
-          // Signale le changement de phase aux interfaces (vote de jour, nuit…).
-          document.dispatchEvent(new CustomEvent('lg:phase-active', { detail: phase.key }));
-          advancePhase();
-        }, current.duration);
-      };
-      advancePhase();
-    }
-  })();
-</script>
-<script>
-  // Discussion publique (démo) : publie le message du joueur localement dans le fil.
-  (function () {
-    var form = document.getElementById('chat-form');
-    var input = document.getElementById('chat-input');
-    var feed = document.getElementById('chat-feed');
-    var humanName = '{{ human.name }}';
-    var humanAvatar = '{{ human.avatar }}';
-    if (!form || !input || !feed) return;
-
-    // Affiche les archives en fin de discussion.
-    feed.scrollTop = feed.scrollHeight;
-
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      var text = input.value.trim();
-      if (!text) return;
-
-      var message = document.createElement('article');
-      message.className = 'flex flex-row-reverse gap-3';
-
-      var avatar = document.createElement('span');
-      avatar.className = 'w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border-2 border-gold shadow';
-      avatar.textContent = humanAvatar;
-
-      var bubble = document.createElement('div');
-      bubble.className = 'flex-1 min-w-0 rounded-sm border-2 border-gold-dark bg-gradient-to-b from-[#f8edd4] to-[#ecd7ab] px-3 py-2';
-
-      var author = document.createElement('p');
-      author.className = 'font-display text-[10px] uppercase tracking-[0.14em] text-blood text-right';
-      author.textContent = humanName + ' · vous';
-
-      var content = document.createElement('p');
-      content.className = 'mt-0.5 text-[13px] leading-snug text-ink';
-      content.textContent = text;
-
-      bubble.appendChild(author);
-      bubble.appendChild(content);
-      message.appendChild(avatar);
-      message.appendChild(bubble);
-      feed.appendChild(message);
-
-      feed.scrollTop = feed.scrollHeight;
-      input.value = '';
-      input.focus();
-    });
-  })();
-</script>
-<script>
-  // Vote de jour (démo) : boutons de vote sur les habitants vivants, vote blanc,
-  // compteur dégressif de 45 s et abstention automatique lorsque le compteur atteint 0.
-  (function () {
-    var VOTE_SECONDS = 45;
-
-    var panel = document.getElementById('vote-panel');
-    var whiteBtn = document.getElementById('vote-white-btn');
-    var statusEl = document.getElementById('vote-status');
-    var chip = document.getElementById('vote-timer');
-    var chipValue = document.getElementById('vote-timer-value');
-    var countValue = document.getElementById('vote-count-value');
-    var barFill = document.getElementById('vote-bar-fill');
-    var remainingLabel = document.getElementById('vote-timer-remaining');
-    var seatButtons = Array.prototype.slice.call(document.querySelectorAll('.seat-vote-btn'));
-    if (!panel || seatButtons.length === 0) return;
-
-    var secondsLeft = VOTE_SECONDS;
-    var timerId = null;
-    var voteSent = false;
-
-    // ---- Boutons de vote des habitants vivants ----
-    function lockSeatButtons() {
-      seatButtons.forEach(function (button) { button.disabled = true; });
-    }
-
-    function unlockSeatButtons() {
-      seatButtons.forEach(function (button) {
-        if (button.getAttribute('data-self') !== '1') button.disabled = false;
-      });
-    }
-
-    // ---- Compteur dégressif 45 s ----
-    function updateTimerUI() {
-      if (chipValue) chipValue.textContent = secondsLeft;
-      if (countValue) countValue.textContent = secondsLeft;
-      if (remainingLabel) remainingLabel.textContent = secondsLeft;
-      if (barFill) barFill.style.width = (secondsLeft / VOTE_SECONDS) * 100 + '%';
-
-      var urgent = secondsLeft <= 10;
-      if (chip) chip.classList.toggle('vote-timer-urgent', urgent);
-      panel.classList.toggle('vote-panel-urgent', urgent);
-      var countEl = countValue ? countValue.parentElement : null;
-      if (countEl) countEl.classList.toggle('vote-count-urgent', urgent);
-    }
-
-    function stopTimer() {
-      if (timerId !== null) {
-        clearInterval(timerId);
-        timerId = null;
-      }
-    }
-
-    function tick() {
-      secondsLeft = Math.max(0, secondsLeft - 1);
-      updateTimerUI();
-      if (secondsLeft === 0) {
-        stopTimer();
-        sendVote(null, true); // Abstention automatique à 0 s
-      }
-    }
-
-    function startSession() {
-      stopTimer();
-      voteSent = false;
-      secondsLeft = VOTE_SECONDS;
-      unlockSeatButtons();
-      if (whiteBtn) whiteBtn.disabled = false;
-      clearVoteMarks();
-      setStatus('Le village délibère : désignez un suspect à envoyer au bûcher, ou votez blanc.', false);
-      document.body.classList.add('vote-phase');
-      updateTimerUI();
-      timerId = setInterval(tick, 1000);
-    }
-
-    function endSession() {
-      stopTimer();
-      document.body.classList.remove('vote-phase');
-      if (chip) chip.classList.remove('vote-timer-urgent');
-      panel.classList.remove('vote-panel-urgent');
-      var countEl = countValue ? countValue.parentElement : null;
-      if (countEl) countEl.classList.remove('vote-count-urgent');
-      if (whiteBtn) whiteBtn.classList.remove('vote-white-voted');
-    }
-
-    // ---- Envoi du vote (cible ou vote blanc) ----
-    function clearVoteMarks() {
-      document.querySelectorAll('.seat-card.vote-target').forEach(function (card) {
-        card.classList.remove('vote-target');
-      });
-      document.querySelectorAll('.seat-vote-mark').forEach(function (mark) { mark.remove(); });
-    }
-
-    function setStatus(text, auto) {
-      if (!statusEl) return;
-      statusEl.textContent = text;
-      statusEl.classList.add('vote-status-active');
-      statusEl.classList.toggle('vote-status-auto', Boolean(auto));
-    }
-
-    function markSeat(seatId, label, white) {
-      var card = document.querySelector('.seat-vote-btn[data-vote-target-id="' + seatId + '"]');
-      if (!card) return;
-      var seatCard = card.closest('.seat-card');
-      if (!seatCard) return;
-      seatCard.classList.add('vote-target');
-      var mark = document.createElement('span');
-      mark.className = 'seat-vote-mark' + (white ? ' seat-vote-mark-white' : '');
-      mark.textContent = label;
-      seatCard.appendChild(mark);
-    }
-
-    function sendVote(targetName, auto) {
-      if (voteSent) return;
-      voteSent = true;
-      stopTimer();
-      lockSeatButtons();
-      if (whiteBtn) {
-        whiteBtn.disabled = true;
-        whiteBtn.classList.toggle('vote-white-voted', auto || !targetName);
-      }
-
-      if (!targetName) {
-        markSeat(getSelfId(), '🤍 Blanc', true);
-        setStatus(
-          auto
-            ? '⏳ Temps écoulé : votre abstention a été envoyée automatiquement au Maître du jeu.'
-            : '🤍 Votre vote blanc (abstention) a été envoyé au Maître du jeu.',
-          auto
-        );
-        return;
-      }
-
-      var button = seatButtons.filter(function (b) { return b.getAttribute('data-vote-target-name') === targetName; })[0];
-      var seatId = button ? button.getAttribute('data-vote-target-id') : '';
-      markSeat(seatId, '🗳️ Visé', false);
-      setStatus('🗳️ Votre vote contre ' + targetName + ' a été envoyé au Maître du jeu.', false);
-    }
-
-    function getSelfId() {
-      var selfButton = seatButtons.filter(function (b) { return b.getAttribute('data-self') === '1'; })[0];
-      return selfButton ? selfButton.getAttribute('data-vote-target-id') : '';
-    }
-
-    // Clic sur le bouton de vote d'un habitant vivant.
-    seatButtons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        if (voteSent || button.disabled) return;
-        sendVote(button.getAttribute('data-vote-target-name'), false);
-      });
-    });
-
-    // Clic sur le bouton de vote blanc / abstention.
-    if (whiteBtn) {
-      whiteBtn.addEventListener('click', function () {
-        if (voteSent || whiteBtn.disabled) return;
-        sendVote(null, false);
-      });
-    }
-
-    // L'interface de vote suit la phase courante (Jour → Vote → Nuit).
-    document.addEventListener('lg:phase-active', function (event) {
-      if (event.detail === 'vote') {
-        startSession();
-      } else {
-        endSession();
-      }
-    });
-  })();
-</script>
-<script>
-  // Interface nocturne dédiée au joueur humain (démo) : le panneau affiché
-  // dépend du rôle —
-  //   · Loup-Garou  : canal secret nocturne (chasse + vote avec l'allié IA)
-  //   · Voyante     : modale de choix d'une cible + révélation immédiate
-  //   · Sorcière    : notification de la victime des loups + potion de vie
-  //                   (sauvetage) & potion de mort
-  //   · Villageois  : écran d'attente atmosphérique (« Le village s'endort… »)
-  // Démo : aucune partie n'est branchée côté serveur, les choix restent locaux.
-  (function () {
-    var NIGHT_SECONDS = 45;
-
-    var body = document.body;
-    var configSource = document.getElementById('night-config');
-    if (!configSource) return;
-
-    var config;
-    try { config = JSON.parse(configSource.textContent); } catch (error) { config = null; }
-    if (!config) return;
-
-    var roleKey = config.role_key;
-    var players = config.players;        // cibles possibles : les habitants IA
-    var aiRoles = config.ai_roles || {}; // démo : rôle secret de chaque IA
-    var ally = config.wolf_ally || null; // démo : unique au rôle Loup-Garou
-
-    // Fiches de rôle pour la révélation de la voyante.
-    var ROLE_INFO = {
-      'Loup-Garou': { icon: '🐺', quote: 'Un prédateur rôde parmi les habitants.' },
-      'Voyante': { icon: '🔮', quote: 'Chaque nuit, un secret lui est révélé.' },
-      'Sorcière': { icon: '🧪', quote: 'Ses fioles décident de la vie et de la mort.' },
-      'Villageois': { icon: '🌾', quote: 'Le cœur du village, sans pouvoir particulier.' },
-    };
-
-    function roleInfo(name) {
-      return ROLE_INFO[name] || { icon: '❓', quote: 'Un habitant de Thiercelieux.' };
-    }
-
-    function byId(id) { return document.getElementById(id); }
-
-    function setStatus(el, text, active) {
-      if (!el) return;
-      el.textContent = text;
-      el.classList.toggle('night-status-active', active !== false);
-    }
-
-    function resetStatus(el) {
-      if (!el) return;
-      el.textContent = '';
-      el.classList.remove('night-status-active');
-    }
-
-    // ---------------------------------------------------------------
-    // Minuterie nocturne partagée (puce de la bannière + écran villageois)
-    // ---------------------------------------------------------------
-    var secondsLeft = NIGHT_SECONDS;
-    var timerId = null;
-    var chip = byId('night-timer');
-    var chipValue = byId('night-timer-value');
-    var waitCount = byId('night-wait-count');
-
-    function updateTimerUI() {
-      if (chipValue) chipValue.textContent = secondsLeft;
-      if (chip) chip.classList.toggle('night-timer-urgent', secondsLeft <= 10);
-      if (waitCount) waitCount.textContent = 'La nuit dure encore · ' + secondsLeft + ' s';
-    }
-
-    function tickTimer() {
-      secondsLeft = Math.max(0, secondsLeft - 1);
-      updateTimerUI();
-      if (secondsLeft === 0) endNightCycle(true);
-    }
-
-    function startTimer() {
-      stopTimer();
-      secondsLeft = NIGHT_SECONDS;
-      updateTimerUI();
-      timerId = setInterval(tickTimer, 1000);
-    }
-
-    function stopTimer() {
-      if (timerId !== null) { clearInterval(timerId); timerId = null; }
-    }
-
-    // ---------------------------------------------------------------
-    // Marqueurs nocturnes posés sur les sièges du plateau
-    // ---------------------------------------------------------------
-    function findSeatCard(name) {
-      var button = document.querySelector('.seat-vote-btn[data-vote-target-name="' + name + '"]');
-      return button ? button.closest('.seat-card') : null;
-    }
-
-    function addSeatMark(name, text, kind) {
-      var card = findSeatCard(name);
-      if (!card) return;
-      var mark = document.createElement('span');
-      mark.className = 'seat-night-mark' + (kind ? ' ' + kind : '');
-      mark.textContent = text;
-      card.appendChild(mark);
-    }
-
-    function clearNightMarks() {
-      document.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
-    }
-
-    // ---------------------------------------------------------------
-    // Boucles annexes (chuchotements IA de la meute, murmures du villageois)
-    // ---------------------------------------------------------------
-    var loops = [];
-
-    function addLoop(callback, delay) {
-      var loopId = setTimeout(callback, delay);
-      loops.push(loopId);
-      return loopId;
-    }
-
-    function clearLoops() {
-      loops.forEach(function (loopId) { clearTimeout(loopId); });
-      loops = [];
-    }
-
-    // ---------------------------------------------------------------
-    // Modales nocturnes : fermeture commune (croix, clic hors carte, Échap)
-    // ---------------------------------------------------------------
-    function closeModal(id) {
-      var modal = byId(id);
-      if (modal) modal.classList.remove('night-modal-open');
-    }
-
-    function openModal(id) {
-      var modal = byId(id);
-      if (modal) modal.classList.add('night-modal-open');
-    }
-
-    function bindModalClose(modalId) {
-      var modal = byId(modalId);
-      if (!modal) return;
-      modal.addEventListener('click', function (event) {
-        if (event.target === modal) closeNightModal();
-      });
-      var closeBtn = modal.querySelector('.night-ghost-btn');
-      if (closeBtn) closeBtn.addEventListener('click', closeNightModal);
-    }
-
-    function closeNightModal() {
-      ['seer-modal', 'witch-life-modal', 'witch-death-modal'].forEach(closeModal);
-    }
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeNightModal();
-    });
-
-    function closeAllNightModals() { closeNightModal(); }
-
-    // Grille de cibles commune : construit des puces avec avatar + nom.
-    function buildTargetGrid(container, names, selectedName, onSelect, vetoed) {
-      if (!container) return;
-      container.textContent = '';
-      names.forEach(function (name) {
-        var player = players.filter(function (p) { return p.name === name; })[0] || {};
-        var chipEl = document.createElement('button');
-        chipEl.type = 'button';
-        chipEl.className = 'night-target-chip' + (name === selectedName ? ' is-selected' : '');
-        chipEl.disabled = Boolean(vetoed && vetoed(name));
-        if (chipEl.disabled) chipEl.classList.add('is-vetoed');
-
-        var avatar = document.createElement('span');
-        avatar.className = 'night-chip-avatar';
-        avatar.textContent = player.avatar || '🧑';
-
-        var label = document.createElement('span');
-        label.textContent = name;
-
-        chipEl.appendChild(avatar);
-        chipEl.appendChild(label);
-        chipEl.addEventListener('click', function () {
-          if (chipEl.disabled) return;
-          container.querySelectorAll('.night-target-chip').forEach(function (el) {
-            el.classList.remove('is-selected');
-          });
-          chipEl.classList.add('is-selected');
-          if (onSelect) onSelect(name);
-        });
-        container.appendChild(chipEl);
-      });
-    }
-
-    // Proies légitimes (IA non-loups), utilisées par la meute et la sorcière.
-    function preyNames() {
-      var excluded = ally ? ally.name : null;
-      return players
-        .filter(function (p) { return p.name !== excluded && aiRoles[p.name] !== 'Loup-Garou'; })
-        .map(function (p) { return p.name; });
-    }
-
-    // ------------------------------ ÉTAT ---------------------------------
-    var cycle = 0;
-
-    // =====================================================================
-    //  LOUP-GAROU : canal secret + chasse nocturne avec l'allié IA
-    // =====================================================================
-    var wolfForm = byId('wolf-form');
-    var wolfInput = byId('wolf-input');
-    var wolfFeed = byId('wolf-feed');
-    var wolfTargets = byId('wolf-targets');
-    var wolfStatus = byId('wolf-status');
-    var wolfVote = null;        // proie confirmée par le joueur humain
-    var wolfAllyPrey = null;    // proie proposée par l'allié IA
-
-    var ALLY_OPENERS = [
-      'Chut… le canal est ouvert. Personne ne doit entendre la meute.',
-      'Le village ferme les yeux. C’est notre heure, chasseur.',
-    ];
-
-    var ALLY_ECHOES = [
-      'La meute t’entend, chuchote encore.',
-      'D’accord pour ça… ton instinct est bon.',
-      'Je note tout. Les loups rient dans le noir.',
-    ];
-
-    function appendWolfMessage(name, avatar, text, self) {
-      if (!wolfFeed) return;
-      var message = document.createElement('div');
-      message.className = 'wolf-msg' + (self ? ' wolf-msg-self' : '');
-
-      var avatarEl = document.createElement('span');
-      avatarEl.className = 'night-chip-avatar';
-      avatarEl.textContent = avatar;
-
-      var bubble = document.createElement('div');
-      bubble.className = 'wolf-msg-bubble';
-
-      var author = document.createElement('p');
-      author.className = 'wolf-msg-author';
-      author.textContent = self ? name + ' · vous' : name;
-
-      var content = document.createElement('p');
-      content.className = 'wolf-msg-text';
-      content.textContent = text;
-
-      bubble.appendChild(author);
-      bubble.appendChild(content);
-      message.appendChild(avatarEl);
-      message.appendChild(bubble);
-      wolfFeed.appendChild(message);
-      wolfFeed.scrollTop = wolfFeed.scrollHeight;
-    }
-
-    function renderWolfTargets() {
-      var names = players.map(function (p) { return p.name; });
-      buildTargetGrid(wolfTargets, names, null, function (name) {
-        if (wolfVote) {
-          var previousMark = findSeatCard(wolfVote);
-          if (previousMark) {
-            previousMark.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
-          }
-        }
-        wolfVote = name;
-        addSeatMark(name, '🐺 Proie', 'seat-wolf-mark');
-        setStatus(wolfStatus, 'La meute a désigné ' + name + ' : cette nuit, c\'est la mort qui l\'attend.');
-        addLoop(function () {
-          appendWolfMessage(ally.name, ally.avatar, ALLY_ECHOES[cycle % ALLY_ECHOES.length], false);
-        }, 1400);
-      }, function (name) { return Boolean(ally && name === ally.name); });
-    }
-
-    function startWolfNight() {
-      wolfVote = null;
-      wolfAllyPrey = null;
-      if (wolfFeed) wolfFeed.textContent = '';
-      if (wolfInput) wolfInput.value = '';
-      renderWolfTargets();
-      resetAllNightStatuses();
-      setStatus(wolfStatus, 'Canal secret ouvert. Chuchotez avec ' + (ally ? ally.name : 'votre allié') + ', puis désignez une proie.');
-
-      if (ally) {
-        appendWolfMessage(ally.name, ally.avatar, ALLY_OPENERS[cycle % ALLY_OPENERS.length], false);
-        // L'allié partage son instinct en cours de nuit.
-        addLoop(function () {
-          appendWolfMessage(ally.name, ally.avatar, 'Silence… j’ai repéré un habitant qui dort mal.', false);
-        }, 9000);
-        addLoop(function () {
-          var pool = preyNames();
-          if (!pool.length) return;
-          wolfAllyPrey = pool[(cycle - 1) % pool.length];
-          appendWolfMessage(ally.name, ally.avatar, 'Je propose ' + wolfAllyPrey + '. Si tu restes muet, la meute suivra mon flair.', false);
-        }, 20000);
-      }
-
-      addLoop(function () {
-        appendWolfMessage('🌙', 'Nuit', 'La nuit s’achève : la meute s’exécute…', false);
-      }, 33000);
-    }
-
-    function endWolfNight() {
-      // À l'aube : la chasse humaine prime, sinon la proie de l'allié IA est suivie.
-      if (!wolfVote && wolfAllyPrey) {
-        wolfVote = wolfAllyPrey;
-        addSeatMark(wolfVote, '🐺 Proie', 'seat-wolf-mark');
-        setStatus(wolfStatus, 'L\'aube a surpris la meute : l\'instinct de ' + (ally ? ally.name : 'votre allié') + ' a tranché. ' + wolfVote + ' sera dévoré.', true);
-      } else if (wolfVote) {
-        setStatus(wolfStatus, 'La meute a désigné ' + wolfVote + ' : cette nuit, c\'est la mort qui l\'attend.', true);
-      }
-    }
-
-    if (wolfForm) {
-      wolfForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        var text = wolfInput.value.trim();
-        if (!text) return;
-        appendWolfMessage('{{ human.name|escapejs }}', '{{ human.avatar|escapejs }}', text, true);
-        wolfInput.value = '';
-        wolfInput.focus();
-      });
-    }
-
-    // =====================================================================
-    //  VOYANTE : modale de choix d'une cible + révélation immédiate
-    // =====================================================================
-    var seerOpenBtn = byId('seer-open-btn');
-    var seerScrutinizeBtn = byId('seer-scrutinize-btn');
-    var seerTargets = byId('seer-targets');
-    var seerStatus = byId('seer-status');
-    var seerRevealZone = byId('seer-reveal-zone');
-    var seerRevealCard = byId('seer-reveal-card');
-    var seerTargetName = null;
-    var seerVisionDone = false;
-
-    function startSeerNight() {
-      seerTargetName = null;
-      seerVisionDone = false;
-      buildTargetGrid(seerTargets, players.map(function (p) { return p.name; }), null, function (name) {
-        seerTargetName = name;
-        if (seerScrutinizeBtn) seerScrutinizeBtn.disabled = false;
-      });
-      if (seerScrutinizeBtn) seerScrutinizeBtn.disabled = true;
-      if (seerOpenBtn) seerOpenBtn.disabled = false;
-      if (seerRevealZone) seerRevealZone.hidden = true;
-      if (seerRevealCard) seerRevealCard.classList.remove('flipped');
-      resetAllNightStatuses();
-      setStatus(seerStatus, 'La nuit vous appartient : ouvrez l\'œil et percez un secret.');
-    }
-
-    function endSeerNight() {
-      if (seerVisionDone) {
-        setStatus(seerStatus, 'Votre vision est scellée jusqu\'au prochain crépuscule.', true);
-      } else {
-        setStatus(seerStatus, 'La nuit s\'est écoulée sans vision : le village gardera ses secrets.', true);
-      }
-    }
-
-    if (seerOpenBtn) {
-      seerOpenBtn.addEventListener('click', function () {
-        seerOpenBtn.disabled = true;
-        openModal('seer-modal');
-      });
-    }
-
-    if (seerScrutinizeBtn) {
-      seerScrutinizeBtn.addEventListener('click', function () {
-        if (!seerTargetName) return;
-        seerVisionDone = true;
-        seerScrutinizeBtn.disabled = true;
-
-        var role = aiRoles[seerTargetName] || 'Inconnu';
-        var info = roleInfo(role);
-
-        if (seerRevealZone) seerRevealZone.hidden = false;
-        byId('seer-reveal-icon').textContent = info.icon;
-        byId('seer-reveal-name').textContent = seerTargetName;
-        byId('seer-reveal-role').textContent = role;
-        byId('seer-reveal-quote').textContent = info.quote;
-
-        // Révélation immédiate : la carte se retourne sous l'œil de la voyante.
-        setTimeout(function () {
-          if (seerRevealCard) seerRevealCard.classList.add('flipped');
-        }, 150);
-
-        addSeatMark(seerTargetName, info.icon + ' ' + role, '');
-        setStatus(seerStatus, 'Le sortilège a parlé : ' + seerTargetName + ' est ' + role + '.', true);
-      });
-    }
-
-    // =====================================================================
-    //  SORCIÈRE : victime des loups + potions de vie (sauvetage) et de mort
-    // =====================================================================
-    var witchVictimText = byId('witch-notification-text');
-    var witchLifeBtn = byId('witch-life-btn');
-    var witchDeathBtn = byId('witch-death-btn');
-    var witchDoneBtn = byId('witch-done-btn');
-    var witchStatus = byId('witch-status');
-    var currentVictim = null;     // victime des loups annoncée à la sorcière cette nuit
-    var usedLife = false;         // fioles consommées (une seule fois par partie)
-    var usedDeath = false;
-    var deathTargetName = null;
-
-    function witchVictimName() {
-      var pool = preyNames();
-      if (!pool.length) return null;
-      return pool[(cycle - 1) % pool.length];
-    }
-
-    function markVictimSaved(playerName) {
-      var card = findSeatCard(playerName);
-      if (!card) return;
-      card.querySelectorAll('.seat-night-mark').forEach(function (mark) { mark.remove(); });
-      addSeatMark(playerName, '🧪 Sauvé', 'seat-save-mark');
-    }
-
-    function witchDeath(playerName) {
-      addSeatMark(playerName, '☠️ Empoisonné', 'seat-doom-mark');
-    }
-
-    function emptyFiole(id) {
-      var row = byId(id);
-      if (!row) return;
-      var value = row.querySelector('span:last-child');
-      if (value) {
-        value.textContent = 'Fiole vide';
-        row.style.opacity = '0.5';
-      }
-    }
-
-    function refreshPotionButtons() {
-      if (witchLifeBtn) {
-        witchLifeBtn.disabled = usedLife || !currentVictim;
-        witchLifeBtn.classList.toggle('potion-empty', usedLife);
-        witchLifeBtn.textContent = usedLife ? '🧪 Fiole vide' : '🧪 Potion de vie';
-      }
-      if (witchDeathBtn) {
-        witchDeathBtn.disabled = usedDeath;
-        witchDeathBtn.classList.toggle('potion-empty', usedDeath);
-        witchDeathBtn.textContent = usedDeath ? '☠️ Fiole vide' : '☠️ Potion de mort';
-      }
-    }
-
-    function startWitchNight() {
-      resetAllNightStatuses();
-      currentVictim = witchVictimName();
-      var deathGrid = byId('witch-death-targets');
-      if (deathGrid) deathGrid.textContent = '';
-      deathTargetName = null;
-
-      if (currentVictim) {
-        if (witchVictimText) {
-          witchVictimText.textContent = 'Les loups se sont glissés dans la maison de ' + currentVictim + '. Au point du jour, la créature ouvrira la fenêtre…';
-        }
-        addSeatMark(currentVictim, '🩸 Victime', 'seat-blood-mark');
-        setStatus(witchStatus, 'Les loups ont désigné ' + currentVictim + '. Une fiole en main, une décision à prendre.');
-      } else {
-        setStatus(witchStatus, 'Aucune victime ne vous est annoncée cette nuit… une influence sournoise.');
-      }
-      refreshPotionButtons();
-    }
-
-    function endWitchNight() {
-      if (currentVictim) {
-        var saved = document.querySelector('.seat-save-mark');
-        if (!saved) {
-          setStatus(witchStatus, 'Sans potion, ' + currentVictim + ' ne se relèvera pas : le village découvrira sa perte au lever du jour.', true);
-        }
-      }
-    }
-
-    if (witchLifeBtn) {
-      witchLifeBtn.addEventListener('click', function () {
-        if (witchLifeBtn.disabled || !currentVictim) return;
-        var victimPlayer = players.filter(function (p) { return p.name === currentVictim; })[0] || {};
-        byId('witch-life-target-avatar').textContent = victimPlayer.avatar || '🧑';
-        byId('witch-life-target-text').textContent = 'Sauver ' + currentVictim + ' de la mort que préparent les loups ?';
-        openModal('witch-life-modal');
-      });
-    }
-
-    var witchLifeConfirm = byId('witch-life-confirm-btn');
-    if (witchLifeConfirm) {
-      witchLifeConfirm.addEventListener('click', function () {
-        usedLife = true;
-        markVictimSaved(currentVictim); // la victime est sauvée, le marqueur change
-        emptyFiole('fiole-life');
-        closeModal('witch-life-modal');
-        refreshPotionButtons();
-        setStatus(witchStatus, 'La potion de vie a coulé : ' + currentVictim + ' se réveillera demain matin… et le village n\'en saura rien.', true);
-      });
-    }
-
-    if (witchDeathBtn) {
-      witchDeathBtn.addEventListener('click', function () {
-        if (witchDeathBtn.disabled) return;
-        var names = players
-          .filter(function (p) { return p.name !== currentVictim; })
-          .map(function (p) { return p.name; });
-        buildTargetGrid(byId('witch-death-targets'), names, null, function (name) {
-          deathTargetName = name;
-          var confirmBtn = byId('witch-death-confirm-btn');
-          if (confirmBtn) confirmBtn.disabled = false;
-        });
-        deathTargetName = null;
-        openModal('witch-death-modal');
-      });
-    }
-
-    var witchDeathConfirm = byId('witch-death-confirm-btn');
-    if (witchDeathConfirm) {
-      witchDeathConfirm.addEventListener('click', function () {
-        if (!deathTargetName) return;
-        usedDeath = true;
-        witchDeath(deathTargetName);
-        emptyFiole('fiole-death');
-        closeModal('witch-death-modal');
-        refreshPotionButtons();
-        setStatus(witchStatus, 'Le poison a coulé dans le verre de ' + deathTargetName + '. Personne ne connaîtra votre geste.', true);
-      });
-    }
-
-    if (witchDoneBtn) {
-      witchDoneBtn.addEventListener('click', function () {
-        setStatus(witchStatus, 'Vos fioles restent scellées cette nuit. Le village dormira sans savoir ce qu\'elles ont épargné… ou non.', true);
-      });
-    }
-
-    // =====================================================================
-    //  VILLAGEOIS : écran d'attente atmosphérique « Le village s'endort… »
-    // =====================================================================
-    var whisperEl = byId('night-whisper');
-    var whispers = [
-      'La lune s\'étire sur les toits de Thiercelieux…',
-      'Quelque part, un hurlement se perd entre les collines.',
-      'Fermez les yeux : les loups ne voient que vos rêves.',
-      'Demain, il vous faudra voter. Ce que la nuit fait, le vote défera.',
-      'Les étoiles gardent les secrets que le village ignore.',
-    ];
-    var whisperTimerId = null;
-
-    function startVillagerNight() {
-      if (!whisperEl) return;
-      var whisperIndex = (cycle - 1) % whispers.length;
-      whisperEl.textContent = whispers[whisperIndex];
-      whisperTimerId = setInterval(function () {
-        whisperEl.style.opacity = '0';
-        setTimeout(function () {
-          whisperIndex = (whisperIndex + 1) % whispers.length;
-          whisperEl.textContent = whispers[whisperIndex];
-          whisperEl.style.opacity = '1';
-        }, 600);
-      }, 5000);
-      loops.push(whisperTimerId);
-    }
-
-    function endVillagerNight() {
-      if (waitCount) waitCount.textContent = 'La nuit s\'achève…';
-    }
-
-    // =====================================================================
-    //  Cycle nocturne partagé : ouverture/fermeture sur lg:phase-active
-    // =====================================================================
-    function resetAllNightStatuses() {
-      [wolfStatus, seerStatus, witchStatus].forEach(resetStatus);
-    }
-
-    function startNightCycle() {
-      cycle += 1;
-      body.classList.add('night-phase');
-      body.setAttribute('data-night-role', roleKey);
-      if (chip) chip.classList.remove('night-timer-urgent');
-      clearNightMarks();
-      closeAllNightModals();
-      stopTimer();
-      startTimer();
-
-      if (roleKey === 'loup') startWolfNight();
-      else if (roleKey === 'voyante') startSeerNight();
-      else if (roleKey === 'sorciere') startWitchNight();
-      else startVillagerNight();
-    }
-
-    function endNightCycle(auto) {
-      if (!body.classList.contains('night-phase')) return;
-      stopTimer();
-      clearLoops();
-      if (whisperTimerId !== null) { clearInterval(whisperTimerId); whisperTimerId = null; }
-      closeAllNightModals();
-
-      if (roleKey === 'loup') endWolfNight();
-      else if (roleKey === 'voyante') endSeerNight();
-      else if (roleKey === 'sorciere') endWitchNight();
-      else endVillagerNight();
-
-      body.classList.remove('night-phase');
-      body.removeAttribute('data-night-role');
-    }
-
-    bindModalClose('seer-modal');
-    bindModalClose('witch-life-modal');
-    bindModalClose('witch-death-modal');
-
-    document.addEventListener('lg:phase-active', function (event) {
-      if (event.detail === 'nuit') {
-        startNightCycle();
-      } else {
-        endNightCycle(false);
-      }
-    });
-  })();
-</script>
+<link rel="stylesheet" href="{% static 'game/live.css' %}">
+<script src="{% static 'game/live.js' %}" defer></script>
 {% endblock %}

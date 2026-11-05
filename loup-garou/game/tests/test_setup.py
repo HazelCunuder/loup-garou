@@ -15,7 +15,7 @@ def signature(game):
 
 class CreateGameTests(TestCase):
     def setUp(self):
-        self.game = create_game("session-1", "Hazel", seed=1)
+        self.game = create_game("session-1", "Alexandre", seed=1)
         self.players = list(self.game.players.all())
 
     def test_seven_players_with_mvp_composition(self):
@@ -29,7 +29,7 @@ class CreateGameTests(TestCase):
     def test_exactly_one_human_without_personality(self):
         humans = [p for p in self.players if p.is_human]
         self.assertEqual(len(humans), 1)
-        self.assertEqual(humans[0].name, "Hazel")
+        self.assertEqual(humans[0].name, "Alexandre")
         self.assertIsNone(humans[0].personality)
 
     def test_six_ai_with_six_distinct_personalities(self):
@@ -58,24 +58,24 @@ class CreateGameTests(TestCase):
 
 class DeterministicDrawTests(TestCase):
     def test_same_seed_gives_same_draw(self):
-        a = create_game("s", "Hazel", seed=1234)
-        b = create_game("s", "Hazel", seed=1234)
+        a = create_game("s", "Alexandre", seed=1234)
+        b = create_game("s", "Alexandre", seed=1234)
         self.assertEqual(signature(a), signature(b))
 
     def test_different_seeds_give_different_draws(self):
         self.assertNotEqual(
-            signature(create_game("s", "Hazel", seed=1)),
-            signature(create_game("s", "Hazel", seed=2)),
+            signature(create_game("s", "Alexandre", seed=1)),
+            signature(create_game("s", "Alexandre", seed=2)),
         )
 
     def test_random_seed_is_generated_and_stored(self):
-        game = create_game("s", "Hazel")
-        replay = create_game("s", "Hazel", seed=game.seed)
+        game = create_game("s", "Alexandre")
+        replay = create_game("s", "Alexandre", seed=game.seed)
         self.assertEqual(signature(game), signature(replay))
 
     def test_human_can_receive_every_role(self):
         roles = {
-            create_game("s", "Hazel", seed=seed).players.get(is_human=True).role
+            create_game("s", "Alexandre", seed=seed).players.get(is_human=True).role
             for seed in range(40)
         }
         self.assertEqual(roles, set(Role.values))
@@ -83,8 +83,8 @@ class DeterministicDrawTests(TestCase):
 
 class HumanNameTests(TestCase):
     def test_name_is_stripped(self):
-        game = create_game("s", "  Hazel  ", seed=1)
-        self.assertTrue(game.players.filter(is_human=True, name="Hazel").exists())
+        game = create_game("s", "  Alexandre  ", seed=1)
+        self.assertTrue(game.players.filter(is_human=True, name="Alexandre").exists())
 
     def test_empty_name_is_rejected(self):
         for name in ("", "   ", None):
@@ -103,4 +103,20 @@ class HumanNameTests(TestCase):
 
     def test_unsupported_player_count_is_rejected(self):
         with self.assertRaises(InvalidAction):
-            create_game("s", "Hazel", player_count=8)
+            create_game("s", "Alexandre", player_count=8)
+
+
+class ForcedHumanRoleTests(TestCase):
+    def test_human_gets_the_forced_role_and_composition_is_kept(self):
+        for role in Role.values:
+            with self.subTest(role=role):
+                game = create_game("s", "Alexandre", seed=3, human_role=role)
+                self.assertEqual(game.players.get(is_human=True).role, role)
+                self.assertEqual(
+                    Counter(p.role for p in game.players.all()),
+                    {Role.WEREWOLF: 2, Role.VILLAGER: 3, Role.SEER: 1, Role.WITCH: 1},
+                )
+
+    def test_unknown_role_is_rejected(self):
+        with self.assertRaises(InvalidAction):
+            create_game("s", "Alexandre", human_role="MAIRE")

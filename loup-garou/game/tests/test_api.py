@@ -13,7 +13,7 @@ from voting.models import Vote
 
 
 class ApiTestCase(TestCase):
-    def start(self, name="Hazel", role=None, client=None):
+    def start(self, name="Alexandre", role=None, client=None):
         client = client or self.client
         data = {"name": name}
         if role:
@@ -45,7 +45,7 @@ class StartPageTests(ApiTestCase):
 
     def test_new_game_is_bound_to_the_session(self):
         game, human = self.start()
-        self.assertEqual(human.name, "Hazel")
+        self.assertEqual(human.name, "Alexandre")
         self.assertEqual(game.session_key, self.client.session.session_key)
         self.assertEqual(game.players.count(), 7)
 
@@ -112,6 +112,54 @@ class BoardPageTests(ApiTestCase):
         html = self.client.get(reverse("game:village")).content.decode()
         self.assertNotIn("O'Brien</script>", html)
 
+    def test_page_loads_the_live_script_and_its_config(self):
+        _, human = self.start()
+        response = self.client.get(reverse("game:village"))
+        html = response.content.decode()
+        self.assertIn("game/live.js", html)
+        self.assertIn('id="live-config"', html)
+        config = response.context["live_config"]
+        self.assertEqual(config["me_id"], human.pk)
+        self.assertEqual(config["urls"]["state"], reverse("game:api_state"))
+        self.assertTrue(config["csrf_token"])
+
+    def test_demo_simulation_is_gone(self):
+        self.start()
+        html = self.client.get(reverse("game:village")).content.decode()
+        for leftover in ("night-config", "mj-announcements", "lg:phase-active", "ai_roles"):
+            self.assertNotIn(leftover, html)
+
+    def test_seats_carry_player_ids(self):
+        game, _ = self.start()
+        html = self.client.get(reverse("game:village")).content.decode()
+        for player in game.players.all():
+            self.assertIn(f'data-player-id="{player.pk}"', html)
+
+    @override_settings(DEBUG=True)
+    def test_potions_are_only_shown_to_the_witch(self):
+        for role, shown in (("villageois", False), ("loup", False), ("voyante", False), ("sorciere", True)):
+            with self.subTest(role=role):
+                client = Client()
+                self.start(role=role, client=client)
+                html = client.get(reverse("game:village")).content.decode()
+                self.assertEqual('id="fiole-life"' in html, shown)
+                self.assertEqual('id="fiole-death"' in html, shown)
+
+    def test_new_game_button_and_warning_are_on_the_board(self):
+        self.start()
+        html = self.client.get(reverse("game:village")).content.decode()
+        self.assertIn('id="new-game-form"', html)
+        self.assertIn(f'action="{reverse("game:leave_game")}"', html)
+        self.assertIn('id="new-game-modal"', html)
+        self.assertIn("Abandonner et recommencer", html)
+
+    def test_new_game_button_leads_to_the_start_page(self):
+        old_game, _ = self.start()
+        response = self.client.post(reverse("game:leave_game"), follow=True)
+        self.assertTemplateUsed(response, "game/start.html")
+        new_game, _ = self.start(name="Alexandre")
+        self.assertNotEqual(old_game.pk, new_game.pk)
+
     def test_avatars_do_not_depend_on_personality(self):
         self.start()
         players = self.client.get(reverse("game:village")).context["players"]
@@ -132,6 +180,12 @@ class StateApiTests(ApiTestCase):
         others = [p for p in state["players"] if not p["is_me"]]
         if human.role != Role.WEREWOLF:
             self.assertTrue(all(p["role"] is None for p in others))
+
+    def test_state_includes_banner_display(self):
+        self.start()
+        display = self.state()["display"]
+        self.assertEqual(display["key"], "nuit")
+        self.assertTrue(display["label"].startswith("Nuit 1"))
 
     def test_since_returns_only_new_messages(self):
         self.start()
