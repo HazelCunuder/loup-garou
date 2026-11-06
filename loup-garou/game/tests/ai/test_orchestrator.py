@@ -7,6 +7,7 @@ from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from AI_log.models import AICallLog, CallStatus
 from game.ai import orchestrator
 from game.ai.orchestrator import pick_speakers, schedule
 from game.engine import advance, create_game, submit_message, submit_vote, submit_wolf_target
@@ -16,6 +17,7 @@ from night_time.models import NightAction, NightActionType as T
 from voting.models import Vote
 
 from ..helpers import GameTestCase
+from .fakes import fake_client
 
 INLINE = dict(
     AI_ORCHESTRATOR=True,
@@ -182,18 +184,41 @@ class StaleJobTests(OrchestratorTestCase):
 
 
 class FullGameTests(OrchestratorTestCase):
-    def test_passive_human_game_reaches_the_end(self):
-        for _ in range(150):
+    def play(self, until=lambda game: game.is_finished, max_ticks=150):
+        """Joue la partie en faisant expirer chaque phase (humain passif)."""
+        for _ in range(max_ticks):
             self.game.refresh_from_db()
-            if self.game.is_finished:
-                break
+            if until(self.game):
+                return
             Game.objects.filter(pk=self.game.pk).update(
                 phase_deadline=timezone.now() - timedelta(seconds=1)
             )
             self.game = tick(self.game)
         self.game.refresh_from_db()
+
+    def test_passive_human_game_reaches_the_end(self):
+        self.play()
         self.assertEqual(self.game.phase, Phase.GAME_OVER)
         self.assertIsNotNone(self.game.winner)
+
+    def test_mistral_key_cut_mid_game(self):
+        """DoD : clé Mistral coupée en pleine partie → le repli fait continuer le jeu."""
+        self.play(until=lambda game: game.day_number >= 2 or game.is_finished)
+        self.assertFalse(self.game.is_finished, "la partie doit encore être en cours")
+
+        # À partir d'ici, chaque appel Mistral échoue (clé révoquée : 401).
+        broken, sdk = fake_client(error=RuntimeError("API error: Status 401 Unauthorized"))
+        with mock.patch.dict("os.environ", {"AI_BACKEND": ""}), \
+                mock.patch("game.ai.decisions.default_client", return_value=broken):
+            self.play()
+
+        self.assertEqual(self.game.phase, Phase.GAME_OVER)
+        calls = AICallLog.objects.filter(game=self.game)
+        self.assertTrue(calls.exists(), "les IA ont bien tenté d'appeler Mistral")
+        self.assertEqual(len(sdk.calls), calls.count())
+        self.assertEqual(set(calls.values_list("status", flat=True)), {CallStatus.ERROR})
+        self.assertTrue(all(calls.values_list("used_fallback", flat=True)))
+        self.assertIn("401", calls.first().error_message)
 
 
 class ApiTriggersAgentsTests(OrchestratorTestCase):
