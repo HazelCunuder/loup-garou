@@ -1,17 +1,14 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Le Loup-Garou de Thiercelieux — Plateau de jeu{% endblock %}</title>
 
-  <!-- Typographies médiévales -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Typographies médiévales et Tailwind, servis par le site lui-même :
+       aucune adresse IP de joueur n'est transmise à Google ni à un CDN (RGPD). -->
+  <link rel="stylesheet" href="{% static 'vendor/fonts/fonts.css' %}">
+  <script src="{% static 'vendor/tailwind-play.js' %}"></script>
   <script>
     tailwind.config = {
       theme: {

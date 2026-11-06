@@ -199,6 +199,12 @@
     scrollToEnd(feed);
   }
 
+  // AI Act, art. 50 : le joueur sait toujours quand un texte vient d'une IA.
+  function authorLabel(m, mine) {
+    if (mine) return m.author_name + ' · vous';
+    return m.author_is_ai ? m.author_name + ' · IA' : m.author_name;
+  }
+
   function appendChatMessage(m) {
     var feed = byId('chat-feed');
     if (!feed) return;
@@ -222,7 +228,7 @@
     author.className = mine
       ? 'font-display text-[12px] uppercase tracking-[0.14em] text-blood text-right'
       : 'font-display text-[12px] uppercase tracking-[0.14em] text-ink-soft';
-    author.textContent = mine ? m.author_name + ' · vous' : m.author_name;
+    author.textContent = authorLabel(m, mine);
 
     var content = document.createElement('p');
     content.className = 'mt-0.5 text-[15px] leading-snug text-ink';
@@ -249,7 +255,7 @@
     bubble.className = 'wolf-msg-bubble';
     var author = document.createElement('p');
     author.className = 'wolf-msg-author';
-    author.textContent = mine ? m.author_name + ' · vous' : m.author_name;
+    author.textContent = authorLabel(m, mine);
     var content = document.createElement('p');
     content.className = 'wolf-msg-text';
     content.textContent = m.content;

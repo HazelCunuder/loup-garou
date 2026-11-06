@@ -106,7 +106,10 @@ def _launch(key, job, game_id):
                 _done.add(key)
         try:
             # Enchaîne : la phase a pu avancer et attendre d'autres IA.
-            schedule(Game.objects.get(pk=game_id))
+            # La partie a pu être effacée entre-temps (droit à l'effacement).
+            game = Game.objects.filter(pk=game_id).first()
+            if game is not None:
+                schedule(game)
         except Exception:
             logger.exception("Relance de l'orchestrateur impossible après %s", key)
         finally:
@@ -138,9 +141,11 @@ def _phase_key(game, name):
 
 
 def _still(game_id, version):
-    """Relit la partie ; None si elle a changé de phase entre-temps."""
-    game = Game.objects.get(pk=game_id)
-    return game if game.version == version and not game.is_finished else None
+    """Relit la partie ; None si elle a changé de phase ou a été effacée entre-temps."""
+    game = Game.objects.filter(pk=game_id).first()
+    if game is None or game.version != version or game.is_finished:
+        return None
+    return game
 
 
 def schedule(game):

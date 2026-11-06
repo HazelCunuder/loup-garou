@@ -1261,6 +1261,7 @@
           {% csrf_token %}
           <button type="submit" class="new-game-btn">↻ Nouvelle partie</button>
         </form>
+        <a href="{% url 'game:privacy' %}" class="privacy-link">Confidentialité</a>
       <div class="hidden md:flex items-center gap-4">
         <div class="text-right">
           <p class="font-display text-[12px] uppercase tracking-[0.26em] text-gold-light/80">Plateau de jeu</p>
@@ -1623,6 +1624,11 @@
 
           <p class="mt-3 text-[12.5px] italic leading-snug text-ink-soft/70">
             ✦ La place est ouverte le jour ; elle se ferme à la tombée de la nuit.
+          </p>
+          <p id="ai-disclosure" class="mt-1 text-[12.5px] italic leading-snug text-ink-soft/70">
+            ✦ Les autres habitants sont des IA (Mistral AI) ; leurs messages portent la mention « IA ».
+            Vos messages leur sont transmis : n'y écrivez pas d'informations personnelles.
+            <a class="underline not-italic" href="{% url 'game:privacy' %}">Confidentialité</a>
           </p>
         </section>
       </aside>
