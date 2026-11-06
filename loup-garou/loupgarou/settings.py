@@ -14,6 +14,7 @@ import os
 import sys
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,12 +30,16 @@ load_dotenv(BASE_DIR.parent / '.env', override=False)
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wg61x--=%(r@i=b97z*bw0p3s*6$^5cd&(8j!m(^z-ez#tf)kc'
+# Use environment variable in production, fallback to default for development
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-wg61x--=%(r@i=b97z*bw0p3s*6$^5cd&(8j!m(^z-ez#tf)kc')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Debug mode
+# True en développement, False en production (Vercel définit cette variable)
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '*']
+# SECURITY WARNING: don't run with debug turned on in production!
+# Allow all hosts for Vercel deployment (update for production domain)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -87,19 +92,21 @@ WSGI_APPLICATION = 'loupgarou.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # Écritures concurrentes des threads IA : mode WAL, verrou pris dès le
-        # début de la transaction, et attente plutôt qu'un « database is locked ».
-        'OPTIONS': {
-            'init_command': 'PRAGMA journal_mode=WAL;',
-            'transaction_mode': 'IMMEDIATE',
-            'timeout': 20,
-        },
+import dj_database_url
+
+# Use DATABASE_URL from environment (Vercel provides this),
+# fall back to individual env vars for local development
+db_url = os.getenv('DATABASE_URL')
+if db_url:
+    DATABASES = {
+        'default': dj_database_url.config(default=db_url)
     }
-}
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'loupgarou')}"
+        )
+    }
 
 
 # Password validation
@@ -140,13 +147,16 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+# Nouveau : Racine des fichiers statiques pour collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Orchestrateur des agents IA (game/ai/orchestrator.py)
 # Désactivé pendant `manage.py test` : les tests qui en ont besoin l'activent
 # explicitement, en mode synchrone et sans réseau.
+# Par défaut activé en production, désactivé seulement en mode test
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
-AI_ORCHESTRATOR = os.getenv('AI_ORCHESTRATOR', '0' if TESTING else '1') != '0'
+AI_ORCHESTRATOR = os.getenv('AI_ORCHESTRATOR', '1' if not TESTING else '0') != '0'
 # Exécution dans le thread appelant au lieu d'un thread d'arrière-plan.
 AI_RUN_INLINE = False
 # Pause entre deux prises de parole d'une même salve (secondes).
