@@ -12,6 +12,11 @@
       Sept habitants, deux loups-garous cachés parmi eux. Votre rôle sera tiré
       au hasard au lever de rideau.
     </p>
+    <p id="ai-disclosure" class="mt-4 rounded-sm border border-gold-dark/50 bg-white/30 px-3 py-2 text-[14px] leading-snug text-ink">
+      <strong>Vous jouez contre des intelligences artificielles.</strong>
+      Les six autres habitants sont des IA : leurs messages, votes et actions
+      sont générés par un modèle de langage (Mistral AI).
+    </p>
 
     {% if error %}
       <p class="mt-5 rounded-sm border border-blood/40 bg-blood/10 px-3 py-2 text-[16px] text-blood" role="alert">
@@ -27,6 +32,9 @@
                autocomplete="nickname"
                class="mt-1 w-full rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[15px] text-ink placeholder-ink-soft/50"
                placeholder="Ex. Alexandre">
+        <span class="mt-1 block text-[13px] italic leading-snug text-ink-soft">
+          Un pseudonyme suffit : ce nom est transmis aux IA (Mistral AI).
+        </span>
       </label>
 
       {% if debug_roles %}
@@ -47,6 +55,10 @@
         Entrer dans le village
       </button>
     </form>
+
+    <p class="mt-6 text-[13px] text-ink-soft">
+      <a class="underline hover:text-blood" href="{% url 'game:privacy' %}">Confidentialité et données personnelles</a>
+    </p>
   </section>
 </main>
 {% endblock %}

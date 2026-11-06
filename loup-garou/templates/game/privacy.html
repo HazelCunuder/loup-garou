@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Le Loup-Garou de Thiercelieux — Confidentialité{% endblock %}
+
+{% block content %}
+<main class="flex flex-1 items-start justify-center px-4 py-10">
+  <article class="parchment w-full max-w-2xl px-6 sm:px-10 py-10 text-[15px] leading-relaxed text-ink">
+    <p class="font-display text-[13px] uppercase tracking-[0.28em] text-ink-soft text-center">Vos données</p>
+    <h1 class="mt-2 font-gothic text-4xl text-blood text-center">Confidentialité</h1>
+    <div class="gold-rule my-5"></div>
+
+    {% if deleted %}
+      <p id="deleted-notice" class="mb-6 rounded-sm border border-forest/50 bg-forest/10 px-3 py-2" role="status">
+        Vos parties et toutes les données associées ont été supprimées.
+      </p>
+    {% endif %}
+
+    <section class="space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Vous jouez contre des IA</h2>
+      <p>
+        Les six autres habitants du village sont des <strong>intelligences artificielles</strong>.
+        Leurs messages, votes et actions de nuit sont générés par un modèle de langage
+        de Mistral AI. Dans le chat, leurs messages portent la mention « IA ».
+        Ces IA mentent quand leur rôle l'exige : c'est la règle du jeu.
+        Elles ne prennent aucune décision vous concernant en dehors de la partie.
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Responsable du traitement</h2>
+      <p>
+        {{ controller }}{% if contact %} — contact : <a class="underline text-blood" href="mailto:{{ contact }}">{{ contact }}</a>{% endif %}.
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Données collectées et finalité</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>Le nom</strong> que vous choisissez : un pseudonyme suffit, n'indiquez pas votre vrai nom si vous ne le souhaitez pas.</li>
+        <li><strong>Vos messages</strong> dans le chat, vos votes et vos actions de nuit.</li>
+        <li><strong>Un cookie de session</strong> qui relie votre navigateur à votre partie, et un cookie de sécurité (CSRF).</li>
+        <li><strong>Un journal technique des appels IA</strong> (nombre de tokens, durée, erreurs), sans le texte des échanges.</li>
+      </ul>
+      <p>
+        Ces données servent uniquement à faire fonctionner la partie que vous avez lancée
+        (base légale : exécution du service que vous demandez, RGPD art. 6.1.b).
+        Aucun compte, aucune publicité, aucun suivi d'audience.
+      </p>
+      <p>
+        <strong>N'écrivez pas d'informations personnelles dans le chat</strong> :
+        vos messages sont transmis au modèle d'IA.
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Destinataires</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>
+          <strong>Mistral AI</strong> (France, sous-traitant) reçoit votre nom et les messages
+          de la partie pour faire jouer les IA.
+        </li>
+        {% if hosting %}<li><strong>Hébergement</strong> : {{ hosting }}.</li>{% endif %}
+      </ul>
+      <p>
+        Les polices et scripts de la page sont servis par le site lui-même : votre navigateur
+        ne contacte aucun service tiers (Google, CDN…).
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Cookies</h2>
+      <p>
+        Seuls des cookies strictement nécessaires au jeu sont utilisés (session et sécurité).
+        Ils ne demandent donc pas de consentement. Le cookie de session expire après
+        {{ retention_days }} jours.
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Durée de conservation</h2>
+      <p>
+        Les parties (joueurs, messages, votes, journaux IA) sont supprimées automatiquement
+        <strong>{{ retention_days }} jours</strong> après leur dernière activité.
+      </p>
+    </section>
+
+    <section class="mt-6 space-y-2">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em]">Vos droits</h2>
+      <p>
+        Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation
+        et d'opposition{% if contact %}, à exercer auprès de <a class="underline text-blood" href="mailto:{{ contact }}">{{ contact }}</a>{% endif %}.
+        Vous pouvez aussi adresser une réclamation à la
+        <a class="underline text-blood" href="https://www.cnil.fr/fr/plaintes" rel="noopener noreferrer" target="_blank">CNIL</a>.
+      </p>
+    </section>
+
+    <section id="delete-data" class="mt-8 rounded-sm border border-blood/40 bg-blood/5 px-4 py-4 space-y-3">
+      <h2 class="font-display text-[15px] font-bold uppercase tracking-[0.14em] text-blood">Supprimer mes données</h2>
+      {% if stored_games %}
+        <p>
+          Ce navigateur est lié à {{ stored_games }} partie{{ stored_games|pluralize }}.
+          La suppression efface immédiatement et définitivement {{ stored_games|pluralize:"cette partie,ces parties" }}
+          (y compris une partie en cours) et toutes les données associées.
+        </p>
+        <form method="post" action="{% url 'game:delete_data' %}" class="space-y-3">
+          {% csrf_token %}
+          <label class="flex items-start gap-2">
+            <input type="checkbox" name="confirm" value="1" required class="mt-1">
+            <span>Je comprends que la suppression est définitive.</span>
+          </label>
+          <button type="submit"
+                  class="rounded-sm border border-gold-dark bg-blood px-4 py-2 font-display text-[13px] font-bold uppercase tracking-[0.18em] text-parchment-light hover:bg-blood-light">
+            Supprimer mes données
+          </button>
+        </form>
+      {% else %}
+        <p>Aucune partie n'est enregistrée pour ce navigateur.</p>
+      {% endif %}
+    </section>
+
+    <p class="mt-8 text-center">
+      <a class="font-display text-[13px] uppercase tracking-[0.18em] text-blood underline" href="{% url 'game:village' %}">← Retour au village</a>
+    </p>
+  </article>
+</main>
+{% endblock %}

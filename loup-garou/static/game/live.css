@@ -135,3 +135,18 @@ body:not(.vote-phase) #vote-panel {
   .board-countdown-value { font-size: 40px; }
   .board-countdown-label { font-size: 12px; }
 }
+
+/* Lien « Confidentialité » de l'en-tête. */
+.privacy-link {
+  color: rgba(227, 192, 124, 0.8);
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-decoration: underline;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.privacy-link:hover,
+.privacy-link:focus-visible {
+  color: #e3c07c;
+}
