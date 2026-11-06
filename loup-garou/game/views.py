@@ -20,6 +20,7 @@ from game.engine import (
 from game.models import Channel, Game
 from game.presenters import ROLE_BY_KEY, board_context, status_phase
 from game.services.game_loop import tick, wake_agents
+from game.services.retention import purge_expired_games
 
 SESSION_GAME_KEY = "game_id"
 
@@ -91,6 +92,7 @@ def new_game_view(request):
     human_role = None
     if settings.DEBUG:
         human_role = ROLE_BY_KEY.get(request.POST.get("role", ""))
+    purge_expired_games()  # conservation limitée (RGPD), sans tâche planifiée
     try:
         game = create_game(_session_key(request), name, human_role=human_role)
     except InvalidAction as error:
@@ -104,6 +106,44 @@ def leave_game_view(request):
     """Quitte la partie en cours : retour à l'écran de départ."""
     request.session.pop(SESSION_GAME_KEY, None)
     return redirect("game:village")
+
+
+# --------------------------------------------------------------------------- #
+#  Données personnelles (RGPD)                                                #
+# --------------------------------------------------------------------------- #
+
+@require_GET
+def privacy_view(request):
+    """Information des joueurs (RGPD art. 13 et AI Act art. 50)."""
+    session_key = request.session.session_key
+    return render(
+        request,
+        "game/privacy.html",
+        {
+            "controller": settings.PRIVACY_CONTROLLER,
+            "contact": settings.PRIVACY_CONTACT,
+            "hosting": settings.PRIVACY_HOSTING,
+            "retention_days": settings.GAME_RETENTION_DAYS,
+            "stored_games": Game.objects.filter(session_key=session_key).count() if session_key else 0,
+            "deleted": request.GET.get("supprime") == "1",
+        },
+    )
+
+
+@require_POST
+def delete_data_view(request):
+    """Droit à l'effacement : supprime toutes les parties de ce navigateur.
+
+    Messages, votes, actions de nuit et journaux IA partent en cascade ; la
+    session est ensuite détruite (nouveau cookie, ancienne ligne effacée).
+    """
+    if request.POST.get("confirm") != "1":
+        return redirect("game:privacy")
+    session_key = request.session.session_key
+    if session_key:
+        Game.objects.filter(session_key=session_key).delete()
+    request.session.flush()
+    return redirect(reverse("game:privacy") + "?supprime=1")
 
 
 # --------------------------------------------------------------------------- #

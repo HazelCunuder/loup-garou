@@ -34,8 +34,10 @@ load_dotenv(BASE_DIR.parent / '.env', override=False)
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-wg61x--=%(r@i=b97z*bw0p3s*6$^5cd&(8j!m(^z-ez#tf)kc')
 
 # Debug mode
-# True en développement, False en production (Vercel définit cette variable)
-DEBUG = True
+# True en développement ; en production, définir DEBUG=0 dans les variables
+# d'environnement (Vercel). En mode DEBUG, une erreur affiche des données de
+# la partie dans la page : à proscrire en ligne (sécurité RGPD, art. 32).
+DEBUG = os.getenv('DEBUG', '1') != '0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Allow all hosts for Vercel deployment (update for production domain)
@@ -167,6 +169,20 @@ AI_DEBATE_GAP = 4.0
 AI_DEBATE_MAX_MESSAGES = 8
 # Appels Mistral simultanés au maximum (limites de débit de l'offre gratuite).
 AI_MAX_CONCURRENT_CALLS = 2
+
+
+# Données personnelles (RGPD) — affichées sur la page Confidentialité.
+# Responsable du traitement, contact pour exercer ses droits, et hébergeur.
+PRIVACY_CONTROLLER = os.getenv(
+    'PRIVACY_CONTROLLER', "L'équipe du projet Loup-Garou (formation Simplon)"
+)
+PRIVACY_CONTACT = os.getenv('PRIVACY_CONTACT', '')
+PRIVACY_HOSTING = os.getenv('PRIVACY_HOSTING', '')
+# Durée de conservation des parties (messages, votes, journaux IA compris),
+# appliquée par `manage.py purge_games`.
+GAME_RETENTION_DAYS = int(os.getenv('GAME_RETENTION_DAYS', '30'))
+# Le cookie de session ne vit pas plus longtemps que les parties.
+SESSION_COOKIE_AGE = GAME_RETENTION_DAYS * 24 * 3600
 
 
 # Email

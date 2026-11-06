@@ -203,7 +203,10 @@ class FullGameTests(OrchestratorTestCase):
 
     def test_mistral_key_cut_mid_game(self):
         """DoD : clé Mistral coupée en pleine partie → le repli fait continuer le jeu."""
-        self.play(until=lambda game: game.day_number >= 2 or game.is_finished)
+        # Coupure au débat du jour 1 : une nuit est passée, et la partie ne peut
+        # pas encore être finie (au plus un mort par la sorcière, un par les loups).
+        # Attendre le jour 2 rendait le test aléatoire : la partie pouvait finir avant.
+        self.play(until=lambda game: game.phase == Phase.DAY_DEBATE or game.is_finished)
         self.assertFalse(self.game.is_finished, "la partie doit encore être en cours")
 
         # À partir d'ici, chaque appel Mistral échoue (clé révoquée : 401).

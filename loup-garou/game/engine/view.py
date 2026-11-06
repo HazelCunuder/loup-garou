@@ -161,6 +161,9 @@ def player_view(game, viewer, since_id=0):
                 "kind": m.kind,
                 "author_id": m.author_id,
                 "author_name": m.author.name if m.author_id else None,
+                # AI Act, art. 50 : tout texte écrit par une IA est signalé
+                # comme tel, y compris de façon lisible par une machine.
+                "author_is_ai": m.author_id is not None and not m.author.is_human,
                 "content": m.content,
                 "day": m.day_number,
                 "phase": m.phase,
