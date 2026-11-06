@@ -36,6 +36,11 @@ class ValidateTests(GameTestCase):
     def test_chat_must_say_something(self):
         self.assertInvalid(self.ai(*self.villagers), DecisionType.DAY_CHAT, answer("parler", "", "   "))
 
+    def test_markdown_emphasis_is_removed(self):
+        decision = self.check(self.ai(*self.villagers), DecisionType.DAY_CHAT,
+                              answer("parler", "", "Ton calme est *trop* parfait… **vraiment**."))
+        self.assertEqual(decision.message, "Ton calme est trop parfait… vraiment.")
+
     def test_long_message_is_truncated(self):
         decision = self.check(self.ai(*self.villagers), DecisionType.DAY_CHAT, answer("parler", "", "a " * 400))
         self.assertLessEqual(len(decision.message), 250)
