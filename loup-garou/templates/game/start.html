@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Le Loup-Garou de Thiercelieux — Nouvelle partie{% endblock %}
+
+{% block content %}
+<main class="flex flex-1 items-center justify-center px-4 py-10">
+  <section class="parchment w-full max-w-md px-8 py-10 text-center">
+    <p class="font-display text-[13px] uppercase tracking-[0.28em] text-ink-soft">Édition Classique</p>
+    <h1 class="mt-2 font-gothic text-4xl text-blood">Thiercelieux</h1>
+    <div class="gold-rule my-5"></div>
+    <p class="text-[15px] leading-snug text-ink">
+      Sept habitants, deux loups-garous cachés parmi eux. Votre rôle sera tiré
+      au hasard au lever de rideau.
+    </p>
+
+    {% if error %}
+      <p class="mt-5 rounded-sm border border-blood/40 bg-blood/10 px-3 py-2 text-[16px] text-blood" role="alert">
+        {{ error }}
+      </p>
+    {% endif %}
+
+    <form method="post" action="{% url 'game:new_game' %}" class="mt-6 space-y-4 text-left">
+      {% csrf_token %}
+      <label class="block">
+        <span class="font-display text-[13px] uppercase tracking-[0.16em] text-ink-soft">Votre nom</span>
+        <input type="text" name="name" value="{{ name }}" maxlength="32" required autofocus
+               autocomplete="nickname"
+               class="mt-1 w-full rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[15px] text-ink placeholder-ink-soft/50"
+               placeholder="Ex. Alexandre">
+      </label>
+
+      {% if debug_roles %}
+        <label class="block">
+          <span class="font-display text-[13px] uppercase tracking-[0.16em] text-ink-soft">Rôle (mode DEBUG)</span>
+          <select name="role"
+                  class="mt-1 w-full rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[15px] text-ink">
+            <option value="">Tirage aléatoire</option>
+            {% for key in debug_roles %}
+              <option value="{{ key }}" {% if key == selected_role %}selected{% endif %}>{{ key|capfirst }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+
+      <button type="submit"
+              class="w-full rounded-sm border border-gold-dark bg-blood px-4 py-3 font-display text-[14px] font-bold uppercase tracking-[0.2em] text-parchment-light shadow hover:bg-blood-light">
+        Entrer dans le village
+      </button>
+    </form>
+  </section>
+</main>
+{% endblock %}

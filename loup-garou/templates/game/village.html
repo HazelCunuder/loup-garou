@@ -1,0 +1,1838 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Le Loup-Garou de Thiercelieux — Plateau de jeu{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ===================================================================== */
+  /*  EN-TÊTE                                                              */
+  /* ===================================================================== */
+  .crest {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 28px;
+    background: radial-gradient(circle at 38% 28%, #4a331b 0%, #2a1a0d 48%, #150c05 100%);
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 0 4px rgba(185, 138, 60, 0.14),
+      0 0 0 5px rgba(185, 138, 60, 0.40),
+      0 10px 22px rgba(0, 0, 0, 0.55),
+      inset 0 0 18px rgba(0, 0, 0, 0.60);
+  }
+
+  /* ===================================================================== */
+  /*  PLATEAU                                                              */
+  /* ===================================================================== */
+  .board-frame {
+    position: relative;
+    padding: clamp(8px, 1.4vw, 16px);
+    border-radius: 12px;
+    border: 1px solid #6b4c25;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(218, 170, 100, 0.20), transparent 65%),
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0 2px, transparent 2px 9px, rgba(255, 255, 255, 0.02) 9px 10px),
+      linear-gradient(180deg, #4a2f18, #281709 70%, #1b0f06);
+    box-shadow:
+      0 28px 60px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 220, 160, 0.14),
+      inset 0 -14px 30px rgba(0, 0, 0, 0.50);
+  }
+
+  .board-frame::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(185, 138, 60, 0.28);
+    border-radius: 9px;
+    pointer-events: none;
+  }
+
+  .board-surface {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 5px;
+    border: 1px solid #8f6b38;
+    background-color: #d9c196;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(255, 250, 235, 0.90) 0 7%, rgba(190, 148, 80, 0.12) 30%, transparent 60%),
+      radial-gradient(circle at 50% 50%, transparent 0 60.5%, rgba(126, 88, 40, 0.35) 61%, rgba(126, 88, 40, 0.06) 61.7%, transparent 62.4%),
+      radial-gradient(circle at 50% 50%, transparent 0 72.5%, rgba(126, 88, 40, 0.30) 73%, rgba(126, 88, 40, 0.05) 73.6%, transparent 74.3%),
+      radial-gradient(circle at 50% 50%, transparent 0 88%, rgba(126, 88, 40, 0.25) 88.5%, transparent 89.2%),
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(120, 82, 34, 0.05) 0deg 6deg, transparent 6deg 12deg),
+      radial-gradient(ellipse at 30% 18%, #f1e2c1 0%, #dcc192 55%, #c9a873 100%);
+    box-shadow:
+      inset 0 0 90px rgba(84, 54, 20, 0.40),
+      inset 0 0 0 1px rgba(255, 250, 235, 0.35);
+  }
+
+  /* ---------------------- Emblème central du village ---------------------- */
+  .board-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 36%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .village-emblem {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+    border-radius: 9999px;
+    color: #f2e5c8;
+    background: radial-gradient(circle at 38% 26%, #4a331b 0%, #2a1a0d 48%, #150c05 100%);
+    border: 2px solid var(--gold);
+    outline: 1px dashed rgba(227, 192, 124, 0.35);
+    outline-offset: -9px;
+    box-shadow:
+      0 0 0 5px rgba(185, 138, 60, 0.16),
+      0 0 0 6px rgba(185, 138, 60, 0.45),
+      0 16px 32px rgba(40, 22, 6, 0.50),
+      inset 0 0 34px rgba(0, 0, 0, 0.65),
+      inset 0 1px 0 rgba(255, 220, 160, 0.18);
+  }
+
+  .emblem-wolf {
+    font-size: clamp(22px, 6cqw, 44px);
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+  }
+
+  .emblem-title {
+    font-family: 'UnifrakturMaguntia', Georgia, serif;
+    font-size: clamp(15px, 3.2cqw, 25px);
+    line-height: 1;
+    color: var(--gold-light);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  }
+
+  .emblem-sub {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(8px, 1.5cqw, 11px);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(236, 217, 176, 0.60);
+  }
+
+  /* ---------------------------- Places joueurs ---------------------------- */
+  .board-seats {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .seat {
+    position: absolute;
+    width: 23%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Répartition circulaire des 7 places (rayon ≈ 34 % du plateau) */
+  .seat:nth-child(1) { left: 50%;    top: 16%; }
+  .seat:nth-child(2) { left: 76.58%; top: 28.80%; }
+  .seat:nth-child(3) { left: 83.15%; top: 57.57%; }
+  .seat:nth-child(4) { left: 64.75%; top: 80.63%; }
+  .seat:nth-child(5) { left: 35.25%; top: 80.63%; }
+  .seat:nth-child(6) { left: 16.85%; top: 57.57%; }
+  .seat:nth-child(7) { left: 23.42%; top: 28.80%; }
+
+  .seat-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.7rem 0.5rem 0.55rem;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid #9c7c48;
+    background: linear-gradient(180deg, #f3e6c7, #e5cfa5);
+    box-shadow:
+      0 7px 16px rgba(20, 10, 2, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.40),
+      inset 0 0 18px rgba(120, 82, 34, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .seat:hover .seat-card {
+    transform: translateY(-3px);
+    box-shadow:
+      0 12px 22px rgba(20, 10, 2, 0.50),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+      inset 0 0 18px rgba(120, 82, 34, 0.18);
+  }
+
+  .seat-human .seat-card {
+    border-color: var(--gold-dark);
+    background: linear-gradient(180deg, #f8edd4, #ecd7ab);
+    box-shadow:
+      0 0 0 2px rgba(185, 138, 60, 0.65),
+      0 12px 24px rgba(20, 10, 2, 0.50),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.50);
+  }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: clamp(32px, 6.5cqw, 46px);
+    height: clamp(32px, 6.5cqw, 46px);
+    border-radius: 9999px;
+    font-size: clamp(16px, 3.4cqw, 24px);
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--gold);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.60),
+      0 2px 6px rgba(0, 0, 0, 0.40);
+  }
+
+  .role-seal {
+    position: absolute;
+    right: -6px;
+    bottom: -5px;
+    display: grid;
+    place-items: center;
+    width: clamp(16px, 3.2cqw, 21px);
+    height: clamp(16px, 3.2cqw, 21px);
+    border-radius: 9999px;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(11px, 2cqw, 15px);
+    background: radial-gradient(circle at 35% 28%, #a84034 0%, #7b1f1d 45%, #511112 100%);
+    border: 1px solid #3d0b0c;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  }
+
+  .seat-flag {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    z-index: 3;
+    padding: 2px 8px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(9px, 2cqw, 11px);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow:
+      0 2px 5px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+
+  .seat-text {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .seat-name {
+    overflow: hidden;
+    color: var(--ink);
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(13px, 2.5cqw, 17.5px);
+    font-weight: 700;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seat-role {
+    margin-top: 2px;
+    color: #7a5a33;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(9.5px, 2cqw, 12px);
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .seat-role-known {
+    color: var(--blood);
+    font-weight: 700;
+  }
+
+  /* --------------------- Discussion publique du village --------------------- */
+  .chat-feed {
+    scroll-behavior: smooth;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 3px rgba(185, 138, 60, 0.35);
+  }
+
+  .chat-send {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    color: #241507;
+    border: 1px solid var(--gold-dark);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 5px rgba(0, 0, 0, 0.30);
+  }
+
+  .chat-send:hover {
+    filter: brightness(1.08);
+  }
+
+  .chat-send:active {
+    transform: translateY(1px);
+  }
+
+  /* --------------------- Bannière d'état temps réel --------------------- */
+  .status-banner {
+    --phase-accent: #f0c96a;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    border-bottom: 1px solid rgba(185, 138, 60, 0.35);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(218, 170, 100, 0.10), transparent 70%),
+      linear-gradient(180deg, #2a190c, #1b1007);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  }
+
+  .status-banner[data-phase='jour'] { --phase-accent: #f0c96a; }
+  .status-banner[data-phase='vote'] { --phase-accent: #e05f4e; }
+  .status-banner[data-phase='nuit'] { --phase-accent: #93a8e8; }
+
+  .status-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 19px;
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--phase-accent);
+    box-shadow:
+      0 0 16px color-mix(in srgb, var(--phase-accent) 40%, transparent),
+      inset 0 0 10px rgba(0, 0, 0, 0.60);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  #status-phase {
+    color: var(--phase-accent);
+    transition: color 0.4s ease;
+  }
+
+  .mj-seal {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    background: radial-gradient(circle at 35% 28%, #7b5a2b, #4b3019);
+    border: 1px solid var(--gold);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.40);
+  }
+
+
+  /* --------------------- Vote de jour & compteur 45 s --------------------- */
+  .vote-timer {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid #e05f4e;
+    color: #ffd9d2;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    background: radial-gradient(circle at 35% 30%, #5a1f18, #2c0d0a);
+    box-shadow: 0 0 14px rgba(224, 95, 78, 0.35);
+  }
+
+  body.vote-phase .vote-timer { display: inline-flex; }
+
+  .vote-timer-urgent {
+    border-color: #ff9d8e;
+    color: #fff1ee;
+    animation: vote-urgent 1s ease-in-out infinite;
+  }
+
+  @keyframes vote-urgent {
+    50% { background: #7a241b; box-shadow: 0 0 22px rgba(255, 120, 100, 0.65); }
+  }
+
+  /* Affichage du compteur circulaire */
+  .vote-count {
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    color: var(--ink);
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    font-variant-numeric: tabular-nums;
+    background: radial-gradient(circle at 35% 28%, #fff6e3, #e9d3a5);
+    border: 2px solid var(--blood);
+    box-shadow:
+      0 4px 10px rgba(20, 10, 2, 0.35),
+      inset 0 0 12px rgba(255, 255, 255, 0.50);
+  }
+
+  .vote-count-urgent {
+    color: var(--blood);
+    animation: vote-urgent 1s ease-in-out infinite;
+  }
+
+  /* Barre de progression du compteur dégressif */
+  .vote-bar {
+    height: 8px;
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid var(--gold-dark);
+    background: rgba(20, 10, 2, 0.15);
+  }
+
+  .vote-bar-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #d9724b, #a84034);
+    transition: width 1s linear;
+  }
+
+  /* Bouton de vote diurne sous chaque habitant vivant */
+  .seat-vote-btn {
+    display: none;
+    width: 100%;
+    margin-top: 3px;
+    padding: 3px 0;
+    border-radius: 4px;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(10px, 2cqw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 2px 4px rgba(0, 0, 0, 0.30);
+    cursor: pointer;
+  }
+
+  body.vote-phase .seat-vote-btn { display: block; }
+
+  .seat-vote-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .seat-vote-btn:active:not(:disabled) { transform: translateY(1px); }
+
+  .seat-vote-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+  }
+
+  /* Bouton de vote contre soi-même : désactivé et marqué */
+  .seat-vote-btn[data-self='1'] { border-style: dashed; }
+
+  /* Habitant désigné par votre vote */
+  .seat-card.vote-target {
+    border-color: var(--blood);
+    box-shadow:
+      0 0 0 3px rgba(168, 64, 52, 0.45),
+      0 10px 22px rgba(20, 10, 2, 0.50);
+  }
+
+  /* Marqueur apposé sur le bulletin de vote ou le vote blanc */
+  .seat-vote-mark {
+    position: absolute;
+    top: -9px;
+    right: -6px;
+    z-index: 3;
+    padding: 2px 8px;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid #7b1f1d;
+    color: #f6e3bd;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(9px, 2cqw, 11px);
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.40);
+  }
+
+  .seat-vote-mark-white {
+    border-color: #6f5434;
+    color: #241507;
+    background: linear-gradient(180deg, #ffffff, #e8e2d2);
+  }
+
+  /* Marqueurs nocturnes apposés sur les sièges (proie loup, victime, vision…) */
+  .seat-night-mark {
+    position: absolute;
+    top: -9px;
+    right: -6px;
+    z-index: 3;
+    padding: 2px 8px;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid #3a4a7e;
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: clamp(9px, 2cqw, 11px);
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #2c3a6e, #1a2347);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.40);
+  }
+
+  .seat-wolf-mark {
+    border-color: #7b1f1d;
+    color: #ffd9d2;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+  }
+
+  .seat-blood-mark {
+    border-color: #7b1f1d;
+    color: #ffd9d2;
+    background: linear-gradient(180deg, #8d2b23, #5c1410);
+  }
+
+  .seat-save-mark {
+    border-color: #2f5d3d;
+    color: #0b2415;
+    background: linear-gradient(180deg, #8fce9d, #4e9260);
+  }
+
+  .seat-doom-mark {
+    border-color: #3a0f38;
+    color: #e9c8f3;
+    background: linear-gradient(180deg, #7b3f7a, #4a1c49);
+  }
+
+  /* Bouton de vote blanc / abstention */
+  .vote-white-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 9999px;
+    border: 1px solid #8a7a5c;
+    color: #241507;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff, #e9e2d0);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.80),
+      0 2px 6px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+  }
+
+  .vote-white-btn:hover:not(:disabled) { filter: brightness(1.04); }
+  .vote-white-btn:active:not(:disabled) { transform: translateY(1px); }
+  .vote-white-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* Message de confirmation du vote */
+  .vote-status {
+    display: none;
+    border-top: 1px dashed var(--gold-dark);
+    padding-top: 10px;
+    font-size: 14.5px;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  .vote-status.vote-status-active { display: block; }
+  .vote-status.vote-status-auto { color: var(--blood); font-weight: 600; }
+  .vote-panel code { color: var(--ink-soft); font-style: italic; }
+
+  /* Panel de vote dont le compteur approche de 0 */
+  .vote-panel.vote-panel-urgent { border-color: var(--blood); }
+
+  /* Vote blanc envoyé */
+  .vote-white-btn.vote-white-voted {
+    border-color: var(--gold-dark);
+    opacity: 0.75;
+    filter: saturate(0.4);
+  }
+
+  /* ------------------------------ Mobile ------------------------------ */
+  @media (max-width: 767px) {
+    .board-surface {
+      aspect-ratio: auto;
+      overflow: visible;
+      padding: 1rem 0.8rem 1.1rem;
+    }
+
+    .board-center {
+      position: static;
+      width: 150px;
+      margin: 0 auto 1.1rem;
+      transform: none;
+    }
+
+    .board-seats {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .seat {
+      position: static;
+      width: auto;
+      transform: none;
+    }
+
+    .seat:nth-child(n) {
+      left: auto;
+      top: auto;
+    }
+
+    .seat-card {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      font-size: 18px;
+    }
+
+    .seat-text {
+      flex: 1;
+    }
+
+    .seat-name,
+    .seat-role {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seat:not(.seat-human) .seat-role {
+      display: none;
+    }
+
+    .seat-flag {
+      top: -7px;
+      right: -2px;
+      left: auto;
+      transform: none;
+    }
+
+    .vote-white-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .seat-vote-mark {
+      top: auto;
+      bottom: -7px;
+      right: -4px;
+      left: auto;
+    }
+
+    .seat-night-mark {
+      top: auto;
+      bottom: -7px;
+      right: -4px;
+      left: auto;
+    }
+  }
+
+  /* ===================================================================== */
+  /*  INTERFACES NOCTURNES DÉDIÉES (loup · voyante · sorcière · villageois) */
+  /* ===================================================================== */
+
+  /* Puce nocturne de la bannière (miroir du chronomètre du vote de jour) */
+  .night-timer {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid #93a8e8;
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    background: radial-gradient(circle at 35% 30%, #232c4d, #0d1122);
+    box-shadow: 0 0 14px rgba(147, 168, 232, 0.35);
+  }
+
+  body.night-phase .night-timer { display: inline-flex; }
+
+  .night-timer-urgent {
+    border-color: #c3cffa;
+    color: #eef1ff;
+    animation: night-urgent 1s ease-in-out infinite;
+  }
+
+  @keyframes night-urgent {
+    50% { background: #2c3a6e; box-shadow: 0 0 22px rgba(160, 180, 255, 0.55); }
+  }
+
+  /* Voile nocturne posé sur le plateau : le village s'assombrit */
+  .night-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+    border-radius: 5px;
+    background:
+      radial-gradient(circle at 50% 24%, transparent 0 52%, rgba(4, 7, 18, 0.14) 56%, transparent 56.5%),
+      radial-gradient(ellipse at 82% 2%, rgba(147, 168, 232, 0.30), transparent 40%),
+      linear-gradient(180deg, rgba(10, 14, 34, 0.50), rgba(4, 7, 18, 0.72));
+  }
+
+  body.night-phase .night-veil {
+    display: block;
+    animation: veil-fade 1.4s ease;
+  }
+
+  @keyframes veil-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Panneau nocturne : seul le panneau du rôle courant est affiché */
+  #night-panel { display: none; }
+  body.night-phase #night-panel { display: block; }
+
+  .night-role-panel { display: none; }
+  body[data-night-role='loup'] #night-panel-loup { display: block; }
+  body[data-night-role='voyante'] #night-panel-voyante { display: block; }
+  body[data-night-role='sorciere'] #night-panel-sorciere { display: block; }
+  body[data-night-role='villageois'] #night-panel-villageois { display: block; }
+
+  .night-panel-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .night-status {
+    display: none;
+    margin-top: 10px;
+    border-top: 1px dashed rgba(147, 168, 232, 0.40);
+    padding-top: 9px;
+    font-size: 14.5px;
+    font-style: italic;
+    color: #c9d4f4;
+  }
+
+  .night-status.night-status-active { display: block; }
+
+  /* Grille de cibles (proie du loup / potion de mort de la sorcière) */
+  .night-target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .night-target-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(246, 227, 189, 0.25);
+    color: #eadfc2;
+    font-size: 14.5px;
+    text-align: left;
+    background: rgba(8, 11, 26, 0.55);
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .night-target-chip:hover:not(:disabled) {
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+
+  .night-target-chip.is-selected {
+    border-color: #93a8e8;
+    box-shadow: 0 0 0 2px rgba(147, 168, 232, 0.35);
+  }
+
+  .night-target-chip.is-vetoed,
+  .night-target-chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+  }
+
+  /* Grille de cibles posée sur un parchemin clair (modale de la sorcière) */
+  .night-modal-card .night-target-chip {
+    border-color: rgba(36, 21, 7, 0.30);
+    color: var(--ink);
+    background: rgba(255, 250, 235, 0.55);
+  }
+
+  .night-modal-card .night-target-chip:hover:not(:disabled) {
+    border-color: var(--gold-dark);
+  }
+
+  .night-modal-card .night-target-chip.is-selected {
+    border-color: var(--blood);
+    box-shadow: 0 0 0 2px rgba(168, 64, 52, 0.35);
+  }
+
+  .night-chip-avatar {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    font-size: 15px;
+    background: radial-gradient(circle at 35% 30%, #4b3320, #241507);
+    border: 1px solid var(--gold);
+  }
+
+  /* ---------------------- Interface du Loup-Garou ---------------------- */
+  .loup-panel {
+    border: 1px solid #7b1f1d;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(168, 64, 52, 0.22), transparent 55%),
+      linear-gradient(180deg, #2b0f0e, #170808 70%, #0d0404);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .loup-panel .night-panel-title { color: #f3d8b8; }
+  .loup-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(224, 95, 78, 0.65), transparent); }
+
+  .wolf-ally {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.50);
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .wolf-ally-name {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #ffd9d2;
+  }
+
+  .wolf-ally-sub {
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(246, 227, 189, 0.60);
+  }
+
+  .wolf-feed {
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.30);
+    background: rgba(0, 0, 0, 0.45);
+    scroll-behavior: smooth;
+  }
+
+  .wolf-msg {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .wolf-msg-bubble {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(224, 95, 78, 0.35);
+    background: linear-gradient(180deg, rgba(58, 20, 18, 0.8), rgba(30, 9, 8, 0.8));
+  }
+
+  .wolf-msg-author {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff9d8e;
+  }
+
+  .wolf-msg-text {
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: #f0e6cf;
+  }
+
+  .wolf-msg-self { flex-direction: row-reverse; }
+
+  .wolf-msg-self .wolf-msg-bubble {
+    flex: 1;
+    border-color: var(--gold-dark);
+    background: linear-gradient(180deg, #4a331b, #2a1a0d);
+  }
+
+  .wolf-input {
+    min-width: 0;
+    flex: 1;
+    color: #f0e6cf;
+    font-size: 15px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(224, 95, 78, 0.45);
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .wolf-input::placeholder { color: rgba(246, 227, 189, 0.35); }
+  .wolf-input:focus { outline: none; border-color: #e05f4e; box-shadow: 0 0 0 3px rgba(224, 95, 78, 0.30); }
+
+  .night-btn {
+    flex-shrink: 0;
+    padding: 9px 18px;
+    border-radius: 4px;
+    border: 1px solid #e0776a;
+    color: #fff1ee;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #c1503f, #8d2b23);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.40);
+    cursor: pointer;
+  }
+
+  .night-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .night-btn:active:not(:disabled) { transform: translateY(1px); }
+  .night-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .loup-panel .night-btn { background: linear-gradient(180deg, #e8cd8e, #c49a4b); border-color: var(--gold-dark); color: #241507; }
+
+  /* ---------------------- Interface de la Voyante --------------------- */
+  .voyante-panel {
+    border: 1px solid #5a4a8f;
+    background:
+      radial-gradient(ellipse at 85% 0%, rgba(147, 168, 232, 0.25), transparent 55%),
+      linear-gradient(180deg, #171331, #0e0b1e 70%, #070510);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .voyante-panel .night-panel-title { color: #dfe6fb; }
+  .voyante-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(147, 168, 232, 0.65), transparent); }
+  .voyante-panel .night-status { border-top-color: rgba(147, 168, 232, 0.40); }
+
+  .voyante-panel .night-btn { background: linear-gradient(180deg, #b3aefc, #6e64c9); border-color: #43367e; color: #171233; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.40); }
+
+  .night-ghost-btn {
+    padding: 9px 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(147, 168, 232, 0.45);
+    color: #dfe6fb;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(147, 168, 232, 0.10);
+    cursor: pointer;
+  }
+
+  .night-ghost-btn:hover:not(:disabled) { background: rgba(147, 168, 232, 0.20); }
+  .night-ghost-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Carte de révélation retournée (voyante / sorcière) */
+  .night-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    background: rgba(6, 9, 22, 0.82);
+  }
+
+  .night-modal.night-modal-open { display: grid; animation: veil-fade 0.35s ease; }
+
+  .night-modal-card {
+    width: min(560px, 100%);
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 18px 20px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--gold-dark);
+    color: var(--ink);
+    background: linear-gradient(180deg, #f6ead0, #e6d0a6);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  }
+
+  .night-modal-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .night-modal-desc { margin-top: 6px; font-size: 14.5px; font-style: italic; color: var(--ink-soft); }
+
+  .night-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .night-modal-card .night-btn-life,
+  .night-modal-card .night-btn-death {
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.30);
+  }
+
+  .night-btn-life { border: 1px solid #2f5d3d; color: #0b2415; background: linear-gradient(180deg, #8fce9d, #4e9260); }
+  .night-btn-death { border: 1px solid #5c1410; color: #f6e3bd; background: linear-gradient(180deg, #c1503f, #8d2b23); }
+  .night-btn-life:disabled, .night-btn-death:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .reveal-zone {
+    display: grid;
+    place-items: center;
+    margin-top: 14px;
+  }
+
+  .reveal-card {
+    position: relative;
+    width: 210px;
+    height: 270px;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .reveal-card.flipped { transform: rotateY(180deg); }
+
+  .reveal-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    padding: 14px;
+    text-align: center;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    border: 2px solid var(--gold-dark);
+  }
+
+  .reveal-face-front {
+    transform: rotateY(180deg);
+    background:
+      radial-gradient(circle at 35% 30%, #fff6e3, #e9d3a5);
+    box-shadow: inset 0 0 22px rgba(120, 82, 34, 0.25);
+  }
+
+  .reveal-face-back {
+    background:
+      radial-gradient(circle at 35% 28%, #232c4d, #0d1122 70%, #070a16);
+    box-shadow: inset 0 0 26px rgba(147, 168, 232, 0.25);
+  }
+
+  .reveal-card.flipped .reveal-face-back {
+    animation: reveal-glow 1.6s ease infinite;
+  }
+
+  @keyframes reveal-glow {
+    50% { box-shadow: inset 0 0 34px rgba(197, 172, 252, 0.45); }
+  }
+
+  .reveal-icon { font-size: 46px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
+  .reveal-name { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 15px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-soft); }
+  .reveal-role { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 20px; color: var(--blood); }
+  .reveal-quote { font-size: 13.5px; font-style: italic; color: var(--ink-soft); }
+
+  /* ---------------------- Interface de la Sorcière --------------------- */
+  .sorciere-panel {
+    border: 1px solid #2f5d3d;
+    background:
+      radial-gradient(ellipse at 85% 0%, rgba(93, 158, 116, 0.22), transparent 55%),
+      linear-gradient(180deg, #101d14, #09120c 70%, #050b07);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 220, 160, 0.10);
+  }
+
+  .sorciere-panel .night-panel-title { color: #d3efd9; }
+  .sorciere-panel .gold-rule { background: linear-gradient(90deg, transparent, rgba(113, 189, 143, 0.65), transparent); }
+  .sorciere-panel .night-status { border-top-color: rgba(113, 189, 143, 0.45); color: #cfe9d4; }
+
+  .witch-notification {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid #a84034;
+    background: linear-gradient(180deg, #3a1412, #1c0806);
+    animation: witch-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes witch-pulse {
+    50% { box-shadow: 0 0 22px rgba(168, 64, 52, 0.55); }
+  }
+
+  .witch-notification-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ff9d8e;
+  }
+
+  .witch-notification-text { margin-top: 4px; font-size: 15px; line-height: 1.4; color: #f0e6cf; }
+
+  .potion-btn {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--gold-dark);
+    color: #241507;
+    background: linear-gradient(180deg, #e8cd8e, #c49a4b);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .potion-btn.potion-btn-life { border-color: #2f5d3d; color: #0b2415; background: linear-gradient(180deg, #8fce9d, #4e9260); }
+  .potion-btn.potion-btn-death { border-color: #5c1410; color: #f6e3bd; background: linear-gradient(180deg, #c1503f, #8d2b23); }
+  .potion-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .potion-btn:active:not(:disabled) { transform: translateY(1px); }
+  .potion-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+  .potion-btn.potion-empty { text-decoration: line-through; }
+
+  /* ------------------- Interface du Villageois ------------------------- */
+  .villageois-panel {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(147, 168, 232, 0.35);
+    background:
+      radial-gradient(circle at 78% 12%, rgba(147, 168, 232, 0.30), transparent 34%),
+      radial-gradient(circle at 50% 120%, rgba(23, 19, 49, 0.9), transparent 70%),
+      linear-gradient(180deg, #0d1124, #090c1c 65%, #050713);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.50);
+  }
+
+  .night-wait {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 34px 20px;
+    text-align: center;
+  }
+
+  .night-wait-moon { font-size: 44px; line-height: 1; filter: drop-shadow(0 0 18px rgba(147, 168, 232, 0.65)); animation: night-breathe 4s ease-in-out infinite; }
+
+  @keyframes night-breathe {
+    50% { transform: scale(1.12); filter: drop-shadow(0 0 30px rgba(147, 168, 232, 0.9)); }
+  }
+
+  .night-wait-title {
+    font-family: 'UnifrakturMaguntia', Georgia, serif;
+    font-size: 26px;
+    color: #cdd7f7;
+    animation: night-breathe 4s ease-in-out infinite;
+  }
+
+  .night-whisper {
+    min-height: 20px;
+    font-size: 15px;
+    font-style: italic;
+    color: rgba(205, 215, 247, 0.70);
+    transition: opacity 0.6s ease;
+  }
+
+  .night-wait-count {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(147, 168, 232, 0.65);
+  }
+
+  .night-wait-stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%, rgba(255, 255, 255, 0.75), transparent 100%),
+      radial-gradient(1px 1px at 32% 62%, rgba(255, 255, 255, 0.55), transparent 100%),
+      radial-gradient(1.8px 1.8px at 55% 18%, rgba(255, 255, 255, 0.65), transparent 100%),
+      radial-gradient(1px 1px at 68% 48%, rgba(255, 255, 255, 0.50), transparent 100%),
+      radial-gradient(1.4px 1.4px at 84% 30%, rgba(255, 255, 255, 0.70), transparent 100%);
+    animation: star-twinkle 3.2s ease-in-out infinite;
+  }
+
+  @keyframes star-twinkle {
+    50% { opacity: 0.45; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col">
+
+  <!-- ===================================================================== -->
+  <!--  EN-TÊTE : ENSEIGNE DU VILLAGE                                        -->
+  <!-- ===================================================================== -->
+  <header class="relative z-10 border-b border-gold/25">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="crest">
+          <span>🐺</span>
+        </div>
+        <div>
+          <p class="font-display text-[11px] sm:text-[12px] uppercase tracking-[0.38em] text-gold-light/70">
+            {{ board.edition }}
+          </p>
+          <h1 class="font-gothic text-3xl sm:text-4xl text-parchment-light leading-none mt-0.5">
+            Le Loup-Garou <span class="text-gold-light">de Thiercelieux</span>
+          </h1>
+          <p class="hidden sm:block text-[14px] text-parchment/50 italic mt-1">
+            Un village paisible. Des loups parmi les habitants.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <form id="new-game-form" method="post" action="{% url 'game:leave_game' %}">
+          {% csrf_token %}
+          <button type="submit" class="new-game-btn">↻ Nouvelle partie</button>
+        </form>
+      <div class="hidden md:flex items-center gap-4">
+        <div class="text-right">
+          <p class="font-display text-[12px] uppercase tracking-[0.26em] text-gold-light/80">Plateau de jeu</p>
+          <p class="text-[14px] text-parchment/50">{{ board.player_count }} places · Rôles secrets</p>
+        </div>
+        <span class="wax-seal rotate-[-8deg]">VII</span>
+      </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!--  BANNIÈRE D'ÉTAT : JOUR / NUIT / VOTE + ANNONCES DU MJ                 -->
+  <!-- ===================================================================== -->
+  <div id="status-banner" class="status-banner" data-phase="{{ status_phase.key }}" aria-live="polite">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-7 py-2.5 flex items-center gap-3 sm:gap-5">
+
+      <!-- Phase courante -->
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <span id="status-icon" class="status-icon">{{ status_phase.icon }}</span>
+        <div class="min-w-0">
+          <p id="status-phase" class="font-display text-[13px] sm:text-[15px] font-bold uppercase tracking-[0.16em] whitespace-nowrap">
+            {{ status_phase.label }}
+          </p>
+          <p id="status-desc" class="hidden sm:block text-[13px] italic truncate text-parchment/50">
+            {{ status_phase.desc }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Annonces du MJ -->
+      <div class="hidden md:flex items-center gap-3 flex-1 min-w-0 border-l border-white/10 pl-5">
+        <span class="mj-seal">MJ</span>
+        <p id="mj-line" class="flex-1 min-w-0 truncate text-[14.5px] italic text-parchment/75 transition-opacity duration-500">
+          {{ announcements.0 }}
+        </p>
+      </div>
+
+      <!-- Minuteries du vote de jour et de la nuit -->
+      <div class="ml-auto flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+        <span id="vote-timer" class="vote-timer" aria-live="polite">
+          <span aria-hidden="true">⏳</span>
+          <span>Vote · <span id="vote-timer-value" class="tabular-nums">45</span>s</span>
+        </span>
+        <span id="night-timer" class="night-timer" aria-live="polite">
+          <span aria-hidden="true">🌙</span>
+          <span>Nuit · <span id="night-timer-value" class="tabular-nums">45</span>s</span>
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  {{ live_config|json_script:"live-config" }}
+
+  <!-- ===================================================================== -->
+  <!--  CONTENU : PANNEAUX LATÉRAUX + PLATEAU                                -->
+  <!-- ===================================================================== -->
+  <main class="relative z-10 flex-1 w-full max-w-[1480px] mx-auto px-3 sm:px-6 py-6 lg:py-8">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-7 items-start">
+
+      <!-- ---------------------- Colonne basse gauche : composition ---------------------- -->
+      <aside class="order-3 xl:order-3 xl:col-span-6 space-y-5">
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-gold-dark text-sm">✦</span>
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
+              Composition du village
+            </h2>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <div class="divide-y divide-ink/15">
+            {% for role in composition %}
+              <div class="flex items-center gap-3 py-2.5">
+                <span class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-lg text-parchment-light bg-wood-800 border border-gold/50 shadow-inner">
+                  {{ role.icon }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="font-display text-[14.5px] font-semibold text-ink leading-tight">{{ role.name }}</p>
+                  <p class="text-[13.5px] text-ink-soft/85 leading-tight">{{ role.note }}</p>
+                </div>
+                <span class="wax-count">{{ role.count }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-ink/20 flex items-center justify-between">
+            <span class="font-display text-[12px] uppercase tracking-[0.18em] text-ink-soft">Total</span>
+            <span class="font-display text-[15px] font-bold text-ink">{{ board.player_count }} habitants</span>
+          </div>
+
+          <p class="mt-3 text-[13.5px] italic leading-snug text-ink-soft/75">
+            ✦ Les rôles sont distribués secrètement. Seul le vôtre vous est révélé.
+          </p>
+        </section>
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center gap-2">
+            <span class="text-gold-dark text-sm">✦</span>
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
+              Le déroulement
+            </h2>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <ol class="space-y-3">
+            {% for phase in phases %}
+              <li class="flex gap-3">
+                <span class="w-8 h-8 flex-shrink-0 grid place-items-center rounded-full text-base text-parchment-light bg-wood-800 border border-gold/50">
+                  {{ phase.icon }}
+                </span>
+                <div>
+                  <p class="font-display text-[13.5px] font-bold uppercase tracking-[0.12em] text-ink">{{ phase.name }}</p>
+                  <p class="text-[13.5px] text-ink-soft/85 leading-snug">{{ phase.desc }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        </section>
+
+      </aside>
+
+      <!-- --------------------- Plateau + interfaces (gauche) --------------------- -->
+      <section class="order-1 xl:order-1 xl:col-span-8 space-y-5">
+        <div class="board-frame">
+          <div class="board-surface">
+
+            <!-- Emblème du village -->
+            <div class="board-center">
+              <div class="village-emblem">
+                <span class="emblem-wolf">🐺</span>
+                <!-- Compte à rebours de la phase en cours (rempli par live.js) -->
+                <div id="board-countdown" class="board-countdown" aria-live="off">
+                  <span id="board-countdown-value" class="board-countdown-value">—</span>
+                  <span id="board-countdown-label" class="board-countdown-label">{{ status_phase.label }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Les 7 places autour de la place du village -->
+            <div class="board-seats">
+              {% for player in players %}
+                <div class="seat {% if player.is_human %}seat-human{% endif %} {% if not player.is_alive %}seat-dead{% endif %}" data-player-id="{{ player.id }}">
+                  <div class="seat-card">
+                    {% if player.is_human %}
+                      <span class="seat-flag">Vous</span>
+                    {% endif %}
+
+                    <div class="avatar-wrap">
+                      <div class="avatar">{{ player.avatar }}</div>
+                      {% if not player.is_human %}
+                        <span class="role-seal" title="Rôle inconnu">?</span>
+                      {% endif %}
+                    </div>
+
+                    <div class="seat-text">
+                      <p class="seat-name">{{ player.name }}</p>
+                      {% if player.is_human %}
+                        <p class="seat-role seat-role-known">{{ player.role }}</p>
+                      {% else %}
+                        <p class="seat-role">Rôle inconnu</p>
+                      {% endif %}
+
+                      <!-- Bouton de vote diurne (désactivé sur soi-même) -->
+                      <button type="button"
+                              class="seat-vote-btn"
+                              data-vote-target-id="{{ player.id }}"
+                              data-vote-target-name="{{ player.name }}"
+                              {% if player.is_human %}data-self="1" disabled title="Vous ne pouvez pas voter contre vous-même"{% endif %}>
+                        ⚖️ Voter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <!-- Voile nocturne : distingue le plateau pendant la nuit -->
+            <div class="night-veil" aria-hidden="true"></div>
+
+          </div>
+        </div>
+
+        <p class="mt-3 text-center text-[12px] sm:text-[13px] uppercase tracking-[0.26em] text-gold-light/45">
+          ✦ Disposition initiale · Les rôles restent secrets ✦
+        </p>
+
+        <!-- ------------------ Vote de jour : compteur 45 s + vote blanc ------------------ -->
+        <section id="vote-panel" class="vote-panel parchment p-4 sm:p-5" aria-label="Vote de jour">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+              <div id="vote-count" class="vote-count" aria-live="polite">
+                <span id="vote-count-value">45</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
+                  ⚖️ Le vote du jour
+                </h2>
+                <p class="mt-0.5 text-[13.5px] text-ink-soft/85 leading-snug">
+                  Cliquez sur <strong>Voter</strong> sous l’habitant à envoyer au bûcher.
+                  Le vote blanc permet de s’abstenir.
+                </p>
+                <div class="vote-bar mt-2" aria-hidden="true">
+                  <div id="vote-bar-fill" class="vote-bar-fill"></div>
+                </div>
+                <p id="vote-timer-label" class="mt-1.5 font-display text-[11.5px] uppercase tracking-[0.16em] text-ink-soft/70">
+                  <span id="vote-timer-remaining">45</span> secondes restantes · abstention automatique à 0
+                </p>
+              </div>
+            </div>
+
+            <button type="button" id="vote-white-btn" class="vote-white-btn flex-shrink-0">
+              <span aria-hidden="true">🤍</span> Vote blanc · S’abstenir
+            </button>
+          </div>
+
+          <p id="vote-status" class="vote-status mt-3" aria-live="polite"></p>
+        </section>
+
+        <!-- ================================================================= -->
+        <!--  INTERFACE NOCTURNE DÉDIÉE : un panneau par rôle du joueur humain -->
+        <!-- ================================================================= -->
+        <section id="night-panel" aria-label="Interface nocturne">
+
+          <!-- ------------------- Loup-Garou : canal secret ------------------- -->
+          <div id="night-panel-loup" class="night-role-panel loup-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🐺 Le repaire de la meute</h2>
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#ff9d8e]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#e05f4e]"></span>
+                Canal secret
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <div id="wolf-ally" class="wolf-ally">
+              <span id="wolf-ally-avatar" class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base bg-[#2a1a0d] border border-[#e05f4e]/70"></span>
+              <div class="min-w-0">
+                <p id="wolf-ally-name" class="wolf-ally-name"></p>
+                <p class="wolf-ally-sub">Votre allié IA — seul lui connaît votre vraie nature.</p>
+              </div>
+            </div>
+
+            <div id="wolf-feed" class="wolf-feed mt-3" aria-live="polite"></div>
+
+            <form id="wolf-form" class="mt-3 flex gap-2" autocomplete="off">
+              <input id="wolf-input" type="text" maxlength="300" placeholder="Chuchotez au sang de la meute..."
+                     class="wolf-input min-w-0 flex-1">
+              <button type="submit" class="night-btn">Chuchoter</button>
+            </form>
+
+            <p class="mt-4 font-display text-[12px] uppercase tracking-[0.16em] text-[#ff9d8e]/85">
+              🩸 Désignez la proie de la nuit
+            </p>
+            <div id="wolf-targets" class="night-target-grid"></div>
+
+            <p id="wolf-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- ---------------------- Voyante : vision ------------------------- -->
+          <div id="night-panel-voyante" class="night-role-panel voyante-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🔮 L'oratoire de la Voyante</h2>
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#93a8e8]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#93a8e8]"></span>
+                Rituel nocturne
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <p class="text-[14.5px] leading-snug text-[#c9d4f4]">
+              Le village dort : une seule vision vous est offerte cette nuit.
+              Ouvrez l'œil, choisissez un habitant et percez sa nature secrète.
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button type="button" id="seer-open-btn" class="night-btn">👁️ Ouvrir l'œil</button>
+            </div>
+
+            <p id="seer-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- --------------------- Sorcière : victime + fioles ---------------- -->
+          <div id="night-panel-sorciere" class="night-role-panel sorciere-panel parchment p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="night-panel-title">🧪 L'atelier de la Sorcière</h2>
+              <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-[#71bd8f]/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#71bd8f]"></span>
+                Fioles & sortilèges
+              </span>
+            </div>
+            <div class="gold-rule my-3"></div>
+
+            <div id="witch-notification" class="witch-notification">
+              <p class="witch-notification-title">🩸 Les loups ont frappé</p>
+              <p id="witch-notification-text" class="witch-notification-text"></p>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button type="button" id="witch-life-btn" class="potion-btn potion-btn-life">🧪 Potion de vie</button>
+              <button type="button" id="witch-death-btn" class="potion-btn potion-btn-death">☠️ Potion de mort</button>
+              <button type="button" id="witch-done-btn" class="night-ghost-btn">Se rendormir sans rien faire</button>
+            </div>
+
+            <p id="witch-status" class="night-status" aria-live="polite"></p>
+          </div>
+
+          <!-- ------------------- Villageois : écran d'attente ----------------- -->
+          <div id="night-panel-villageois" class="night-role-panel villageois-panel parchment">
+            <div class="night-wait-stars" aria-hidden="true"></div>
+            <div class="night-wait">
+              <span class="night-wait-moon" aria-hidden="true">🌙</span>
+              <p class="night-wait-title">Le village s'endort…</p>
+              <p id="night-whisper" class="night-whisper"></p>
+              <p id="night-wait-count" class="night-wait-count">La nuit dure encore · 45 s</p>
+            </div>
+          </div>
+
+        </section>
+      </section>
+
+      <!-- ------------------ Colonne droite : Place du village (discussion) ------------------ -->
+      <aside class="order-2 xl:order-2 xl:col-span-4 space-y-5">
+
+        <!-- ------------------ Place du village : discussion publique ------------------ -->
+        <section class="parchment p-4 sm:p-5" aria-label="Discussion publique du village">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-gold-dark text-sm">✦</span>
+              <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
+                Place du village
+              </h2>
+            </div>
+            <span class="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-ink-soft/70">
+              <span class="w-1.5 h-1.5 rounded-full bg-blood"></span>
+              Discussion publique
+            </span>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <!-- Fil des échanges -->
+          <div id="chat-feed"
+               class="chat-feed relative z-10 space-y-3 max-h-[320px] sm:max-h-[360px] xl:max-h-[640px] overflow-y-auto pr-1.5">
+            <!-- Rempli en direct par static/game/live.js -->
+          </div>
+
+          <!-- Prendre la parole -->
+          <form id="chat-form" class="mt-4 flex gap-2" autocomplete="off">
+            <input id="chat-input"
+                   type="text"
+                   maxlength="300"
+                   placeholder="Prenez la parole devant le village..."
+                   class="chat-input relative z-10 min-w-0 flex-1 rounded-sm border border-ink/30 bg-white/40 px-3 py-2 text-[15px] text-ink placeholder-ink-soft/50 font-body">
+            <button type="submit" class="chat-send relative z-10 flex-shrink-0 rounded-sm px-4 py-2 text-[12px]">
+              Parler
+            </button>
+          </form>
+
+          <p class="mt-3 text-[12.5px] italic leading-snug text-ink-soft/70">
+            ✦ La place est ouverte le jour ; elle se ferme à la tombée de la nuit.
+          </p>
+        </section>
+      </aside>
+
+      <!-- ---------------------- Colonne basse droite : votre carte ---------------------- -->
+      <aside class="order-4 xl:order-4 xl:col-span-6 space-y-5">
+
+        <section class="parchment p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-gold-dark text-sm">✦</span>
+              <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-ink">
+                Votre carte
+              </h2>
+            </div>
+            <span class="wax-seal wax-seal-sm rotate-[7deg]">SECRET</span>
+          </div>
+          <div class="gold-rule my-3"></div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 flex-shrink-0 grid place-items-center rounded-full text-3xl bg-wood-800 border-2 border-gold shadow-lg">
+              {{ human.avatar }}
+            </div>
+            <div>
+              <p class="font-display text-[12px] uppercase tracking-[0.20em] text-ink-soft/80">Votre rôle</p>
+              <p class="font-display text-xl font-bold text-blood leading-tight">{{ human.role }}</p>
+            </div>
+          </div>
+
+          <p class="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+            {{ human.role_description }}
+          </p>
+
+          {% if night.role_key == 'sorciere' %}
+          <div class="mt-3 grid gap-2">
+            <div id="fiole-life" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+              <span class="flex items-center gap-2 text-[14.5px] text-ink"><span>🧪</span> Potion de vie</span>
+              <span class="font-display text-[11px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+            </div>
+            <div id="fiole-death" class="flex items-center justify-between gap-2 rounded-sm border border-ink/20 bg-white/20 px-3 py-2">
+              <span class="flex items-center gap-2 text-[14.5px] text-ink"><span>☠️</span> Potion de mort</span>
+              <span class="font-display text-[11px] uppercase tracking-[0.12em] text-ink-soft">1 fiole</span>
+            </div>
+          </div>
+          {% endif %}
+
+          <p class="mt-3 text-[13px] italic leading-snug text-ink-soft/70">
+            Gardez votre rôle secret : les autres habitants ne voient que votre nom.
+          </p>
+        </section>
+
+        <section class="wood-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="font-display text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-gold-light">
+              Le plateau
+            </h2>
+            <span class="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-parchment/60">
+              <span class="w-1.5 h-1.5 rounded-full bg-gold-light"></span>
+              <span id="board-status">{{ board.status }}</span>
+            </span>
+          </div>
+          <div class="gold-rule my-3 opacity-60"></div>
+
+          <dl class="space-y-2.5 text-[14.5px]">
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Village</dt>
+              <dd class="font-display text-parchment-light">{{ board.village }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Habitants</dt>
+              <dd class="font-display text-parchment-light">{{ board.player_count }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+              <dt class="text-parchment/55">Loups-Garous</dt>
+              <dd class="font-display text-parchment-light">2</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-parchment/55">Édition</dt>
+              <dd class="font-display text-parchment-light">{{ board.edition }}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-4 space-y-2 text-[14px] text-parchment/70">
+            <p><span class="font-semibold text-gold-light">Le village</span> doit éliminer tous les Loups-Garous.</p>
+            <p><span class="font-semibold text-rose-300/90">Les loups</span> doivent dévorer les habitants jusqu’à être majoritaires.</p>
+          </div>
+
+          <p class="mt-4 border-t border-white/10 pt-3 text-[12.5px] italic leading-snug text-parchment/40">
+            La partie avance d’elle-même : chaque phase se termine quand tout le monde a joué, ou au bout du temps imparti.
+          </p>
+        </section>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!--  MODALES NOCTURNES : vision de la Voyante & fioles de la Sorcière      -->
+  <!-- ===================================================================== -->
+
+  <!-- Modale : choix de la cible de la Voyante + révélation immédiate -->
+  <div id="seer-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="seer-modal-title">
+    <div class="night-modal-card">
+      <h3 id="seer-modal-title" class="night-modal-title">🔮 Le regard de la Voyante</h3>
+      <p class="night-modal-desc">Désignez l'habitant dont vous percerez le secret… la révélation sera immédiate.</p>
+
+      <div id="seer-targets" class="night-target-grid"></div>
+
+      <div id="seer-reveal-zone" class="reveal-zone" hidden>
+        <div id="seer-reveal-card" class="reveal-card">
+          <div class="reveal-face reveal-face-front">
+            <span id="seer-reveal-icon" class="reveal-icon"></span>
+            <p id="seer-reveal-name" class="reveal-name"></p>
+            <p id="seer-reveal-role" class="reveal-role"></p>
+            <p id="seer-reveal-quote" class="reveal-quote"></p>
+          </div>
+          <div class="reveal-face reveal-face-back">
+            <span class="reveal-icon" aria-hidden="true">❔</span>
+            <p class="reveal-name">Secret scellé</p>
+            <p class="reveal-quote">Le rôle ne se dévoile qu'à la nuit.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="night-modal-actions">
+        <button type="button" id="seer-scrutinize-btn" class="night-btn" disabled>Sonder l'âme</button>
+        <button type="button" id="seer-close-btn" class="night-ghost-btn">Replier l'œil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : potion de vie de la Sorcière (sauvetage de la victime) -->
+  <div id="witch-life-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="witch-life-modal-title">
+    <div class="night-modal-card">
+      <h3 id="witch-life-modal-title" class="night-modal-title">🧪 La potion de vie</h3>
+      <p class="night-modal-desc">Une seule goutte suffit : la victime des loups se relèvera au point du jour.</p>
+
+      <p id="witch-life-target-label" class="mt-3 flex items-center gap-3 rounded-sm border border-ink/20 bg-white/35 px-3 py-2.5 text-[15px]">
+        <span id="witch-life-target-avatar" class="w-9 h-9 flex-shrink-0 grid place-items-center rounded-full text-base bg-wood-800 border border-gold/60"></span>
+        <span id="witch-life-target-text" class="flex-1 min-w-0"></span>
+      </p>
+
+      <div class="night-modal-actions">
+        <button type="button" id="witch-life-confirm-btn" class="night-btn-life">Sauver la victime</button>
+        <button type="button" id="witch-life-close-btn" class="night-ghost-btn">Reboucher la fiole</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : potion de mort de la Sorcière (choix de la cible) -->
+  <div id="witch-death-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="witch-death-modal-title">
+    <div class="night-modal-card">
+      <h3 id="witch-death-modal-title" class="night-modal-title">☠️ La potion de mort</h3>
+      <p class="night-modal-desc">Versez votre poison dans le verre d'un suspect. La cible ne se réveillera pas.</p>
+
+      <div id="witch-death-targets" class="night-target-grid"></div>
+
+      <div class="night-modal-actions">
+        <button type="button" id="witch-death-confirm-btn" class="night-btn-death" disabled>Verser le poison</button>
+        <button type="button" id="witch-death-close-btn" class="night-ghost-btn">Repousser la fiole</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : avertissement avant d'abandonner une partie en cours -->
+  <div id="new-game-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="new-game-title">
+    <div class="night-modal-card">
+      <h3 id="new-game-title" class="night-modal-title">⚠️ Abandonner la partie ?</h3>
+      <p id="new-game-text" class="night-modal-desc">
+        Une partie est en cours. Si vous en commencez une nouvelle, celle-ci sera abandonnée
+        et ne pourra pas être reprise.
+      </p>
+      <div class="night-modal-actions">
+        <button type="button" id="new-game-confirm-btn" class="night-btn-death">Abandonner et recommencer</button>
+        <button type="button" id="new-game-cancel-btn" class="night-ghost-btn">Continuer la partie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : fin de partie -->
+  <div id="game-over-modal" class="night-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+    <div class="night-modal-card">
+      <h3 id="game-over-title" class="night-modal-title">🏁 Fin de partie</h3>
+      <p id="game-over-text" class="night-modal-desc"></p>
+      <ul id="game-over-roles" class="game-over-roles"></ul>
+      <div class="night-modal-actions">
+        <form method="post" action="{% url 'game:leave_game' %}">
+          {% csrf_token %}
+          <button type="submit" class="night-btn">Nouvelle partie</button>
+        </form>
+        <button type="button" id="game-over-close-btn" class="night-ghost-btn">Revoir le plateau</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!--  PIED DE PAGE                                                         -->
+  <!-- ===================================================================== -->
+  <footer class="relative z-10 border-t border-gold/20 py-4 text-center">
+    <p class="font-display text-[11px] uppercase tracking-[0.34em] text-gold-light/50">
+      Thiercelieux · Édition Classique
+    </p>
+    <p class="mt-1 text-[13px] italic text-parchment/35">« La nuit tombe sur le village... »</p>
+  </footer>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<link rel="stylesheet" href="{% static 'game/live.css' %}">
+<script src="{% static 'game/live.js' %}" defer></script>
+{% endblock %}
